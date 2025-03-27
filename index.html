@@ -1,174 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RAG Simulator MVP (Ease-Out + Keys)</title>
     <style>
-        body {
-            font-family: monospace;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0;
-            padding: 10px;
-            background-color: #f4f4f4;
-            overflow: hidden;
-        }
+      body {
+        font-family: monospace;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0;
+        padding: 10px;
+        background-color: #f4f4f4;
+        overflow: hidden;
+      }
 
-        #controls {
-            margin-bottom: 10px;
-            padding: 10px;
-            background-color: #e0e0e0;
-            border-radius: 5px;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-width: 850px;
-            /* Adjust width for new button */
-        }
+      #controls {
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #e0e0e0;
+        border-radius: 5px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 850px;
+        /* Adjust width for new button */
+      }
 
-        button {
-            padding: 6px 12px;
-            cursor: pointer;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            font-size: 0.9em;
-        }
+      button {
+        padding: 6px 12px;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        font-size: 0.9em;
+      }
 
-        button:hover {
-            background-color: #d0d0d0;
-        }
+      button:hover {
+        background-color: #d0d0d0;
+      }
 
-        #clearAllButton {
-            background-color: #ffdddd;
-            border-color: #ffaaaa;
-        }
+      #clearAllButton {
+        background-color: #ffdddd;
+        border-color: #ffaaaa;
+      }
 
-        #clearAllButton:hover {
-            background-color: #ffcccc;
-        }
+      #clearAllButton:hover {
+        background-color: #ffcccc;
+      }
 
-        #aboutButton {
-            background-color: #ddeeff;
-            border-color: #aaccee;
-        }
+      #aboutButton {
+        background-color: #ddeeff;
+        border-color: #aaccee;
+      }
 
-        #aboutButton:hover {
-            background-color: #cce5ff;
-        }
+      #aboutButton:hover {
+        background-color: #cce5ff;
+      }
 
-        canvas {
-            border: 1px solid black;
-            background-color: white;
-        }
+      canvas {
+        border: 1px solid black;
+        background-color: white;
+      }
 
-        #statusBar {
-            margin-top: 10px;
-            padding: 5px;
-            min-height: 20px;
-            width: 90%;
-            max-width: 800px;
-            text-align: center;
-            background-color: #eee;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            font-size: 0.9em;
-            color: #333;
-        }
+      #statusBar {
+        margin-top: 10px;
+        padding: 5px;
+        min-height: 20px;
+        width: 90%;
+        max-width: 800px;
+        text-align: center;
+        background-color: #eee;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        font-size: 0.9em;
+        color: #333;
+      }
 
-        /* Modal Styles */
-        .modal {
-            display: none;
-            /* Hidden by default */
-            position: fixed;
-            /* Stay in place */
-            z-index: 1000;
-            /* Sit on top */
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            /* Enable scroll if needed */
-            background-color: rgba(0, 0, 0, 0.5);
-            /* Black w/ opacity */
-            justify-content: center;
-            /* Center horizontally */
-            align-items: center;
-            /* Center vertically */
-        }
+      /* Modal Styles */
+      .modal {
+        display: none;
+        /* Hidden by default */
+        position: fixed;
+        /* Stay in place */
+        z-index: 1000;
+        /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        /* Enable scroll if needed */
+        background-color: rgba(0, 0, 0, 0.5);
+        /* Black w/ opacity */
+        justify-content: center;
+        /* Center horizontally */
+        align-items: center;
+        /* Center vertically */
+      }
 
-        .modal.show {
-            display: flex;
-            /* Use flex for centering */
-        }
+      .modal.show {
+        display: flex;
+        /* Use flex for centering */
+      }
 
-        .modal-content {
-            background-color: #fefefe;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #888;
-            border-radius: 5px;
-            width: 80%;
-            max-width: 500px;
-            position: relative;
-        }
+      .modal-content {
+        background-color: #fefefe;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #888;
+        border-radius: 5px;
+        width: 80%;
+        max-width: 500px;
+        position: relative;
+      }
 
-        .close-button {
-            color: #aaa;
-            position: absolute;
-            top: 5px;
-            right: 10px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+      .close-button {
+        color: #aaa;
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
 
-        .close-button:hover,
-        .close-button:focus {
-            color: black;
-            text-decoration: none;
-        }
+      .close-button:hover,
+      .close-button:focus {
+        color: black;
+        text-decoration: none;
+      }
 
-        .modal-content h2 {
-            margin-top: 0;
-        }
+      .modal-content h2 {
+        margin-top: 0;
+      }
 
-        .modal-content ul {
-            margin-top: 5px;
-            padding-left: 20px;
-        }
+      .modal-content ul {
+        margin-top: 5px;
+        padding-left: 20px;
+      }
 
-        .modal-content li {
-            margin-bottom: 5px;
-        }
+      .modal-content li {
+        margin-bottom: 5px;
+      }
 
-        .modal-content code {
-            background-color: #eee;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
+      .modal-content code {
+        background-color: #eee;
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-family: monospace;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <h1>RAG Simulator</h1>
 
     <div id="controls">
-        <button id="addProcess" title="Shortcut: P">Add Process</button>
-        <button id="addResource" title="Shortcut: R">Add Resource</button>
-        <button id="requestEdge" title="Shortcut: Q">Make Request (P->R)</button>
-        <button id="assignEdge" title="Shortcut: A">Make Assignment (R->P)</button>
-        <button id="removeEdge">Remove Edge</button>
-        <button id="removeNode" title="Shortcut: Delete/Backspace/X">Remove Node</button>
-        <button id="detectDeadlock" title="Shortcut: D">Detect Deadlock</button>
-        <button id="clearSelection" title="Shortcut: Escape">Clear Selection</button>
-        <button id="clearAllButton" title="Shortcut: C">Clear All</button>
-        <button id="aboutButton">About</button> <!-- Added About Button -->
+      <button id="addProcess" title="Shortcut: P">Add Process</button>
+      <button id="addResource" title="Shortcut: R">Add Resource</button>
+      <button id="requestEdge" title="Shortcut: Q">Make Request (P->R)</button>
+      <button id="assignEdge" title="Shortcut: A">
+        Make Assignment (R->P)
+      </button>
+      <button id="removeEdge">Remove Edge</button>
+      <button id="removeNode" title="Shortcut: Delete/Backspace/X">
+        Remove Node
+      </button>
+      <button id="detectDeadlock" title="Shortcut: D">Detect Deadlock</button>
+      <button id="clearSelection" title="Shortcut: Escape">
+        Clear Selection
+      </button>
+      <button id="clearAllButton" title="Shortcut: C">Clear All</button>
+      <button id="aboutButton">About</button>
+      <!-- Added About Button -->
     </div>
 
     <canvas id="ragCanvas" width="800" height="500"></canvas>
@@ -177,275 +183,750 @@
 
     <!-- About Modal Structure -->
     <div id="aboutModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" id="closeModalButton">×</span>
-            <h2>About RAG Simulator</h2>
-            <p>This is a simple simulator for visualizing Resource Allocation Graphs (RAGs).</p>
-            <ul>
-                <li>Add Process (<code>P</code>) and Resource (<code>R</code>) nodes.</li>
-                <li>Click nodes to select (up to two).</li>
-                <li>Drag nodes to reposition them.</li>
-                <li>Use buttons or shortcuts to create Request (<code>Q</code>) or Assignment (<code>A</code>) edges
-                    between selected P and R.</li>
-                <li>Remove selected nodes (<code>Delete</code>/<code>Backspace</code>/<code>X</code>) or edges (button).
-                </li>
-                <li>Detect deadlocks (cycles) with the button or <code>D</code> key.</li>
-                <li>Clear selection with <code>Escape</code> or the button.</li>
-                <li>Clear the entire canvas with <code>C</code> or the button (confirmation required).</li>
-            </ul>
-            <p><small>Version: MVP++ (HTML/JS)</small></p>
-        </div>
+      <div class="modal-content">
+        <span class="close-button" id="closeModalButton">×</span>
+        <h2>About RAG Simulator</h2>
+        <p>
+          This is a simple simulator for visualizing Resource Allocation Graphs
+          (RAGs).
+        </p>
+        <ul>
+          <li>
+            Add Process (<code>P</code>) and Resource (<code>R</code>) nodes.
+          </li>
+          <li>Click nodes to select (up to two).</li>
+          <li>Drag nodes to reposition them.</li>
+          <li>
+            Use buttons or shortcuts to create Request (<code>Q</code>) or
+            Assignment (<code>A</code>) edges between selected P and R.
+          </li>
+          <li>
+            Remove selected nodes
+            (<code>Delete</code>/<code>Backspace</code>/<code>X</code>) or edges
+            (button).
+          </li>
+          <li>
+            Detect deadlocks (cycles) with the button or <code>D</code> key.
+          </li>
+          <li>Clear selection with <code>Escape</code> or the button.</li>
+          <li>
+            Clear the entire canvas with <code>C</code> or the button
+            (confirmation required).
+          </li>
+        </ul>
+        <p><small>Version: MVP++ (HTML/JS)</small></p>
+      </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('ragCanvas');
-        const ctx = canvas.getContext('2d');
-        const statusBar = document.getElementById('statusBar');
-        const aboutModal = document.getElementById('aboutModal');
-        const aboutButton = document.getElementById('aboutButton');
-        const closeModalButton = document.getElementById('closeModalButton');
+      const canvas = document.getElementById("ragCanvas");
+      const ctx = canvas.getContext("2d");
+      const statusBar = document.getElementById("statusBar");
+      const aboutModal = document.getElementById("aboutModal");
+      const aboutButton = document.getElementById("aboutButton");
+      const closeModalButton = document.getElementById("closeModalButton");
 
+      // --- Constants --- (Same as before)
+      const PROCESS_COLOR = "lightblue";
+      const RESOURCE_COLOR = "lightcoral";
+      const REQUEST_EDGE_COLOR = "red";
+      const ASSIGN_EDGE_COLOR = "green";
+      const NODE_SELECTED_COLOR = "gold";
+      const NODE_STROKE_COLOR = "black";
+      const DEADLOCK_COLOR = "purple";
+      const TEXT_COLOR = "black";
+      const PROCESS_RADIUS = 25;
+      const RESOURCE_SIZE = 40;
+      const ARROW_SIZE = 8;
+      const GAP = 5;
+      const ANIMATION_DURATION = 400;
 
-        // --- Constants --- (Same as before)
-        const PROCESS_COLOR = 'lightblue';
-        const RESOURCE_COLOR = 'lightcoral';
-        const REQUEST_EDGE_COLOR = 'red';
-        const ASSIGN_EDGE_COLOR = 'green';
-        const NODE_SELECTED_COLOR = 'gold';
-        const NODE_STROKE_COLOR = 'black';
-        const DEADLOCK_COLOR = 'purple';
-        const TEXT_COLOR = 'black';
-        const PROCESS_RADIUS = 25;
-        const RESOURCE_SIZE = 40;
-        const ARROW_SIZE = 8;
-        const GAP = 5;
-        const ANIMATION_DURATION = 400;
+      // --- State --- (Same as before)
+      let nodes = [];
+      let edges = [];
+      let processCounter = 0;
+      let resourceCounter = 0;
+      let selectedNode1 = null;
+      let selectedNode2 = null;
+      let draggingNode = null;
+      let dragOffsetX = 0;
+      let dragOffsetY = 0;
+      let deadlockedNodes = new Set();
+      let animationFrameId = null;
 
-        // --- State --- (Same as before)
-        let nodes = [];
-        let edges = [];
-        let processCounter = 0;
-        let resourceCounter = 0;
-        let selectedNode1 = null;
-        let selectedNode2 = null;
-        let draggingNode = null;
-        let dragOffsetX = 0;
-        let dragOffsetY = 0;
-        let deadlockedNodes = new Set();
-        let animationFrameId = null;
-
-        // --- Utility Functions --- (Same as before)
-        function updateStatus(message) { statusBar.textContent = message; }
-        function getMousePos(canvas, evt) { /* ... */ const rect = canvas.getBoundingClientRect(); return { x: evt.clientX - rect.left, y: evt.clientY - rect.top }; }
-        function isPointInNode(node, x, y) { /* ... */ const scale = node.currentScale ?? 1.0; if (node.type === 'process') { const dx = x - node.x; const dy = y - node.y; return dx * dx + dy * dy <= Math.pow(PROCESS_RADIUS * scale, 2); } else { const halfSize = (RESOURCE_SIZE / 2) * scale; return x >= node.x - halfSize && x <= node.x + halfSize && y >= node.y - halfSize && y <= node.y + halfSize; } }
-        function getNodeAtPos(x, y) { /* ... */ for (let i = nodes.length - 1; i >= 0; i--) { if (isPointInNode(nodes[i], x, y) && (!nodes[i].isAnimating || nodes[i].currentScale > 0.8)) { return nodes[i]; } } return null; }
-        function findNodeById(nodeId) { /* ... */ return nodes.find(n => n.id === nodeId); }
-        function clearSelection() { /* ... */ selectedNode1 = null; selectedNode2 = null; updateStatus("Selection cleared."); ensureAnimationLoop(); }
-        function removeEdge(node1Id, node2Id) { /* ... */ let initialLength = edges.length; edges = edges.filter(edge => !(edge.from === node1Id && edge.to === node2Id) && !(edge.from === node2Id && edge.to === node1Id)); return edges.length < initialLength; }
-        function getEdgePoints(node1, node2) { /* ... */ const dx = node2.x - node1.x; const dy = node2.y - node1.y; const dist = Math.sqrt(dx * dx + dy * dy); if (dist === 0) return { start: { x: node1.x, y: node1.y }, end: { x: node2.x, y: node2.y } }; const unitX = dx / dist; const unitY = dy / dist; const node1Scale = node1.currentScale ?? 1.0; const node2Scale = node2.currentScale ?? 1.0; const startOffsetBase = node1.type === 'process' ? PROCESS_RADIUS * node1Scale : (RESOURCE_SIZE / 2) * node1Scale; const endOffsetBase = node2.type === 'process' ? PROCESS_RADIUS * node2Scale : (RESOURCE_SIZE / 2) * node2Scale; const startOffset = startOffsetBase + GAP; const endOffset = endOffsetBase + GAP; const totalOffset = startOffset + endOffset; const effectiveStartOffset = dist > totalOffset ? startOffset : (dist * (startOffset / totalOffset || 0.5)); const effectiveEndOffset = dist > totalOffset ? endOffset : (dist * (endOffset / totalOffset || 0.5)); return { start: { x: node1.x + unitX * effectiveStartOffset, y: node1.y + unitY * effectiveStartOffset }, end: { x: node2.x - unitX * effectiveEndOffset, y: node2.y - unitY * effectiveEndOffset } }; }
-        function drawArrow(ctx, fromX, fromY, toX, toY, color) { /* ... */ if (Math.abs(fromX - toX) < 0.1 && Math.abs(fromY - toY) < 0.1) return; const headlen = ARROW_SIZE; const dx = toX - fromX; const dy = toY - fromY; const angle = Math.atan2(dy, dx); ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(fromX, fromY); ctx.lineTo(toX, toY); ctx.moveTo(toX, toY); ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6)); ctx.moveTo(toX, toY); ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6)); ctx.stroke(); ctx.restore(); }
-
-        // --- Animation & Drawing Functions --- (Same as before)
-        function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
-        function draw() { /* ... */ ctx.clearRect(0, 0, canvas.width, canvas.height); const now = performance.now(); let needsAnotherFrame = false; nodes.forEach(node => { if (!node.isAnimating) { node.currentScale = 1.0; node.currentAlpha = 1.0; node.currentBlur = 0.0; return; } needsAnotherFrame = true; const elapsed = now - node.animationStart; let progress = Math.min(elapsed / ANIMATION_DURATION, 1); let easedProgress = easeOutCubic(progress); node.currentScale = easedProgress; node.currentAlpha = easedProgress; node.currentBlur = (1 - easedProgress) * 5; if (progress >= 1) { node.isAnimating = false; node.currentScale = 1.0; node.currentAlpha = 1.0; node.currentBlur = 0.0; } }); edges.forEach(edge => { const node1 = findNodeById(edge.from); const node2 = findNodeById(edge.to); if (!node1 || !node2) return; const alpha1 = node1.currentAlpha ?? 1.0; const alpha2 = node2.currentAlpha ?? 1.0; const edgeAlpha = Math.min(alpha1, alpha2); if (edgeAlpha <= 0.01) return; ctx.save(); ctx.globalAlpha = edgeAlpha; const points = getEdgePoints(node1, node2); const color = edge.type === 'request' ? REQUEST_EDGE_COLOR : ASSIGN_EDGE_COLOR; drawArrow(ctx, points.start.x, points.start.y, points.end.x, points.end.y, color); ctx.restore(); }); nodes.forEach(node => { ctx.save(); const scale = node.currentScale; const alpha = node.currentAlpha; const blur = node.currentBlur; if (alpha <= 0.01 || scale <= 0.01) { ctx.restore(); return; } ctx.globalAlpha = alpha; if (blur > 0.1) { ctx.filter = `blur(${blur}px)`; } ctx.fillStyle = node.type === 'process' ? PROCESS_COLOR : RESOURCE_COLOR; ctx.strokeStyle = NODE_STROKE_COLOR; ctx.lineWidth = 1; let isSelected = node === selectedNode1 || node === selectedNode2; let isDeadlocked = deadlockedNodes.has(node.id); if (isDeadlocked) { ctx.strokeStyle = DEADLOCK_COLOR; ctx.lineWidth = 4; needsAnotherFrame = true; } else if (isSelected) { ctx.strokeStyle = NODE_SELECTED_COLOR; ctx.lineWidth = 3; needsAnotherFrame = true; } if (node.type === 'process') { const currentRadius = PROCESS_RADIUS * scale; ctx.beginPath(); ctx.arc(node.x, node.y, currentRadius, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); } else { const currentSize = RESOURCE_SIZE * scale; const halfSize = currentSize / 2; ctx.fillRect(node.x - halfSize, node.y - halfSize, currentSize, currentSize); ctx.strokeRect(node.x - halfSize, node.y - halfSize, currentSize, currentSize); } if (scale > 0.6 && alpha > 0.6) { ctx.filter = 'none'; ctx.fillStyle = TEXT_COLOR; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `${Math.max(8, Math.round(14 * Math.min(scale, 1)))}px sans-serif`; ctx.globalAlpha = Math.min(1, alpha * 1.5); ctx.fillText(node.id, node.x, node.y); } ctx.restore(); }); if (needsAnotherFrame || draggingNode) { animationFrameId = requestAnimationFrame(draw); } else { animationFrameId = null; } }
-        function ensureAnimationLoop() { if (!animationFrameId) { animationFrameId = requestAnimationFrame(draw); } }
-
-        // --- Deadlock Detection (DFS Algorithm) --- (Same as before)
-        function detectDeadlock() { /* ... */ const adj = new Map(); const allNodeIds = nodes.map(n => n.id); edges.forEach(edge => { if (!adj.has(edge.from)) adj.set(edge.from, []); adj.get(edge.from).push(edge.to); }); const path = []; const visited = new Set(); const recursionStack = new Set(); const previousDeadlocked = new Set(deadlockedNodes); deadlockedNodes.clear(); function detectCycleUtil(nodeId) { visited.add(nodeId); recursionStack.add(nodeId); path.push(nodeId); const neighbors = adj.get(nodeId) || []; for (const neighborId of neighbors) { if (!visited.has(neighborId)) { const cycleFound = detectCycleUtil(neighborId); if (cycleFound) return cycleFound; } else if (recursionStack.has(neighborId)) { const cycleStartIndex = path.indexOf(neighborId); const cycle = path.slice(cycleStartIndex); cycle.forEach(id => deadlockedNodes.add(id)); return cycle; } } path.pop(); recursionStack.delete(nodeId); return null; } let cycle = null; for (const nodeId of allNodeIds) { if (!visited.has(nodeId)) { cycle = detectCycleUtil(nodeId); if (cycle) break; } } let statusChanged = deadlockedNodes.size !== previousDeadlocked.size || ![...deadlockedNodes].every(id => previousDeadlocked.has(id)); if (cycle) { updateStatus(`DEADLOCK DETECTED involving: ${cycle.join(' -> ')} -> ${cycle[0]}`); } else { updateStatus(previousDeadlocked.size > 0 ? "Deadlock resolved or none detected." : "No deadlock detected."); } if (statusChanged) { ensureAnimationLoop(); } return cycle; }
-
-        // --- Event Handlers --- (Mouse handlers same as before)
-        canvas.addEventListener('mousedown', (e) => { /* ... */ const mousePos = getMousePos(canvas, e); const clickedNode = getNodeAtPos(mousePos.x, mousePos.y); if (clickedNode) { draggingNode = clickedNode; dragOffsetX = mousePos.x - clickedNode.x; dragOffsetY = mousePos.y - clickedNode.y; if (!selectedNode1) { selectedNode1 = clickedNode; updateStatus(`Selected ${clickedNode.id}.`); } else if (selectedNode1 === clickedNode) { /* no change */ } else if (!selectedNode2) { selectedNode2 = clickedNode; updateStatus(`Selected ${selectedNode1.id} and ${selectedNode2.id}.`); } else { selectedNode1 = clickedNode; selectedNode2 = null; updateStatus(`Selected ${clickedNode.id}.`); } } ensureAnimationLoop(); });
-        canvas.addEventListener('mousemove', (e) => { /* ... */ if (draggingNode) { const mousePos = getMousePos(canvas, e); draggingNode.x = mousePos.x - dragOffsetX; draggingNode.y = mousePos.y - dragOffsetY; ensureAnimationLoop(); } });
-        canvas.addEventListener('mouseup', (e) => { /* ... */ draggingNode = null; ensureAnimationLoop(); });
-        canvas.addEventListener('mouseout', (e) => { /* ... */ if (draggingNode) { draggingNode = null; ensureAnimationLoop(); } });
-
-        // --- Button Action Functions --- (Mostly same, added status update variations)
-        function addNodeAction(type, source = 'Button') {
-            let newNode;
-            const spawnX = Math.random() * (canvas.width - 100) + 50;
-            const spawnY = Math.random() * (canvas.height - 100) + 50;
-            if (type === 'process') { processCounter++; newNode = { id: `P${processCounter}`, type: 'process', x: spawnX, y: spawnY }; }
-            else { resourceCounter++; newNode = { id: `R${resourceCounter}`, type: 'resource', x: spawnX, y: spawnY }; }
-            newNode.isAnimating = true; newNode.animationStart = performance.now(); newNode.currentScale = 0; newNode.currentAlpha = 0; newNode.currentBlur = 5;
-            nodes.push(newNode);
-            updateStatus(`Added ${newNode.type} ${newNode.id}${source === 'Key' ? ` (${type === 'process' ? 'P' : 'R'} key)` : ''}`);
-            ensureAnimationLoop();
+      // --- Utility Functions --- (Same as before)
+      function updateStatus(message) {
+        statusBar.textContent = message;
+      }
+      function getMousePos(canvas, evt) {
+        /* ... */ const rect = canvas.getBoundingClientRect();
+        return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
+      }
+      function isPointInNode(node, x, y) {
+        /* ... */ const scale = node.currentScale ?? 1.0;
+        if (node.type === "process") {
+          const dx = x - node.x;
+          const dy = y - node.y;
+          return dx * dx + dy * dy <= Math.pow(PROCESS_RADIUS * scale, 2);
+        } else {
+          const halfSize = (RESOURCE_SIZE / 2) * scale;
+          return (
+            x >= node.x - halfSize &&
+            x <= node.x + halfSize &&
+            y >= node.y - halfSize &&
+            y <= node.y + halfSize
+          );
         }
-
-        function requestEdgeAction(source = 'Button') {
-            if (!selectedNode1 || !selectedNode2) { updateStatus("Select one Process and one Resource first."); return false; }
-            let pNode = null, rNode = null;
-            if (selectedNode1.type === 'process' && selectedNode2.type === 'resource') { pNode = selectedNode1; rNode = selectedNode2; }
-            else if (selectedNode1.type === 'resource' && selectedNode2.type === 'process') { pNode = selectedNode2; rNode = selectedNode1; }
-            else { updateStatus("Select one Process and one Resource to make a request."); return false; }
-            removeEdge(rNode.id, pNode.id);
-            const exists = edges.some(edge => edge.from === pNode.id && edge.to === rNode.id && edge.type === 'request');
-            if (!exists) { edges.push({ from: pNode.id, to: rNode.id, type: 'request' }); updateStatus(`Added request edge: ${pNode.id} -> ${rNode.id}${source === 'Key' ? ' (Q key)' : ''}`); }
-            else { updateStatus(`Request edge ${pNode.id} -> ${rNode.id} already exists.`); }
-            clearSelection();
-            ensureAnimationLoop();
-            return true;
+      }
+      function getNodeAtPos(x, y) {
+        /* ... */ for (let i = nodes.length - 1; i >= 0; i--) {
+          if (
+            isPointInNode(nodes[i], x, y) &&
+            (!nodes[i].isAnimating || nodes[i].currentScale > 0.8)
+          ) {
+            return nodes[i];
+          }
         }
-
-        function assignEdgeAction(source = 'Button') {
-            if (!selectedNode1 || !selectedNode2) { updateStatus("Select one Process and one Resource first."); return false; }
-            let pNode = null, rNode = null;
-            if (selectedNode1.type === 'process' && selectedNode2.type === 'resource') { pNode = selectedNode1; rNode = selectedNode2; }
-            else if (selectedNode1.type === 'resource' && selectedNode2.type === 'process') { pNode = selectedNode2; rNode = selectedNode1; }
-            else { updateStatus("Select one Process and one Resource to make an assignment."); return false; }
-            removeEdge(pNode.id, rNode.id);
-            const exists = edges.some(edge => edge.from === rNode.id && edge.to === pNode.id && edge.type === 'assignment');
-            if (!exists) { edges.push({ from: rNode.id, to: pNode.id, type: 'assignment' }); updateStatus(`Added assignment edge: ${rNode.id} -> ${pNode.id}${source === 'Key' ? ' (A key)' : ''}`); }
-            else { updateStatus(`Assignment edge ${rNode.id} -> ${pNode.id} already exists.`); }
-            clearSelection();
-            ensureAnimationLoop();
-            return true;
-        }
-
-        function removeEdgeAction() { // No easy shortcut assigned for simplicity
-            if (!selectedNode1 || !selectedNode2) { updateStatus("Select two nodes connected by an edge to remove."); return false; }
-            if (removeEdge(selectedNode1.id, selectedNode2.id)) { updateStatus(`Removed edge between ${selectedNode1.id} and ${selectedNode2.id}.`); }
-            else { updateStatus(`No edge found between ${selectedNode1.id} and ${selectedNode2.id}.`); }
-            clearSelection();
-            ensureAnimationLoop();
-            return true;
-        }
-
-        function removeNodeAction(source = 'Button') {
-            if (!selectedNode1 || selectedNode2) { updateStatus("Select exactly one node to remove."); return false; }
-            const nodeId = selectedNode1.id;
-            nodes = nodes.filter(n => n.id !== nodeId);
-            edges = edges.filter(edge => edge.from !== nodeId && edge.to !== nodeId);
-            deadlockedNodes.delete(nodeId);
-            updateStatus(`Removed node ${nodeId}${source === 'Key' ? ' (Del/Bksp/X key)' : ''}`);
-            clearSelection(); // Also sets selectedNode1 = null
-            ensureAnimationLoop();
-            return true;
-        }
-
-        function clearAllAction(source = 'Button') {
-            // Confirmation handled by caller (keyboard or button)
-            nodes = [];
-            edges = [];
-            processCounter = 0;
-            resourceCounter = 0;
-            selectedNode1 = null;
-            selectedNode2 = null;
-            deadlockedNodes.clear();
-            draggingNode = null;
-            updateStatus(`Canvas cleared${source === 'Key' ? ' (C key)' : ''}.`);
-            ensureAnimationLoop();
-            return true;
-        }
-
-        function detectDeadlockAction(source = 'Button') {
-            detectDeadlock(); // The function already updates status
-            if (source === 'Key') {
-                // Optionally add '(D key)' to the status if needed, but might overwrite deadlock message
-            }
-            return true;
-        }
-
-        // --- Attach Button Listeners ---
-        document.getElementById('addProcess').addEventListener('click', () => addNodeAction('process', 'Button'));
-        document.getElementById('addResource').addEventListener('click', () => addNodeAction('resource', 'Button'));
-        document.getElementById('requestEdge').addEventListener('click', () => requestEdgeAction('Button'));
-        document.getElementById('assignEdge').addEventListener('click', () => assignEdgeAction('Button'));
-        document.getElementById('removeEdge').addEventListener('click', removeEdgeAction); // No key source needed
-        document.getElementById('removeNode').addEventListener('click', () => removeNodeAction('Button'));
-        document.getElementById('detectDeadlock').addEventListener('click', () => detectDeadlockAction('Button'));
-        document.getElementById('clearSelection').addEventListener('click', clearSelection); // No key source needed
-        document.getElementById('clearAllButton').addEventListener('click', () => {
-            if (confirm("Are you sure you want to clear everything?")) {
-                clearAllAction('Button');
-            }
-        });
-
-
-        // --- Keyboard Shortcut Handler ---
-        function handleKeyPress(event) {
-            // Don't interfere if user is typing in a text field (if any were added later)
-            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
-                return;
-            }
-            // Don't interfere if modal is open, except for Escape to close it
-            if (aboutModal.classList.contains('show')) {
-                if (event.key === 'Escape') {
-                    closeAboutModal();
-                    event.preventDefault();
-                }
-                return;
-            }
-
-            let actionHandled = false;
-            switch (event.key.toLowerCase()) {
-                case 'p':
-                    addNodeAction('process', 'Key');
-                    actionHandled = true;
-                    break;
-                case 'r':
-                    addNodeAction('resource', 'Key');
-                    actionHandled = true;
-                    break;
-                case 'q':
-                    actionHandled = requestEdgeAction('Key'); // Check selection inside
-                    break;
-                case 'a':
-                    actionHandled = assignEdgeAction('Key'); // Check selection inside
-                    break;
-                case 'delete':
-                case 'backspace':
-                case 'x':
-                    actionHandled = removeNodeAction('Key'); // Check selection inside
-                    break;
-                case 'd':
-                    actionHandled = detectDeadlockAction('Key');
-                    break;
-                case 'escape':
-                    clearSelection();
-                    actionHandled = true;
-                    break;
-                case 'c':
-                    if (confirm("Are you sure you want to clear everything? (C key)")) {
-                        actionHandled = clearAllAction('Key');
-                    } else {
-                        actionHandled = true; // Prevent default if confirm dialog appeared
-                    }
-                    break;
-            }
-
-            if (actionHandled) {
-                event.preventDefault(); // Prevent default browser action (e.g., backspace navigation)
-            }
-        }
-        window.addEventListener('keydown', handleKeyPress);
-
-
-        // --- About Modal Logic ---
-        function openAboutModal() {
-            aboutModal.classList.add('show');
-            ensureAnimationLoop(); // May need redraw if modal affects layout/focus
-        }
-        function closeAboutModal() {
-            aboutModal.classList.remove('show');
-            ensureAnimationLoop();
-        }
-        aboutButton.addEventListener('click', openAboutModal);
-        closeModalButton.addEventListener('click', closeAboutModal);
-        // Close modal if clicking outside the content area
-        aboutModal.addEventListener('click', (event) => {
-            if (event.target === aboutModal) { // Check if click is on the modal background itself
-                closeAboutModal();
-            }
-        });
-
-
-        // --- Initial Setup ---
-        updateStatus("Canvas initialized. Add nodes or interact. (See About for shortcuts)");
+        return null;
+      }
+      function findNodeById(nodeId) {
+        /* ... */ return nodes.find((n) => n.id === nodeId);
+      }
+      function clearSelection() {
+        /* ... */ selectedNode1 = null;
+        selectedNode2 = null;
+        updateStatus("Selection cleared.");
         ensureAnimationLoop();
+      }
+      function removeEdge(node1Id, node2Id) {
+        /* ... */ let initialLength = edges.length;
+        edges = edges.filter(
+          (edge) =>
+            !(edge.from === node1Id && edge.to === node2Id) &&
+            !(edge.from === node2Id && edge.to === node1Id)
+        );
+        return edges.length < initialLength;
+      }
+      function getEdgePoints(node1, node2) {
+        /* ... */ const dx = node2.x - node1.x;
+        const dy = node2.y - node1.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist === 0)
+          return {
+            start: { x: node1.x, y: node1.y },
+            end: { x: node2.x, y: node2.y },
+          };
+        const unitX = dx / dist;
+        const unitY = dy / dist;
+        const node1Scale = node1.currentScale ?? 1.0;
+        const node2Scale = node2.currentScale ?? 1.0;
+        const startOffsetBase =
+          node1.type === "process"
+            ? PROCESS_RADIUS * node1Scale
+            : (RESOURCE_SIZE / 2) * node1Scale;
+        const endOffsetBase =
+          node2.type === "process"
+            ? PROCESS_RADIUS * node2Scale
+            : (RESOURCE_SIZE / 2) * node2Scale;
+        const startOffset = startOffsetBase + GAP;
+        const endOffset = endOffsetBase + GAP;
+        const totalOffset = startOffset + endOffset;
+        const effectiveStartOffset =
+          dist > totalOffset
+            ? startOffset
+            : dist * (startOffset / totalOffset || 0.5);
+        const effectiveEndOffset =
+          dist > totalOffset
+            ? endOffset
+            : dist * (endOffset / totalOffset || 0.5);
+        return {
+          start: {
+            x: node1.x + unitX * effectiveStartOffset,
+            y: node1.y + unitY * effectiveStartOffset,
+          },
+          end: {
+            x: node2.x - unitX * effectiveEndOffset,
+            y: node2.y - unitY * effectiveEndOffset,
+          },
+        };
+      }
+      function drawArrow(ctx, fromX, fromY, toX, toY, color) {
+        /* ... */ if (
+          Math.abs(fromX - toX) < 0.1 &&
+          Math.abs(fromY - toY) < 0.1
+        )
+          return;
+        const headlen = ARROW_SIZE;
+        const dx = toX - fromX;
+        const dy = toY - fromY;
+        const angle = Math.atan2(dy, dx);
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(fromX, fromY);
+        ctx.lineTo(toX, toY);
+        ctx.moveTo(toX, toY);
+        ctx.lineTo(
+          toX - headlen * Math.cos(angle - Math.PI / 6),
+          toY - headlen * Math.sin(angle - Math.PI / 6)
+        );
+        ctx.moveTo(toX, toY);
+        ctx.lineTo(
+          toX - headlen * Math.cos(angle + Math.PI / 6),
+          toY - headlen * Math.sin(angle + Math.PI / 6)
+        );
+        ctx.stroke();
+        ctx.restore();
+      }
 
+      // --- Animation & Drawing Functions --- (Same as before)
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+      function draw() {
+        /* ... */ ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const now = performance.now();
+        let needsAnotherFrame = false;
+        nodes.forEach((node) => {
+          if (!node.isAnimating) {
+            node.currentScale = 1.0;
+            node.currentAlpha = 1.0;
+            node.currentBlur = 0.0;
+            return;
+          }
+          needsAnotherFrame = true;
+          const elapsed = now - node.animationStart;
+          let progress = Math.min(elapsed / ANIMATION_DURATION, 1);
+          let easedProgress = easeOutCubic(progress);
+          node.currentScale = easedProgress;
+          node.currentAlpha = easedProgress;
+          node.currentBlur = (1 - easedProgress) * 5;
+          if (progress >= 1) {
+            node.isAnimating = false;
+            node.currentScale = 1.0;
+            node.currentAlpha = 1.0;
+            node.currentBlur = 0.0;
+          }
+        });
+        edges.forEach((edge) => {
+          const node1 = findNodeById(edge.from);
+          const node2 = findNodeById(edge.to);
+          if (!node1 || !node2) return;
+          const alpha1 = node1.currentAlpha ?? 1.0;
+          const alpha2 = node2.currentAlpha ?? 1.0;
+          const edgeAlpha = Math.min(alpha1, alpha2);
+          if (edgeAlpha <= 0.01) return;
+          ctx.save();
+          ctx.globalAlpha = edgeAlpha;
+          const points = getEdgePoints(node1, node2);
+          const color =
+            edge.type === "request" ? REQUEST_EDGE_COLOR : ASSIGN_EDGE_COLOR;
+          drawArrow(
+            ctx,
+            points.start.x,
+            points.start.y,
+            points.end.x,
+            points.end.y,
+            color
+          );
+          ctx.restore();
+        });
+        nodes.forEach((node) => {
+          ctx.save();
+          const scale = node.currentScale;
+          const alpha = node.currentAlpha;
+          const blur = node.currentBlur;
+          if (alpha <= 0.01 || scale <= 0.01) {
+            ctx.restore();
+            return;
+          }
+          ctx.globalAlpha = alpha;
+          if (blur > 0.1) {
+            ctx.filter = `blur(${blur}px)`;
+          }
+          ctx.fillStyle =
+            node.type === "process" ? PROCESS_COLOR : RESOURCE_COLOR;
+          ctx.strokeStyle = NODE_STROKE_COLOR;
+          ctx.lineWidth = 1;
+          let isSelected = node === selectedNode1 || node === selectedNode2;
+          let isDeadlocked = deadlockedNodes.has(node.id);
+          if (isDeadlocked) {
+            ctx.strokeStyle = DEADLOCK_COLOR;
+            ctx.lineWidth = 4;
+            needsAnotherFrame = true;
+          } else if (isSelected) {
+            ctx.strokeStyle = NODE_SELECTED_COLOR;
+            ctx.lineWidth = 3;
+            needsAnotherFrame = true;
+          }
+          if (node.type === "process") {
+            const currentRadius = PROCESS_RADIUS * scale;
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, currentRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+          } else {
+            const currentSize = RESOURCE_SIZE * scale;
+            const halfSize = currentSize / 2;
+            ctx.fillRect(
+              node.x - halfSize,
+              node.y - halfSize,
+              currentSize,
+              currentSize
+            );
+            ctx.strokeRect(
+              node.x - halfSize,
+              node.y - halfSize,
+              currentSize,
+              currentSize
+            );
+          }
+          if (scale > 0.6 && alpha > 0.6) {
+            ctx.filter = "none";
+            ctx.fillStyle = TEXT_COLOR;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.font = `${Math.max(
+              8,
+              Math.round(14 * Math.min(scale, 1))
+            )}px sans-serif`;
+            ctx.globalAlpha = Math.min(1, alpha * 1.5);
+            ctx.fillText(node.id, node.x, node.y);
+          }
+          ctx.restore();
+        });
+        if (needsAnotherFrame || draggingNode) {
+          animationFrameId = requestAnimationFrame(draw);
+        } else {
+          animationFrameId = null;
+        }
+      }
+      function ensureAnimationLoop() {
+        if (!animationFrameId) {
+          animationFrameId = requestAnimationFrame(draw);
+        }
+      }
+
+      // --- Deadlock Detection (DFS Algorithm) --- (Same as before)
+      function detectDeadlock() {
+        /* ... */ const adj = new Map();
+        const allNodeIds = nodes.map((n) => n.id);
+        edges.forEach((edge) => {
+          if (!adj.has(edge.from)) adj.set(edge.from, []);
+          adj.get(edge.from).push(edge.to);
+        });
+        const path = [];
+        const visited = new Set();
+        const recursionStack = new Set();
+        const previousDeadlocked = new Set(deadlockedNodes);
+        deadlockedNodes.clear();
+        function detectCycleUtil(nodeId) {
+          visited.add(nodeId);
+          recursionStack.add(nodeId);
+          path.push(nodeId);
+          const neighbors = adj.get(nodeId) || [];
+          for (const neighborId of neighbors) {
+            if (!visited.has(neighborId)) {
+              const cycleFound = detectCycleUtil(neighborId);
+              if (cycleFound) return cycleFound;
+            } else if (recursionStack.has(neighborId)) {
+              const cycleStartIndex = path.indexOf(neighborId);
+              const cycle = path.slice(cycleStartIndex);
+              cycle.forEach((id) => deadlockedNodes.add(id));
+              return cycle;
+            }
+          }
+          path.pop();
+          recursionStack.delete(nodeId);
+          return null;
+        }
+        let cycle = null;
+        for (const nodeId of allNodeIds) {
+          if (!visited.has(nodeId)) {
+            cycle = detectCycleUtil(nodeId);
+            if (cycle) break;
+          }
+        }
+        let statusChanged =
+          deadlockedNodes.size !== previousDeadlocked.size ||
+          ![...deadlockedNodes].every((id) => previousDeadlocked.has(id));
+        if (cycle) {
+          updateStatus(
+            `DEADLOCK DETECTED involving: ${cycle.join(" -> ")} -> ${cycle[0]}`
+          );
+        } else {
+          updateStatus(
+            previousDeadlocked.size > 0
+              ? "Deadlock resolved or none detected."
+              : "No deadlock detected."
+          );
+        }
+        if (statusChanged) {
+          ensureAnimationLoop();
+        }
+        return cycle;
+      }
+
+      // --- Event Handlers --- (Mouse handlers same as before)
+      canvas.addEventListener("mousedown", (e) => {
+        /* ... */ const mousePos = getMousePos(canvas, e);
+        const clickedNode = getNodeAtPos(mousePos.x, mousePos.y);
+        if (clickedNode) {
+          draggingNode = clickedNode;
+          dragOffsetX = mousePos.x - clickedNode.x;
+          dragOffsetY = mousePos.y - clickedNode.y;
+          if (!selectedNode1) {
+            selectedNode1 = clickedNode;
+            updateStatus(`Selected ${clickedNode.id}.`);
+          } else if (selectedNode1 === clickedNode) {
+            /* no change */
+          } else if (!selectedNode2) {
+            selectedNode2 = clickedNode;
+            updateStatus(
+              `Selected ${selectedNode1.id} and ${selectedNode2.id}.`
+            );
+          } else {
+            selectedNode1 = clickedNode;
+            selectedNode2 = null;
+            updateStatus(`Selected ${clickedNode.id}.`);
+          }
+        }
+        ensureAnimationLoop();
+      });
+      canvas.addEventListener("mousemove", (e) => {
+        /* ... */ if (draggingNode) {
+          const mousePos = getMousePos(canvas, e);
+          draggingNode.x = mousePos.x - dragOffsetX;
+          draggingNode.y = mousePos.y - dragOffsetY;
+          ensureAnimationLoop();
+        }
+      });
+      canvas.addEventListener("mouseup", (e) => {
+        /* ... */ draggingNode = null;
+        ensureAnimationLoop();
+      });
+      canvas.addEventListener("mouseout", (e) => {
+        /* ... */ if (draggingNode) {
+          draggingNode = null;
+          ensureAnimationLoop();
+        }
+      });
+
+      // --- Button Action Functions --- (Mostly same, added status update variations)
+      function addNodeAction(type, source = "Button") {
+        let newNode;
+        const spawnX = Math.random() * (canvas.width - 100) + 50;
+        const spawnY = Math.random() * (canvas.height - 100) + 50;
+        if (type === "process") {
+          processCounter++;
+          newNode = {
+            id: `P${processCounter}`,
+            type: "process",
+            x: spawnX,
+            y: spawnY,
+          };
+        } else {
+          resourceCounter++;
+          newNode = {
+            id: `R${resourceCounter}`,
+            type: "resource",
+            x: spawnX,
+            y: spawnY,
+          };
+        }
+        newNode.isAnimating = true;
+        newNode.animationStart = performance.now();
+        newNode.currentScale = 0;
+        newNode.currentAlpha = 0;
+        newNode.currentBlur = 5;
+        nodes.push(newNode);
+        updateStatus(
+          `Added ${newNode.type} ${newNode.id}${
+            source === "Key" ? ` (${type === "process" ? "P" : "R"} key)` : ""
+          }`
+        );
+        ensureAnimationLoop();
+      }
+
+      function requestEdgeAction(source = "Button") {
+        if (!selectedNode1 || !selectedNode2) {
+          updateStatus("Select one Process and one Resource first.");
+          return false;
+        }
+        let pNode = null,
+          rNode = null;
+        if (
+          selectedNode1.type === "process" &&
+          selectedNode2.type === "resource"
+        ) {
+          pNode = selectedNode1;
+          rNode = selectedNode2;
+        } else if (
+          selectedNode1.type === "resource" &&
+          selectedNode2.type === "process"
+        ) {
+          pNode = selectedNode2;
+          rNode = selectedNode1;
+        } else {
+          updateStatus(
+            "Select one Process and one Resource to make a request."
+          );
+          return false;
+        }
+        removeEdge(rNode.id, pNode.id);
+        const exists = edges.some(
+          (edge) =>
+            edge.from === pNode.id &&
+            edge.to === rNode.id &&
+            edge.type === "request"
+        );
+        if (!exists) {
+          edges.push({ from: pNode.id, to: rNode.id, type: "request" });
+          updateStatus(
+            `Added request edge: ${pNode.id} -> ${rNode.id}${
+              source === "Key" ? " (Q key)" : ""
+            }`
+          );
+        } else {
+          updateStatus(
+            `Request edge ${pNode.id} -> ${rNode.id} already exists.`
+          );
+        }
+        clearSelection();
+        ensureAnimationLoop();
+        return true;
+      }
+
+      function assignEdgeAction(source = "Button") {
+        if (!selectedNode1 || !selectedNode2) {
+          updateStatus("Select one Process and one Resource first.");
+          return false;
+        }
+        let pNode = null,
+          rNode = null;
+        if (
+          selectedNode1.type === "process" &&
+          selectedNode2.type === "resource"
+        ) {
+          pNode = selectedNode1;
+          rNode = selectedNode2;
+        } else if (
+          selectedNode1.type === "resource" &&
+          selectedNode2.type === "process"
+        ) {
+          pNode = selectedNode2;
+          rNode = selectedNode1;
+        } else {
+          updateStatus(
+            "Select one Process and one Resource to make an assignment."
+          );
+          return false;
+        }
+        removeEdge(pNode.id, rNode.id);
+        const exists = edges.some(
+          (edge) =>
+            edge.from === rNode.id &&
+            edge.to === pNode.id &&
+            edge.type === "assignment"
+        );
+        if (!exists) {
+          edges.push({ from: rNode.id, to: pNode.id, type: "assignment" });
+          updateStatus(
+            `Added assignment edge: ${rNode.id} -> ${pNode.id}${
+              source === "Key" ? " (A key)" : ""
+            }`
+          );
+        } else {
+          updateStatus(
+            `Assignment edge ${rNode.id} -> ${pNode.id} already exists.`
+          );
+        }
+        clearSelection();
+        ensureAnimationLoop();
+        return true;
+      }
+
+      function removeEdgeAction() {
+        // No easy shortcut assigned for simplicity
+        if (!selectedNode1 || !selectedNode2) {
+          updateStatus("Select two nodes connected by an edge to remove.");
+          return false;
+        }
+        if (removeEdge(selectedNode1.id, selectedNode2.id)) {
+          updateStatus(
+            `Removed edge between ${selectedNode1.id} and ${selectedNode2.id}.`
+          );
+        } else {
+          updateStatus(
+            `No edge found between ${selectedNode1.id} and ${selectedNode2.id}.`
+          );
+        }
+        clearSelection();
+        ensureAnimationLoop();
+        return true;
+      }
+
+      function removeNodeAction(source = "Button") {
+        if (!selectedNode1 || selectedNode2) {
+          updateStatus("Select exactly one node to remove.");
+          return false;
+        }
+        const nodeId = selectedNode1.id;
+        nodes = nodes.filter((n) => n.id !== nodeId);
+        edges = edges.filter(
+          (edge) => edge.from !== nodeId && edge.to !== nodeId
+        );
+        deadlockedNodes.delete(nodeId);
+        updateStatus(
+          `Removed node ${nodeId}${source === "Key" ? " (Del/Bksp/X key)" : ""}`
+        );
+        clearSelection(); // Also sets selectedNode1 = null
+        ensureAnimationLoop();
+        return true;
+      }
+
+      function clearAllAction(source = "Button") {
+        // Confirmation handled by caller (keyboard or button)
+        nodes = [];
+        edges = [];
+        processCounter = 0;
+        resourceCounter = 0;
+        selectedNode1 = null;
+        selectedNode2 = null;
+        deadlockedNodes.clear();
+        draggingNode = null;
+        updateStatus(`Canvas cleared${source === "Key" ? " (C key)" : ""}.`);
+        ensureAnimationLoop();
+        return true;
+      }
+
+      function detectDeadlockAction(source = "Button") {
+        detectDeadlock(); // The function already updates status
+        if (source === "Key") {
+          // Optionally add '(D key)' to the status if needed, but might overwrite deadlock message
+        }
+        return true;
+      }
+
+      // --- Attach Button Listeners ---
+      document
+        .getElementById("addProcess")
+        .addEventListener("click", () => addNodeAction("process", "Button"));
+      document
+        .getElementById("addResource")
+        .addEventListener("click", () => addNodeAction("resource", "Button"));
+      document
+        .getElementById("requestEdge")
+        .addEventListener("click", () => requestEdgeAction("Button"));
+      document
+        .getElementById("assignEdge")
+        .addEventListener("click", () => assignEdgeAction("Button"));
+      document
+        .getElementById("removeEdge")
+        .addEventListener("click", removeEdgeAction); // No key source needed
+      document
+        .getElementById("removeNode")
+        .addEventListener("click", () => removeNodeAction("Button"));
+      document
+        .getElementById("detectDeadlock")
+        .addEventListener("click", () => detectDeadlockAction("Button"));
+      document
+        .getElementById("clearSelection")
+        .addEventListener("click", clearSelection); // No key source needed
+      document
+        .getElementById("clearAllButton")
+        .addEventListener("click", () => {
+          if (confirm("Are you sure you want to clear everything?")) {
+            clearAllAction("Button");
+          }
+        });
+
+      // --- Keyboard Shortcut Handler ---
+      function handleKeyPress(event) {
+        // Don't interfere if user is typing in a text field (if any were added later)
+        if (
+          event.target.tagName === "INPUT" ||
+          event.target.tagName === "TEXTAREA"
+        ) {
+          return;
+        }
+        // Don't interfere if modal is open, except for Escape to close it
+        if (aboutModal.classList.contains("show")) {
+          if (event.key === "Escape") {
+            closeAboutModal();
+            event.preventDefault();
+          }
+          return;
+        }
+
+        let actionHandled = false;
+        switch (event.key.toLowerCase()) {
+          case "p":
+            addNodeAction("process", "Key");
+            actionHandled = true;
+            break;
+          case "r":
+            addNodeAction("resource", "Key");
+            actionHandled = true;
+            break;
+          case "q":
+            actionHandled = requestEdgeAction("Key"); // Check selection inside
+            break;
+          case "a":
+            actionHandled = assignEdgeAction("Key"); // Check selection inside
+            break;
+          case "delete":
+          case "backspace":
+          case "x":
+            actionHandled = removeNodeAction("Key"); // Check selection inside
+            break;
+          case "d":
+            actionHandled = detectDeadlockAction("Key");
+            break;
+          case "escape":
+            clearSelection();
+            actionHandled = true;
+            break;
+          case "c":
+            if (confirm("Are you sure you want to clear everything? (C key)")) {
+              actionHandled = clearAllAction("Key");
+            } else {
+              actionHandled = true; // Prevent default if confirm dialog appeared
+            }
+            break;
+        }
+
+        if (actionHandled) {
+          event.preventDefault(); // Prevent default browser action (e.g., backspace navigation)
+        }
+      }
+      window.addEventListener("keydown", handleKeyPress);
+
+      // --- About Modal Logic ---
+      function openAboutModal() {
+        aboutModal.classList.add("show");
+        ensureAnimationLoop(); // May need redraw if modal affects layout/focus
+      }
+      function closeAboutModal() {
+        aboutModal.classList.remove("show");
+        ensureAnimationLoop();
+      }
+      aboutButton.addEventListener("click", openAboutModal);
+      closeModalButton.addEventListener("click", closeAboutModal);
+      // Close modal if clicking outside the content area
+      aboutModal.addEventListener("click", (event) => {
+        if (event.target === aboutModal) {
+          // Check if click is on the modal background itself
+          closeAboutModal();
+        }
+      });
+
+      // --- Initial Setup ---
+      updateStatus(
+        "Canvas initialized. Add nodes or interact. (See About for shortcuts)"
+      );
+      ensureAnimationLoop();
     </script>
-
-</body>
-
+  </body>
 </html>
