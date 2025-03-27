@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,6 +16,7 @@
             background-color: #f4f4f4;
             overflow: hidden;
         }
+
         #controls {
             margin-bottom: 10px;
             padding: 10px;
@@ -24,8 +26,10 @@
             gap: 8px;
             flex-wrap: wrap;
             justify-content: center;
-            max-width: 850px; /* Adjust width for new button */
+            max-width: 850px;
+            /* Adjust width for new button */
         }
+
         button {
             padding: 6px 12px;
             cursor: pointer;
@@ -33,27 +37,34 @@
             border-radius: 3px;
             font-size: 0.9em;
         }
+
         button:hover {
             background-color: #d0d0d0;
         }
+
         #clearAllButton {
             background-color: #ffdddd;
             border-color: #ffaaaa;
         }
-         #clearAllButton:hover {
+
+        #clearAllButton:hover {
             background-color: #ffcccc;
         }
+
         #aboutButton {
             background-color: #ddeeff;
             border-color: #aaccee;
         }
+
         #aboutButton:hover {
             background-color: #cce5ff;
         }
+
         canvas {
             border: 1px solid black;
             background-color: white;
         }
+
         #statusBar {
             margin-top: 10px;
             padding: 5px;
@@ -70,21 +81,31 @@
 
         /* Modal Styles */
         .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1000; /* Sit on top */
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            /* Stay in place */
+            z-index: 1000;
+            /* Sit on top */
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
-            justify-content: center; /* Center horizontally */
-            align-items: center; /* Center vertically */
+            overflow: auto;
+            /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Black w/ opacity */
+            justify-content: center;
+            /* Center horizontally */
+            align-items: center;
+            /* Center vertically */
         }
+
         .modal.show {
-            display: flex; /* Use flex for centering */
+            display: flex;
+            /* Use flex for centering */
         }
+
         .modal-content {
             background-color: #fefefe;
             margin: auto;
@@ -95,6 +116,7 @@
             max-width: 500px;
             position: relative;
         }
+
         .close-button {
             color: #aaa;
             position: absolute;
@@ -104,30 +126,35 @@
             font-weight: bold;
             cursor: pointer;
         }
+
         .close-button:hover,
         .close-button:focus {
             color: black;
             text-decoration: none;
         }
+
         .modal-content h2 {
             margin-top: 0;
         }
+
         .modal-content ul {
             margin-top: 5px;
             padding-left: 20px;
         }
-         .modal-content li {
-             margin-bottom: 5px;
-         }
-         .modal-content code {
+
+        .modal-content li {
+            margin-bottom: 5px;
+        }
+
+        .modal-content code {
             background-color: #eee;
             padding: 2px 4px;
             border-radius: 3px;
             font-family: monospace;
-         }
-
+        }
     </style>
 </head>
+
 <body>
     <h1>RAG Simulator</h1>
 
@@ -158,8 +185,10 @@
                 <li>Add Process (<code>P</code>) and Resource (<code>R</code>) nodes.</li>
                 <li>Click nodes to select (up to two).</li>
                 <li>Drag nodes to reposition them.</li>
-                <li>Use buttons or shortcuts to create Request (<code>Q</code>) or Assignment (<code>A</code>) edges between selected P and R.</li>
-                <li>Remove selected nodes (<code>Delete</code>/<code>Backspace</code>/<code>X</code>) or edges (button).</li>
+                <li>Use buttons or shortcuts to create Request (<code>Q</code>) or Assignment (<code>A</code>) edges
+                    between selected P and R.</li>
+                <li>Remove selected nodes (<code>Delete</code>/<code>Backspace</code>/<code>X</code>) or edges (button).
+                </li>
                 <li>Detect deadlocks (cycles) with the button or <code>D</code> key.</li>
                 <li>Clear selection with <code>Escape</code> or the button.</li>
                 <li>Clear the entire canvas with <code>C</code> or the button (confirmation required).</li>
@@ -213,7 +242,7 @@
         function findNodeById(nodeId) { /* ... */ return nodes.find(n => n.id === nodeId); }
         function clearSelection() { /* ... */ selectedNode1 = null; selectedNode2 = null; updateStatus("Selection cleared."); ensureAnimationLoop(); }
         function removeEdge(node1Id, node2Id) { /* ... */ let initialLength = edges.length; edges = edges.filter(edge => !(edge.from === node1Id && edge.to === node2Id) && !(edge.from === node2Id && edge.to === node1Id)); return edges.length < initialLength; }
-        function getEdgePoints(node1, node2) { /* ... */ const dx = node2.x - node1.x; const dy = node2.y - node1.y; const dist = Math.sqrt(dx*dx + dy*dy); if (dist === 0) return { start: {x: node1.x, y: node1.y}, end: {x: node2.x, y: node2.y}}; const unitX = dx / dist; const unitY = dy / dist; const node1Scale = node1.currentScale ?? 1.0; const node2Scale = node2.currentScale ?? 1.0; const startOffsetBase = node1.type === 'process' ? PROCESS_RADIUS * node1Scale : (RESOURCE_SIZE / 2) * node1Scale; const endOffsetBase = node2.type === 'process' ? PROCESS_RADIUS * node2Scale : (RESOURCE_SIZE / 2) * node2Scale; const startOffset = startOffsetBase + GAP; const endOffset = endOffsetBase + GAP; const totalOffset = startOffset + endOffset; const effectiveStartOffset = dist > totalOffset ? startOffset : (dist * (startOffset / totalOffset || 0.5)); const effectiveEndOffset = dist > totalOffset ? endOffset : (dist * (endOffset / totalOffset || 0.5)); return { start: { x: node1.x + unitX * effectiveStartOffset, y: node1.y + unitY * effectiveStartOffset }, end: { x: node2.x - unitX * effectiveEndOffset, y: node2.y - unitY * effectiveEndOffset } }; }
+        function getEdgePoints(node1, node2) { /* ... */ const dx = node2.x - node1.x; const dy = node2.y - node1.y; const dist = Math.sqrt(dx * dx + dy * dy); if (dist === 0) return { start: { x: node1.x, y: node1.y }, end: { x: node2.x, y: node2.y } }; const unitX = dx / dist; const unitY = dy / dist; const node1Scale = node1.currentScale ?? 1.0; const node2Scale = node2.currentScale ?? 1.0; const startOffsetBase = node1.type === 'process' ? PROCESS_RADIUS * node1Scale : (RESOURCE_SIZE / 2) * node1Scale; const endOffsetBase = node2.type === 'process' ? PROCESS_RADIUS * node2Scale : (RESOURCE_SIZE / 2) * node2Scale; const startOffset = startOffsetBase + GAP; const endOffset = endOffsetBase + GAP; const totalOffset = startOffset + endOffset; const effectiveStartOffset = dist > totalOffset ? startOffset : (dist * (startOffset / totalOffset || 0.5)); const effectiveEndOffset = dist > totalOffset ? endOffset : (dist * (endOffset / totalOffset || 0.5)); return { start: { x: node1.x + unitX * effectiveStartOffset, y: node1.y + unitY * effectiveStartOffset }, end: { x: node2.x - unitX * effectiveEndOffset, y: node2.y - unitY * effectiveEndOffset } }; }
         function drawArrow(ctx, fromX, fromY, toX, toY, color) { /* ... */ if (Math.abs(fromX - toX) < 0.1 && Math.abs(fromY - toY) < 0.1) return; const headlen = ARROW_SIZE; const dx = toX - fromX; const dy = toY - fromY; const angle = Math.atan2(dy, dx); ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(fromX, fromY); ctx.lineTo(toX, toY); ctx.moveTo(toX, toY); ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6)); ctx.moveTo(toX, toY); ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6)); ctx.stroke(); ctx.restore(); }
 
         // --- Animation & Drawing Functions --- (Same as before)
@@ -232,15 +261,15 @@
 
         // --- Button Action Functions --- (Mostly same, added status update variations)
         function addNodeAction(type, source = 'Button') {
-             let newNode;
-             const spawnX = Math.random() * (canvas.width - 100) + 50;
-             const spawnY = Math.random() * (canvas.height - 100) + 50;
-             if (type === 'process') { processCounter++; newNode = { id: `P${processCounter}`, type: 'process', x: spawnX, y: spawnY }; }
-             else { resourceCounter++; newNode = { id: `R${resourceCounter}`, type: 'resource', x: spawnX, y: spawnY }; }
-             newNode.isAnimating = true; newNode.animationStart = performance.now(); newNode.currentScale = 0; newNode.currentAlpha = 0; newNode.currentBlur = 5;
-             nodes.push(newNode);
-             updateStatus(`Added ${newNode.type} ${newNode.id}${source === 'Key' ? ` (${type === 'process' ? 'P' : 'R'} key)`: ''}`);
-             ensureAnimationLoop();
+            let newNode;
+            const spawnX = Math.random() * (canvas.width - 100) + 50;
+            const spawnY = Math.random() * (canvas.height - 100) + 50;
+            if (type === 'process') { processCounter++; newNode = { id: `P${processCounter}`, type: 'process', x: spawnX, y: spawnY }; }
+            else { resourceCounter++; newNode = { id: `R${resourceCounter}`, type: 'resource', x: spawnX, y: spawnY }; }
+            newNode.isAnimating = true; newNode.animationStart = performance.now(); newNode.currentScale = 0; newNode.currentAlpha = 0; newNode.currentBlur = 5;
+            nodes.push(newNode);
+            updateStatus(`Added ${newNode.type} ${newNode.id}${source === 'Key' ? ` (${type === 'process' ? 'P' : 'R'} key)` : ''}`);
+            ensureAnimationLoop();
         }
 
         function requestEdgeAction(source = 'Button') {
@@ -259,27 +288,27 @@
         }
 
         function assignEdgeAction(source = 'Button') {
-             if (!selectedNode1 || !selectedNode2) { updateStatus("Select one Process and one Resource first."); return false; }
-             let pNode = null, rNode = null;
-             if (selectedNode1.type === 'process' && selectedNode2.type === 'resource') { pNode = selectedNode1; rNode = selectedNode2; }
-             else if (selectedNode1.type === 'resource' && selectedNode2.type === 'process') { pNode = selectedNode2; rNode = selectedNode1; }
-             else { updateStatus("Select one Process and one Resource to make an assignment."); return false; }
-             removeEdge(pNode.id, rNode.id);
-             const exists = edges.some(edge => edge.from === rNode.id && edge.to === pNode.id && edge.type === 'assignment');
-             if (!exists) { edges.push({ from: rNode.id, to: pNode.id, type: 'assignment' }); updateStatus(`Added assignment edge: ${rNode.id} -> ${pNode.id}${source === 'Key' ? ' (A key)' : ''}`); }
-             else { updateStatus(`Assignment edge ${rNode.id} -> ${pNode.id} already exists.`); }
-             clearSelection();
-             ensureAnimationLoop();
-             return true;
+            if (!selectedNode1 || !selectedNode2) { updateStatus("Select one Process and one Resource first."); return false; }
+            let pNode = null, rNode = null;
+            if (selectedNode1.type === 'process' && selectedNode2.type === 'resource') { pNode = selectedNode1; rNode = selectedNode2; }
+            else if (selectedNode1.type === 'resource' && selectedNode2.type === 'process') { pNode = selectedNode2; rNode = selectedNode1; }
+            else { updateStatus("Select one Process and one Resource to make an assignment."); return false; }
+            removeEdge(pNode.id, rNode.id);
+            const exists = edges.some(edge => edge.from === rNode.id && edge.to === pNode.id && edge.type === 'assignment');
+            if (!exists) { edges.push({ from: rNode.id, to: pNode.id, type: 'assignment' }); updateStatus(`Added assignment edge: ${rNode.id} -> ${pNode.id}${source === 'Key' ? ' (A key)' : ''}`); }
+            else { updateStatus(`Assignment edge ${rNode.id} -> ${pNode.id} already exists.`); }
+            clearSelection();
+            ensureAnimationLoop();
+            return true;
         }
 
         function removeEdgeAction() { // No easy shortcut assigned for simplicity
-             if (!selectedNode1 || !selectedNode2) { updateStatus("Select two nodes connected by an edge to remove."); return false; }
-             if (removeEdge(selectedNode1.id, selectedNode2.id)) { updateStatus(`Removed edge between ${selectedNode1.id} and ${selectedNode2.id}.`); }
-             else { updateStatus(`No edge found between ${selectedNode1.id} and ${selectedNode2.id}.`); }
-             clearSelection();
-             ensureAnimationLoop();
-             return true;
+            if (!selectedNode1 || !selectedNode2) { updateStatus("Select two nodes connected by an edge to remove."); return false; }
+            if (removeEdge(selectedNode1.id, selectedNode2.id)) { updateStatus(`Removed edge between ${selectedNode1.id} and ${selectedNode2.id}.`); }
+            else { updateStatus(`No edge found between ${selectedNode1.id} and ${selectedNode2.id}.`); }
+            clearSelection();
+            ensureAnimationLoop();
+            return true;
         }
 
         function removeNodeAction(source = 'Button') {
@@ -310,11 +339,11 @@
         }
 
         function detectDeadlockAction(source = 'Button') {
-             detectDeadlock(); // The function already updates status
-             if (source === 'Key') {
-                 // Optionally add '(D key)' to the status if needed, but might overwrite deadlock message
-             }
-             return true;
+            detectDeadlock(); // The function already updates status
+            if (source === 'Key') {
+                // Optionally add '(D key)' to the status if needed, but might overwrite deadlock message
+            }
+            return true;
         }
 
         // --- Attach Button Listeners ---
@@ -327,9 +356,9 @@
         document.getElementById('detectDeadlock').addEventListener('click', () => detectDeadlockAction('Button'));
         document.getElementById('clearSelection').addEventListener('click', clearSelection); // No key source needed
         document.getElementById('clearAllButton').addEventListener('click', () => {
-             if (confirm("Are you sure you want to clear everything?")) {
-                 clearAllAction('Button');
-             }
+            if (confirm("Are you sure you want to clear everything?")) {
+                clearAllAction('Button');
+            }
         });
 
 
@@ -341,11 +370,11 @@
             }
             // Don't interfere if modal is open, except for Escape to close it
             if (aboutModal.classList.contains('show')) {
-                 if (event.key === 'Escape') {
-                     closeAboutModal();
-                     event.preventDefault();
-                 }
-                 return;
+                if (event.key === 'Escape') {
+                    closeAboutModal();
+                    event.preventDefault();
+                }
+                return;
             }
 
             let actionHandled = false;
@@ -378,7 +407,7 @@
                     break;
                 case 'c':
                     if (confirm("Are you sure you want to clear everything? (C key)")) {
-                         actionHandled = clearAllAction('Key');
+                        actionHandled = clearAllAction('Key');
                     } else {
                         actionHandled = true; // Prevent default if confirm dialog appeared
                     }
@@ -418,4 +447,5 @@
     </script>
 
 </body>
+
 </html>
