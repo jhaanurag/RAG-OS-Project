@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RAG Simulator MVP (Ease-Out + Keys)</title>
     <style>
+      * {
+      border-radius: 20px !important;
+      }
       body {
         font-family: monospace;
         display: flex;
@@ -25,8 +28,7 @@
         gap: 8px;
         flex-wrap: wrap;
         justify-content: center;
-        max-width: 850px;
-        /* Adjust width for new button */
+        max-width:fit-content;
       }
 
       button {
@@ -151,6 +153,13 @@
         border-radius: 3px;
         font-family: monospace;
       }
+      #madeby {
+        margin: 10px;
+        padding: 10px;
+        background-color: #e0e0e0;
+        border-radius: 5px;
+        border: #333 solid 1px;s
+      }
     </style>
   </head>
 
@@ -190,6 +199,14 @@
           This is a simple simulator for visualizing Resource Allocation Graphs
           (RAGs).
         </p>
+        <div id="madeby">
+        <p>Made by:</p>
+        <ul>
+          <li>Amit</li>
+          <li>Anurag</li>
+          <li>Himanshu</li>
+        </ul>
+        </div>
         <ul>
           <li>
             Add Process (<code>P</code>) and Resource (<code>R</code>) nodes.
@@ -214,7 +231,7 @@
             (confirmation required).
           </li>
         </ul>
-        <p><small>Version: MVP++ (HTML/JS)</small></p>
+        <p><small>Version: 1.2</small></p>
       </div>
     </div>
 
@@ -380,7 +397,7 @@
         ctx.restore();
       }
 
-      // --- Animation & Drawing Functions --- (Same as before)
+      // --- Animation & Drawing Functions ---
       function easeOutCubic(t) {
         return 1 - Math.pow(1 - t, 3);
       }
