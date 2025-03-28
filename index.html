@@ -7,8 +7,25 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
       canvas {
-        font-family: sans-serif; /* Or match the body font */
+        font-family: sans-serif;
       }
+      @keyframes fadeInBlurUp {
+        0% {
+          opacity: 0;
+          filter: blur(10px);
+          transform: translateY(20px);
+        }
+        100% {
+          opacity: 1;
+          filter: blur(0);
+          transform: translateY(0);
+        }
+      }
+
+      * {
+        animation: fadeInBlurUp 0.3s ease forwards;
+      }
+
     </style>
   </head>
 
@@ -21,7 +38,6 @@
       id="controls"
       class="mb-2.5 p-2.5 bg-gray-200 rounded-md flex gap-2 flex-wrap justify-center min-w-fit shadow"
     >
-      <!-- Generic Button Base Classes: py-1 px-3 border rounded shadow-sm text-sm transition-colors duration-150 -->
       <button
         id="addProcess"
         title="Shortcut: P"
@@ -110,7 +126,7 @@
     <!-- Starts hidden, uses 'flex' for visible centered layout -->
     <div
       id="aboutModal"
-      class="hidden fixed inset-0 z-50 overflow-auto bg-black/60 items-center justify-center p-4"
+      class="hidden fixed inset-0 z-50 overflow-auto backdrop-blur items-center justify-center p-4"
     >
       <div
         class="bg-white p-6 border border-gray-300 rounded-lg shadow-xl w-full max-w-lg relative"
@@ -130,7 +146,8 @@
             A simple simulator for visualizing Resource Allocation Graphs (RAGs)
             used in operating systems concepts.
           </p>
-          <p class="text-xs">Made by: Amit, Anurag, Himanshu</p>
+
+          <p class="text-center font-bold">Made by: Amit, Anurag, Himanshu</p>
           <div>
             <h3 class="font-semibold mb-1">Features & Shortcuts:</h3>
             <ul class="list-disc pl-5 space-y-1">
@@ -174,6 +191,7 @@
     </div>
 
     <script>
+      // --- DOM Elements ---
       const canvas = document.getElementById("ragCanvas");
       const ctx = canvas.getContext("2d");
       const statusBar = document.getElementById("statusBar");
