@@ -40,8 +40,8 @@ A simple, interactive, browser-based graphical simulation tool for visualizing R
 
 1.  **Clone or Download:** Get the project files from this repository.
     ```bash
-    git clone <repository-url>
-    cd <repository-directory>
+    git clone https://github.com/JhaAnurag/OSproject
+    cd OSproject
     ```
 2.  **Open in Browser:** Simply open the `index.html` file (or the main HTML file) in your web browser (like Chrome, Firefox, Edge).
 
