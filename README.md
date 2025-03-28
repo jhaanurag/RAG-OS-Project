@@ -6,8 +6,6 @@
 
 A simple, interactive, browser-based graphical simulation tool for visualizing Resource Allocation Graphs (RAGs) and identifying potential deadlock scenarios (cycles). Built with HTML, CSS (Tailwind), and JavaScript Canvas, it serves as a visual aid for learning Operating Systems concepts.
 
-![RAG Simulator Screenshot Placeholder](placeholder.png)
-*(Suggestion: Replace placeholder.png with an actual screenshot or GIF of the simulator in action)*
 
 ## Overview
 
