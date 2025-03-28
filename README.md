@@ -1,5 +1,4 @@
 # Resource Allocation Graph Simulator with Deadlock detection
-# Graphical Simulator for Resource Allocation Graphs (RAG)
 
 **Version:** 1.2
 **Authors:** Amit, Anurag, Himanshu
