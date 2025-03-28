@@ -45,8 +45,7 @@ A simple, interactive, browser-based graphical simulation tool for visualizing R
     ```
 2.  **Open in Browser:** Simply open the `index.html` file (or the main HTML file) in your web browser (like Chrome, Firefox, Edge).
 
-*(Optional: Add a link if you deploy it online)*
-*   **Live Demo:** [Link to Live Demo - Add URL here if applicable]
+*   **Live Demo:** [(https://jhaanurag.github.io/OSproject/)]
 
 ## Keyboard Shortcuts
 
@@ -72,7 +71,7 @@ A simple, interactive, browser-based graphical simulation tool for visualizing R
 *   **Languages:** JavaScript (ES6+)
 *   **Web:** HTML5, CSS3 (using Tailwind CSS via CDN)
 *   **Graphics:** HTML5 Canvas API (2D Context)
-*   **Version Control:** Git / GitHub (Assumed)
+*   **Version Control:** Git / GitHub
 
 ## Conclusion
 
