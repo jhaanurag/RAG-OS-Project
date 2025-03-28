@@ -1,101 +1,97 @@
 # Resource Allocation Graph Simulator with Deadlock detection
-# Graphical Simulator for Resource Allocation Graphs (RAG)
+# Python Resource Allocation Graph (RAG) Simulator
 
-**Version:** 1.2
-**Authors:** Amit, Anurag, Himanshu
-
-A simple, interactive, browser-based graphical simulation tool for visualizing Resource Allocation Graphs (RAGs) and identifying potential deadlock scenarios (cycles). Built with HTML, CSS (Tailwind), and JavaScript Canvas, it serves as a visual aid for learning Operating Systems concepts.
+A graphical user interface (GUI) tool built with Python, Tkinter, Matplotlib, and NetworkX to simulate Resource Allocation Graphs (RAGs), visualize resource requests and allocations, and detect potential deadlock scenarios.
 
 
 ## Overview
 
-**Goal:** To develop a graphical tool using web technologies for visualizing RAGs and analyzing potential deadlock cycles interactively.
+This application provides an interactive way to understand concepts related to resource allocation and deadlocks in operating systems. Users can:
 
-**Key Outcomes & Features:**
+*   Add processes and resources to the graph.
+*   Simulate resource allocation (a resource assigned to a process).
+*   Simulate resource waiting (a process requesting an allocated resource).
+*   Release resources held by processes.
+*   Visualize the RAG dynamically using Matplotlib embedded in a Tkinter window.
+*   Automatically detect and visually highlight deadlock cycles within the graph.
+*   Run simulations step-by-step or continuously.
+*   View a log of all actions performed.
 
-*   **Graphical RAG Visualization:** Represents processes (circles) and resources (squares).
-*   **Interactive Graph Building:**
-    *   Add Processes (`P`) and Resources (`R`).
-    *   Create Request edges (P->R, `Q`).
-    *   Create Assignment edges (R->P, `A`).
-    *   Remove selected nodes (`Delete`/`Backspace`/`X`) or edges (button).
-*   **Drag-and-Drop:** Reposition nodes easily on the canvas.
-*   **On-Demand Deadlock Detection:** Identifies and highlights cycles in the graph (`D`).
-*   **Visual Indicators:**
-    *   Color-coding for node types and edge types.
-    *   Selection highlighting (yellow).
-    *   Deadlock highlighting (purple).
-    *   Basic node creation animation.
-*   **User Feedback:** Status bar provides messages about actions and detection results.
-*   **Keyboard Shortcuts:** Speed up interactions (see below).
-*   **Clear Options:** Clear current selection (`Escape`) or the entire canvas (`C`).
-*   **About Modal:** Provides quick help and shortcut reference.
+## Features
 
-**Scope:**
+*   **GUI Interface:** Built with Tkinter for user-friendly interaction.
+*   **Graph Visualization:** Uses NetworkX for graph data structure and Matplotlib for plotting the RAG.
+    *   Processes shown as blue circles.
+    *   Resources shown as red squares (free) or orange squares (allocated).
+    *   Allocation edges (Resource -> Process) shown as solid black arrows.
+    *   Wait/Request edges (Process -> Resource) shown as dashed gray arrows.
+*   **Interactive Controls:** Buttons for adding nodes, creating allocation/wait edges, and releasing resources.
+*   **Deadlock Detection:** Automatically detects cycles using `networkx.simple_cycles` whenever the graph is updated. It specifically checks if cycles represent valid deadlock conditions (processes waiting for resources held by other processes within the cycle).
+*   **Deadlock Highlighting:** Nodes involved in a detected deadlock flash between yellow and red.
+*   **Step-by-Step Simulation:** Option to queue actions and execute them one by one to observe the graph's evolution.
+*   **Action Logging:** A scrolled text area displays a timestamped log of all operations.
+*   **Graph Clearing:** Reset the simulation environment.
+*   **(Basic) Drag-and-Drop:** Rudimentary support for creating edges by dragging between nodes on the canvas (may require careful clicking near node centers).
 
-*   Primarily designed as an educational tool for OS students.
-*   Focuses on single-instance resource scenarios for cycle detection.
-*   Does *not* implement step-by-step deadlock analysis or resolution algorithms (like Banker's) in this version.
+## Requirements
+
+*   Python 3.x
+*   Tkinter (usually included with standard Python distributions)
+*   Matplotlib
+*   NetworkX
+
+## Installation
+
+1.  **Clone the repository or download the script:**
+    ```bash
+    git clone <repository-url> # Or download the .py file
+    cd <repository-directory>
+    ```
+2.  **Install the required libraries:**
+    ```bash
+    pip install matplotlib networkx
+    ```
 
 ## How to Use
 
-1.  **Clone or Download:** Get the project files from this repository.
+1.  **Run the script:**
     ```bash
-    git clone <repository-url>
-    cd <repository-directory>
+    python your_script_name.py
     ```
-2.  **Open in Browser:** Simply open the `index.html` file (or the main HTML file) in your web browser (like Chrome, Firefox, Edge).
+    (Replace `your_script_name.py` with the actual name of the Python file).
 
-*(Optional: Add a link if you deploy it online)*
-*   **Live Demo:** [Link to Live Demo - Add URL here if applicable]
+2.  **Interact with the GUI:**
+    *   **Add Process/Resource:** Click the buttons to add new nodes to the graph.
+    *   **Select Nodes:** Click on process or resource names in the listboxes on the right to select them for edge operations.
+    *   **Allocate:** Assigns the selected *free* resource to the selected process (creates R -> P edge).
+    *   **Wait Allocation:** Makes the selected process request the selected *allocated* resource (creates P -> R edge).
+    *   **Release:** Removes the edge associated with the selected process and resource (either allocation or wait edge). If an allocation is released and the resource becomes free, its color changes back to red.
+    *   **Toggle Step Mode:** Switch between immediate execution of actions and queuing them for step-by-step execution using the "Next Step" button.
+    *   **Next Step:** (Visible in Step Mode) Executes the next queued action.
+    *   **Clear Graph:** Resets the entire simulation.
+    *   **Observe:** The graph display updates automatically. Deadlocks, if detected, will be highlighted with flashing nodes, and a message box will appear. Check the log area for details on actions and deadlock detection.
 
-## Keyboard Shortcuts
+## Deadlock Detection Logic
 
-*   `P`: Add Process node
-*   `R`: Add Resource node
-*   `Q`: Make Request edge (P->R) - *Requires one Process and one Resource selected*
-*   `A`: Make Assignment edge (R->P) - *Requires one Process and one Resource selected*
-*   `Delete` / `Backspace` / `X`: Remove the currently selected single node
-*   `D`: Detect Deadlock (cycles)
-*   `Escape`: Clear current node selection(s)
-*   `C`: Clear All nodes and edges (requires confirmation)
+*   The simulator uses NetworkX's `simple_cycles` function to find all elementary cycles in the directed graph.
+*   For each cycle found, it verifies if it represents a valid potential deadlock by checking if all resources within that cycle are currently in an "allocated" state.
+*   If a valid deadlock cycle is found, the `deadlock_flag` is set, a message is logged and displayed, and the nodes in the cycle start flashing on the graph visualization.
 
-## Deadlock Detection
+## Limitations
 
-*   The simulator uses a **Depth-First Search (DFS)** algorithm to detect cycles within the graph structure.
-*   A cycle in a Resource Allocation Graph indicates a potential deadlock condition (assuming single-instance resources).
-*   When a deadlock is detected by pressing `D` or clicking the "Detect Deadlock" button:
-    *   A message appears in the status bar indicating the detected cycle.
-    *   The nodes involved in the cycle are highlighted with a distinct border color (purple).
-
-## Technology Stack
-
-*   **Languages:** JavaScript (ES6+)
-*   **Web:** HTML5, CSS3 (using Tailwind CSS via CDN)
-*   **Graphics:** HTML5 Canvas API (2D Context)
-*   **Version Control:** Git / GitHub (Assumed)
-
-## Conclusion
-
-This simulator provides a basic but functional tool for interactively learning about Resource Allocation Graphs and the concept of deadlock detection through cycle identification in a visual manner.
+*   The deadlock detection logic assumes **single-instance resources**. It correctly identifies cycles, which correspond to deadlocks in single-instance scenarios. It does not implement more complex algorithms (like Banker's) needed for multi-instance resources.
+*   The graph layout uses `nx.spring_layout`, which can result in different node positions each time the graph is plotted.
+*   The drag-and-drop functionality is basic and might require precise clicks near node centers.
+*   GUI layout is functional but could be enhanced.
 
 ## Future Scope
 
-*   Enhance GUI and add more sophisticated animations.
-*   Add support for multiple resource instances.
-*   Implement deadlock prevention/avoidance algorithms (e.g., Banker's Algorithm).
-*   Implement save/load functionality for graph states (e.g., using JSON).
-*   Add step-by-step simulation controls to observe allocation/request sequences.
-*   Deploy the tool as a persistent web application.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request or open an Issue to discuss potential improvements or report bugs.
-
-## References
-
-*   *Operating System Concepts* – Abraham Silberschatz, Peter Baer Galvin, Greg Gagne.
-*   MDN Web Docs: Canvas API - [https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
-*   Tailwind CSS - [https://tailwindcss.com/](https://tailwindcss.com/)
+*   Implement support for multiple instances of resources.
+*   Integrate deadlock avoidance algorithms (e.g., Banker's Algorithm).
+*   Improve graph layout options (e.g., fixed positions, other layout algorithms).
+*   Enhance the GUI design and user experience.
+*   Add functionality to save and load graph states.
 
 ---
+
+Feel free to contribute by reporting issues or submitting pull requests!
