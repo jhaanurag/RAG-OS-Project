@@ -1,6 +1,6 @@
 # Resource Allocation Graph Simulator with Deadlock detection
 
-**Version:** 1.2
+**Version:** 2.2
 **Authors:** Amit, Anurag, Himanshu
 
 A simple, interactive, browser-based graphical simulation tool for visualizing Resource Allocation Graphs (RAGs) and identifying potential deadlock scenarios (cycles). Built with HTML, CSS (Tailwind), and JavaScript Canvas, it serves as a visual aid for learning Operating Systems concepts.
