@@ -821,31 +821,32 @@ REQ P1 R1;"></textarea>
     const NODE_STROKE_COLOR = "#1f2937"; // gray-800
     const TEXT_COLOR = "#1f2937"; // gray-800
     const INSTANCE_TEXT_COLOR = "#374151"; // gray-700
-    const HIGHLIGHTED_EDGE_WIDTH = 3;
-    const NORMAL_EDGE_WIDTH = 2;
-    const PROCESS_RADIUS = 31;
-    const RESOURCE_SIZE = 55;
-    const RESOURCE_TEXT_FONT_SIZE = 12;
-    const ARROW_SIZE = 8;
-    const GAP = 5;
+    const HIGHLIGHTED_EDGE_WIDTH = 3; // CSS pixels
+    const NORMAL_EDGE_WIDTH = 2; // CSS pixels
+    const PROCESS_RADIUS = 31; // Defined in CSS pixels
+    const RESOURCE_SIZE = 55; // Defined in CSS pixels
+    const RESOURCE_TEXT_FONT_SIZE = 12; // Defined in CSS pixels
+    const ARROW_SIZE = 8; // Defined in CSS pixels
+    const GAP = 5; // Defined in CSS pixels
     const ANIMATION_DURATION = 500;
     const MAX_LOG_ENTRIES = 150;
     const ASSIGNMENT_ANIMATION_SPEED = 2000;
-    const ANIMATION_DOT_SIZE = 4;
+    const ANIMATION_DOT_SIZE = 4; // Defined in CSS pixels
 
     // --- State Variables ---
-    let nodes = [];
+    let nodes = []; // Stores nodes with node.x, node.y as BUFFER coordinates
     let edges = [];
     let logs = [];
-    let processCounter = 0; // Used for auto-generating IDs
-    let resourceCounter = 0; // Used for auto-generating IDs
+    let processCounter = 0;
+    let resourceCounter = 0;
     let selectedNode1 = null;
     let selectedNode2 = null;
     let draggingNode = null;
-    let dragOffsetX = 0;
-    let dragOffsetY = 0;
+    let dragOffsetX = 0; // Offset in buffer pixels
+    let dragOffsetY = 0; // Offset in buffer pixels
     let animationFrameId = null;
     let activeModal = null;
+    let lastClickPos = null; // Stores {x: cssX, y: cssY} for drawing marker
 
     let deadlockedNodes = new Set();
     let isVisualizingDeadlock = false;
@@ -853,210 +854,270 @@ REQ P1 R1;"></textarea>
     let deadlockVizGeneratorInstance = null;
 
     // --- Modal Functions ---
-    function openModal(modalId) {
-      const modal = document.getElementById(modalId);
-      if (modal) {
-        // Pre-population and focus logic
-        if (modalId === "addProcessModal") {
-          let nextPId = 1;
-          while(findNodeById(`P${nextPId}`)) { nextPId++; }
-          processIdInput.value = "";
-          processIdInput.placeholder = `e.g., P${nextPId} (auto-generated)`;
-          processIdInput.focus();
-        } else if (modalId === "addResourceModal") {
-           let nextRId = 1;
-          while(findNodeById(`R${nextRId}`)) { nextRId++; }
-          resourceIdInput.value = "";
-          resourceIdInput.placeholder = `e.g., R${nextRId} (auto-generated)`;
-          resourceInstancesInput.value = "1";
-          resourceIdInput.focus();
-        } else if (modalId === "editProcessModal" && selectedNode1) {
-            editProcessIdInput.value = selectedNode1.id;
-            editProcessOriginalIdInput.value = selectedNode1.id; // Store original ID
-            editProcessIdInput.focus();
-        } else if (modalId === "editResourceModal" && selectedNode1) {
-            editResourceIdInput.value = selectedNode1.id;
-            editResourceInstancesInput.value = selectedNode1.totalInstances;
-            editResourceOriginalIdInput.value = selectedNode1.id; // Store original ID
-            editResourceIdInput.focus();
-        } else if (modalId === "exportModal") {
-          exportScriptArea.value = generateScript();
-          exportScriptArea.scrollTop = 0;
-          copyScriptButton.textContent = "Copy to Clipboard";
-        } else if (modalId === 'scriptModal') {
-            scriptInput.focus();
+    function openModal(modalId) { /* ... as before ... */
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            // Pre-population and focus logic
+            if (modalId === "addProcessModal") {
+            let nextPId = 1;
+            while(findNodeById(`P${nextPId}`)) { nextPId++; }
+            processIdInput.value = "";
+            processIdInput.placeholder = `e.g., P${nextPId} (auto-generated)`;
+            processIdInput.focus();
+            } else if (modalId === "addResourceModal") {
+            let nextRId = 1;
+            while(findNodeById(`R${nextRId}`)) { nextRId++; }
+            resourceIdInput.value = "";
+            resourceIdInput.placeholder = `e.g., R${nextRId} (auto-generated)`;
+            resourceInstancesInput.value = "1";
+            resourceIdInput.focus();
+            } else if (modalId === "editProcessModal" && selectedNode1) {
+                editProcessIdInput.value = selectedNode1.id;
+                editProcessOriginalIdInput.value = selectedNode1.id; // Store original ID
+                editProcessIdInput.focus();
+            } else if (modalId === "editResourceModal" && selectedNode1) {
+                editResourceIdInput.value = selectedNode1.id;
+                editResourceInstancesInput.value = selectedNode1.totalInstances;
+                editResourceOriginalIdInput.value = selectedNode1.id; // Store original ID
+                editResourceIdInput.focus();
+            } else if (modalId === "exportModal") {
+            exportScriptArea.value = generateScript();
+            exportScriptArea.scrollTop = 0;
+            copyScriptButton.textContent = "Copy to Clipboard";
+            } else if (modalId === 'scriptModal') {
+                scriptInput.focus();
+            }
+            modal.style.display = "flex";
+            activeModal = modalId;
+            ensureAnimationLoop();
         }
-        modal.style.display = "flex";
-        activeModal = modalId;
-        ensureAnimationLoop();
-      }
     }
-
-    function closeModal(modalId) {
-      const modal = document.getElementById(modalId);
-      if (modal) {
-        modal.style.display = "none";
-        if (activeModal === modalId) {
-          activeModal = null;
+    function closeModal(modalId) { /* ... as before ... */
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = "none";
+            if (activeModal === modalId) {
+            activeModal = null;
+            }
+            ensureAnimationLoop();
         }
-        ensureAnimationLoop();
-      }
     }
-
-    function closeIntroModal() {
-      const dontShowCheckbox = document.getElementById("dontShowIntroAgain");
-      if (dontShowCheckbox && dontShowCheckbox.checked) {
-        try {
-          localStorage.setItem("ragIntroShown", "true");
-          logMessage("INFO", "Introduction modal won't be shown again.");
-        } catch (e) {
-          console.error("LocalStorage not available or failed:", e);
-          logMessage(
-            "WARN",
-            "Could not save 'don't show again' preference (LocalStorage might be disabled)."
-          );
+    function closeIntroModal() { /* ... as before ... */
+        const dontShowCheckbox = document.getElementById("dontShowIntroAgain");
+        if (dontShowCheckbox && dontShowCheckbox.checked) {
+            try {
+            localStorage.setItem("ragIntroShown", "true");
+            logMessage("INFO", "Introduction modal won't be shown again.");
+            } catch (e) {
+            console.error("LocalStorage not available or failed:", e);
+            logMessage(
+                "WARN",
+                "Could not save 'don't show again' preference (LocalStorage might be disabled)."
+            );
+            }
         }
-      }
-      closeModal("introModal");
+        closeModal("introModal");
     }
-
-    // Close modal if clicking outside the content area
-    window.addEventListener("click", (event) => {
-      if (activeModal && event.target.classList.contains("modal")) {
-        closeModal(activeModal);
-      }
+    window.addEventListener("click", (event) => { /* ... as before ... */
+        if (activeModal && event.target.classList.contains("modal")) {
+            closeModal(activeModal);
+        }
     });
 
     // --- Logging ---
-    function logMessage(level, message, isStep = false) {
-      const timestamp = new Date().toLocaleTimeString([], { hour12: false });
-      const upperLevel = level.toUpperCase();
-      const entry = { timestamp, level: upperLevel, message, isStep };
-      logs.push(entry);
-      if (logs.length > MAX_LOG_ENTRIES) {
-        logs.shift();
-      }
-      renderLogs();
+    function logMessage(level, message, isStep = false) { /* ... as before ... */
+        const timestamp = new Date().toLocaleTimeString([], { hour12: false });
+        const upperLevel = level.toUpperCase();
+        const entry = { timestamp, level: upperLevel, message, isStep };
+        logs.push(entry);
+        if (logs.length > MAX_LOG_ENTRIES) {
+            logs.shift();
+        }
+        renderLogs();
     }
-
-    function renderLogs() {
-      logContainer.innerHTML = "";
-      logs.forEach((entry) => {
-        const div = document.createElement("div");
-        div.className = "log-entry";
-        let levelClass = `log-${entry.level.toLowerCase().replace(/_/g, '-')}`;
-        if (entry.isStep) { levelClass = 'log-viz-step'; }
-        div.classList.add(levelClass);
-        div.innerHTML = `<time>${entry.timestamp}</time> <span>${entry.message}</span>`;
-        logContainer.appendChild(div);
-      });
-      logContainer.scrollTop = logContainer.scrollHeight;
+    function renderLogs() { /* ... as before ... */
+        logContainer.innerHTML = "";
+        logs.forEach((entry) => {
+            const div = document.createElement("div");
+            div.className = "log-entry";
+            let levelClass = `log-${entry.level.toLowerCase().replace(/_/g, '-')}`;
+            if (entry.isStep) { levelClass = 'log-viz-step'; }
+            div.classList.add(levelClass);
+            div.innerHTML = `<time>${entry.timestamp}</time> <span>${entry.message}</span>`;
+            logContainer.appendChild(div);
+        });
+        logContainer.scrollTop = logContainer.scrollHeight;
     }
 
     // --- Canvas Utilities ---
+
+    // START BLOCK 1: getMousePos (Returns BOTH buffer and CSS coordinates) - CORRECT
     function getMousePos(canvasEl, evt) {
-      const rect = canvasEl.getBoundingClientRect();
-      const scaleX = canvasEl.width / rect.width;
-      const scaleY = canvasEl.height / rect.height;
-      return {
-        x: (evt.clientX - rect.left) * scaleX,
-        y: (evt.clientY - rect.top) * scaleY,
-      };
-    }
-
-    function isPointInNode(node, x, y) {
-      const scale = node.currentScale ?? 1.0;
-      if (node.type === "process") {
-        const dx = x - node.x;
-        const dy = y - node.y;
-        return dx * dx + dy * dy <= Math.pow(PROCESS_RADIUS * scale, 2);
-      } else {
-        const halfSize = (RESOURCE_SIZE / 2) * scale;
-        return (x >= node.x - halfSize && x <= node.x + halfSize && y >= node.y - halfSize && y <= node.y + halfSize);
-      }
-    }
-
-    function getNodeAtPos(x, y) {
-      for (let i = nodes.length - 1; i >= 0; i--) {
-        if (isPointInNode(nodes[i], x, y) && (!nodes[i].isAnimating || nodes[i].currentScale > 0.8)) {
-          return nodes[i];
+        const rect = canvasEl.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        let cssX, cssY;
+        if (evt.offsetX !== undefined && evt.offsetY !== undefined) {
+            cssX = evt.offsetX; cssY = evt.offsetY;
+        } else {
+            cssX = evt.clientX - rect.left; cssY = evt.clientY - rect.top;
         }
-      }
-      return null;
+        const bufferX = cssX * dpr; const bufferY = cssY * dpr;
+        const finalBufferX = Math.max(0, Math.min(canvasEl.width, bufferX));
+        const finalBufferY = Math.max(0, Math.min(canvasEl.height, bufferY));
+        return { x: finalBufferX, y: finalBufferY, cssX: cssX, cssY: cssY };
     }
+    // END BLOCK 1
 
-    function findNodeById(nodeId) {
-         if (!nodeId) return null; // Handle null/empty IDs gracefully
-         const upperId = nodeId.toUpperCase();
-         return nodes.find((n) => n.id === upperId);
+    // START BLOCK 2: isPointInNode (Compares BUFFER click coords to BUFFER node coords using BUFFER size) - CORRECT
+    function isPointInNode(node, x, y) {
+        // x, y are BUFFER coordinates of the click
+        // node.x, node.y ARE BUFFER coordinates of the node center
+        const scale = node.currentScale ?? 1.0;
+        const dpr = window.devicePixelRatio || 1;
+        let hit = false;
+        if (node.type === "process") {
+            const bufferRadius = (PROCESS_RADIUS * dpr) * scale; // Radius in buffer pixels
+            const dx = x - node.x; const dy = y - node.y; // Diff in buffer coords
+            const distanceSq = dx * dx + dy * dy; // Dist sq in buffer coords
+            const radiusSq = bufferRadius * bufferRadius; // Radius sq in buffer coords
+            hit = distanceSq <= radiusSq;
+        } else { // Resource
+            const bufferSize = (RESOURCE_SIZE * dpr) * scale; // Size in buffer pixels
+            const halfBufferSize = bufferSize / 2;
+            const nodeLeft = node.x - halfBufferSize; const nodeRight = node.x + halfBufferSize; // Bounds in buffer coords
+            const nodeTop = node.y - halfBufferSize; const nodeBottom = node.y + halfBufferSize;
+            hit = (x >= nodeLeft && x <= nodeRight && y >= nodeTop && y <= nodeBottom); // Compare buffer coords
+        }
+        return hit;
     }
+    // END BLOCK 2
 
+    // START BLOCK 3: getNodeAtPos (Uses BUFFER coordinates for hit testing) - CORRECT
+    function getNodeAtPos(x, y) {
+        // x, y are BUFFER coordinates
+        // console.log(`getNodeAtPos checking at: x=${x.toFixed(2)}, y=${y.toFixed(2)}`); // DEBUG
+        for (let i = nodes.length - 1; i >= 0; i--) {
+            const node = nodes[i];
+            // console.log(` -> Checking node ${node.id} (${node.type}) at x=${node.x.toFixed(2)}, y=${node.y.toFixed(2)}`); // DEBUG
+            if (isPointInNode(node, x, y) && (!node.isAnimating || (node.currentScale ?? 1.0) > 0.8)) {
+                // console.log(`   MATCH FOUND: ${node.id}`); // DEBUG
+                return node;
+            }
+        }
+        // console.log("getNodeAtPos: No node found at this position."); // DEBUG
+        return null;
+    }
+    // END BLOCK 3
 
-    function getAssignedInstancesCount(resourceNodeId) {
+    function findNodeById(nodeId) { /* ... as before ... */
+        if (!nodeId) return null;
+        const upperId = nodeId.toUpperCase();
+        return nodes.find((n) => n.id === upperId);
+    }
+    function getAssignedInstancesCount(resourceNodeId) { /* ... as before ... */
         if (!resourceNodeId) return 0;
         return edges.filter(edge => edge.from === resourceNodeId && edge.type === 'assignment').length;
     }
-
-
-    function getAvailableInstances(resourceNode) {
-      if (!resourceNode || resourceNode.type !== "resource") return 0;
-      const assignedCount = getAssignedInstancesCount(resourceNode.id);
-      return resourceNode.totalInstances - assignedCount;
+    function getAvailableInstances(resourceNode) { /* ... as before ... */
+        if (!resourceNode || resourceNode.type !== "resource") return 0;
+        const assignedCount = getAssignedInstancesCount(resourceNode.id);
+        return resourceNode.totalInstances - assignedCount;
     }
 
+    // START: Reverted getEdgePoints - Operates in the SCALED context (uses CSS constants directly)
     function getEdgePoints(node1, node2) {
-      const dx = node2.x - node1.x;
-      const dy = node2.y - node1.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
+      // node1.x/y, node2.x/y ARE BUFFER coordinates
+      // This function now calculates points suitable for drawing in the SCALED context
+      const dx = node2.x - node1.x; // Buffer diff
+      const dy = node2.y - node1.y; // Buffer diff
+      const dist = Math.sqrt(dx * dx + dy * dy); // Buffer distance
       const unitX = dist === 0 ? 0 : dx / dist;
       const unitY = dist === 0 ? 0 : dy / dist;
+
+      // Use CSS constants directly, the scaled context handles the size
       const node1Scale = node1.currentScale ?? 1.0;
       const node2Scale = node2.currentScale ?? 1.0;
-      const startOffsetBase = node1.type === "process" ? PROCESS_RADIUS * node1Scale : (RESOURCE_SIZE / 2) * node1Scale;
-      const endOffsetBase = node2.type === "process" ? PROCESS_RADIUS * node2Scale : (RESOURCE_SIZE / 2) * node2Scale;
+      const startOffset = (node1.type === "process" ? PROCESS_RADIUS : RESOURCE_SIZE / 2) * node1Scale; // CSS size
+      const endOffset = (node2.type === "process" ? PROCESS_RADIUS : RESOURCE_SIZE / 2) * node2Scale;   // CSS size
+      const gap = GAP; // CSS size
+
+      // Need to compare buffer distance to CSS offsets scaled by DPR
+      const dpr = window.devicePixelRatio || 1;
+      const startOffsetBuffer = startOffset * dpr;
+      const endOffsetBuffer = endOffset * dpr;
+      const gapBuffer = gap * dpr;
+
       let startX, startY, endX, endY;
-      if (dist > startOffsetBase + endOffsetBase + GAP) {
-           startX = node1.x + unitX * (startOffsetBase + GAP);
-           startY = node1.y + unitY * (startOffsetBase + GAP);
-           endX = node2.x - unitX * (endOffsetBase + GAP);
-           endY = node2.y - unitY * (endOffsetBase + GAP);
+      // Perform check using buffer distances
+      if (dist > startOffsetBuffer + endOffsetBuffer + gapBuffer) {
+           // Calculate offsets in BUFFER pixels
+           const startOffsetBufferWithGap = startOffsetBuffer + gapBuffer;
+           const endOffsetBufferWithGap = endOffsetBuffer + gapBuffer;
+           // Calculate endpoints in BUFFER coordinates
+           startX = node1.x + unitX * startOffsetBufferWithGap;
+           startY = node1.y + unitY * startOffsetBufferWithGap;
+           endX = node2.x - unitX * endOffsetBufferWithGap;
+           endY = node2.y - unitY * endOffsetBufferWithGap;
       } else {
+          // Fallback to node centers (BUFFER coordinates)
           startX = node1.x; startY = node1.y;
           endX = node2.x; endY = node2.y;
       }
+      // Return BUFFER coordinates
       return { start: { x: startX, y: startY }, end: { x: endX, y: endY } };
     }
+    // END: Reverted getEdgePoints
 
+    // START: Reverted drawArrow - Operates in the SCALED context
     function drawArrow(ctx, fromX, fromY, toX, toY, color, lineWidth = NORMAL_EDGE_WIDTH) {
+      // fromX/Y, toX/Y ARE BUFFER coordinates
       if (Math.abs(fromX - toX) < 0.1 && Math.abs(fromY - toY) < 0.1) return;
-      const headlen = ARROW_SIZE * (lineWidth / NORMAL_EDGE_WIDTH);
-      const dx = toX - fromX;
-      const dy = toY - fromY;
+      // Use CSS Arrow Size directly, context scaling handles visual size
+      const headlen = ARROW_SIZE * (lineWidth / NORMAL_EDGE_WIDTH); // Head length in CSS pixels for calculation
+      const dx = toX - fromX; // Buffer diff
+      const dy = toY - fromY; // Buffer diff
       const angle = Math.atan2(dy, dx);
+
       ctx.save();
       ctx.strokeStyle = color;
-      ctx.lineWidth = lineWidth;
+      ctx.lineWidth = lineWidth; // Use CSS line width, context scaling handles thickness
       ctx.fillStyle = color;
-      ctx.beginPath(); ctx.moveTo(fromX, fromY); ctx.lineTo(toX, toY); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(toX, toY);
-      ctx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
-      ctx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+
+      // Convert BUFFER coords to CSS coords for drawing in scaled context
+      const dpr = window.devicePixelRatio || 1;
+      const cssFromX = fromX / dpr; const cssFromY = fromY / dpr;
+      const cssToX = toX / dpr; const cssToY = toY / dpr;
+
+      ctx.beginPath(); ctx.moveTo(cssFromX, cssFromY); ctx.lineTo(cssToX, cssToY); ctx.stroke(); // Use CSS coords
+      ctx.beginPath(); ctx.moveTo(cssToX, cssToY); // Use CSS coords
+      // Calculate arrowhead points using CSS lengths/angles
+      ctx.lineTo(cssToX - headlen * Math.cos(angle - Math.PI / 6), cssToY - headlen * Math.sin(angle - Math.PI / 6));
+      ctx.lineTo(cssToX - headlen * Math.cos(angle + Math.PI / 6), cssToY - headlen * Math.sin(angle + Math.PI / 6));
       ctx.closePath(); ctx.fill();
       ctx.restore();
     }
+    // END: Reverted drawArrow
 
     // --- Animation & Drawing ---
     function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
     function ensureAnimationLoop() { if (!animationFrameId) { animationFrameId = requestAnimationFrame(draw); } }
 
+    // START: Reverted draw function (Operates in SCALED context)
     function draw() {
         const dpr = window.devicePixelRatio || 1;
-        ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+        // Context is assumed to be scaled by dpr via resizeCanvas()
+        // Clear the *visual* area using CSS dimensions
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0); // Use identity transform for clearing
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the underlying buffer
+        ctx.restore(); // Restore the scaled transform
+
         const now = performance.now();
         let needsAnotherFrame = false;
         let hasAssignmentEdges = false;
 
-        nodes.forEach((node) => { // Node Animation Update
+        // --- Node Animation Update ---
+        nodes.forEach((node) => { /* ... as before ... */
             if (node.isAnimating) {
                 needsAnotherFrame = true;
                 const elapsed = now - node.animationStart;
@@ -1073,7 +1134,8 @@ REQ P1 R1;"></textarea>
             }
         });
 
-        edges.forEach((edge) => { // Draw Edges
+        // --- Draw Edges (Calls getEdgePoints/drawArrow which now expect SCALED context) ---
+        edges.forEach((edge) => {
             const node1 = findNodeById(edge.from); const node2 = findNodeById(edge.to);
             if (!node1 || !node2) return;
             const edgeAlpha = Math.min(node1.currentAlpha ?? 1.0, node2.currentAlpha ?? 1.0);
@@ -1083,41 +1145,52 @@ REQ P1 R1;"></textarea>
             const node2IsDeadlocked = deadlockedNodes.has(node2.id);
             const isDeadlockEdge = node1IsDeadlocked && node2IsDeadlocked;
             const isSelectedEdge = selectedNode1 && (edge.from === selectedNode1.id || edge.to === selectedNode1.id);
-            let currentLineWidth = NORMAL_EDGE_WIDTH;
+            let currentLineWidth = NORMAL_EDGE_WIDTH; // CSS pixels
             let currentColor = edge.type === "request" ? REQUEST_EDGE_COLOR : ASSIGN_EDGE_COLOR;
             if (isDeadlockEdge) { currentColor = DEADLOCK_HIGHLIGHT_COLOR; currentLineWidth = HIGHLIGHTED_EDGE_WIDTH; }
             else if (isSelectedEdge) { currentColor = EDGE_SELECTED_HIGHLIGHT_COLOR; currentLineWidth = HIGHLIGHTED_EDGE_WIDTH; }
 
             ctx.save(); ctx.globalAlpha = edgeAlpha;
-            const points = getEdgePoints(node1, node2);
+            const points = getEdgePoints(node1, node2); // Gets BUFFER coordinates for endpoints
+            // drawArrow now expects BUFFER coords but draws them as CSS coords in the scaled context
             drawArrow(ctx, points.start.x, points.start.y, points.end.x, points.end.y, currentColor, currentLineWidth);
 
-            if (edge.type === 'assignment') { // Assignment Edge Animation
+            // Assignment Edge Animation (using CSS coordinates in scaled context)
+            if (edge.type === 'assignment') {
                 hasAssignmentEdges = true;
-                const dx = points.end.x - points.start.x; const dy = points.end.y - points.start.y;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist > ANIMATION_DOT_SIZE * 3) {
+                const cssStartX = points.start.x / dpr; const cssStartY = points.start.y / dpr;
+                const cssEndX = points.end.x / dpr; const cssEndY = points.end.y / dpr;
+                const dxCss = cssEndX - cssStartX; const dyCss = cssEndY - cssStartY;
+                const distCss = Math.sqrt(dxCss*dxCss + dyCss*dyCss);
+                const cssDotSize = ANIMATION_DOT_SIZE; // Use CSS size directly
+
+                if (distCss > cssDotSize * 3) {
                     const progress = (now / ASSIGNMENT_ANIMATION_SPEED) % 1;
-                    const dotX = points.start.x + dx * progress; const dotY = points.start.y + dy * progress;
+                    const dotXCss = cssStartX + dxCss * progress; // CSS coord
+                    const dotYCss = cssStartY + dyCss * progress; // CSS coord
                     ctx.fillStyle = ASSIGN_EDGE_COLOR; ctx.beginPath();
-                    ctx.arc(dotX, dotY, ANIMATION_DOT_SIZE, 0, Math.PI * 2); ctx.fill();
+                    ctx.arc(dotXCss, dotYCss, cssDotSize, 0, Math.PI * 2); // Use CSS coords/size
+                    ctx.fill();
                 }
             }
             ctx.restore();
         });
 
-        nodes.forEach((node) => { // Draw Nodes
-            ctx.save();
+        // --- Draw Nodes (Using BUFFER coordinates converted to CSS for drawing) ---
+        nodes.forEach((node) => {
+            // node.x, node.y ARE BUFFER coordinates
+             ctx.save();
             const scale = node.currentScale ?? 1.0; let alpha = node.currentAlpha ?? 1.0;
             const blur = node.currentBlur ?? 0.0;
             if (alpha <= 0.01 || scale <= 0.01) { ctx.restore(); return; }
             ctx.globalAlpha = alpha; if (blur > 0.1) { ctx.filter = `blur(${blur}px)`; }
 
             let baseFillStyle = node.type === "process" ? PROCESS_COLOR : RESOURCE_COLOR;
-            let strokeStyle = NODE_STROKE_COLOR; let lineWidth = 1;
+            let strokeStyle = NODE_STROKE_COLOR; let lineWidth = 1; // CSS line width
 
-            if (isVisualizingDeadlock && deadlockVizState) { // Visualization Styling
-                needsAnotherFrame = true;
+            // Styling logic (sets lineWidth in CSS pixels)
+            if (isVisualizingDeadlock && deadlockVizState) { /* ... as before ... */
+                 needsAnotherFrame = true;
                 const { visited, stack, current } = deadlockVizState; let vizHighlight = false;
                 if (stack?.has(node.id)) { baseFillStyle = "#fecaca"; strokeStyle = "#dc2626"; lineWidth = 2.5; vizHighlight = true; }
                 else if (visited?.has(node.id)) { baseFillStyle = "#e0e7ff"; strokeStyle = "#6366f1"; lineWidth = 2; vizHighlight = true; }
@@ -1125,208 +1198,187 @@ REQ P1 R1;"></textarea>
                 if (!vizHighlight) { alpha = Math.max(0.15, alpha * 0.4); }
                  ctx.globalAlpha = alpha;
             }
-            else if (deadlockedNodes.has(node.id)) { strokeStyle = DEADLOCK_HIGHLIGHT_COLOR; lineWidth = 3; } // Deadlock Styling
-            else if (node === selectedNode1 || node === selectedNode2) { strokeStyle = NODE_SELECTED_COLOR; lineWidth = 2.5; } // Selection Styling
+            else if (deadlockedNodes.has(node.id)) { strokeStyle = DEADLOCK_HIGHLIGHT_COLOR; lineWidth = 3; }
+            else if (node === selectedNode1 || node === selectedNode2) { strokeStyle = NODE_SELECTED_COLOR; lineWidth = 2.5; }
 
-            ctx.fillStyle = baseFillStyle; ctx.strokeStyle = strokeStyle; ctx.lineWidth = lineWidth;
+            ctx.fillStyle = baseFillStyle; ctx.strokeStyle = strokeStyle;
+            ctx.lineWidth = lineWidth; // Use CSS line width
 
-            if (node.type === "process") { // Draw Process Circle
-                const currentRadius = PROCESS_RADIUS * scale; ctx.beginPath();
-                ctx.arc(node.x, node.y, currentRadius, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-            } else { // Draw Resource Square
-                const currentSize = RESOURCE_SIZE * scale; const halfSize = currentSize / 2;
-                ctx.fillRect(node.x - halfSize, node.y - halfSize, currentSize, currentSize);
-                ctx.strokeRect(node.x - halfSize, node.y - halfSize, currentSize, currentSize);
-                if (node.totalInstances > 1 && scale > 0.7 && alpha > 0.7) { // Draw Instance Count
+            // Convert BUFFER node coordinates to CSS coordinates for drawing
+            const cssX = node.x / dpr;
+            const cssY = node.y / dpr;
+
+            // --- Draw Shapes using CSS coordinates and CSS sizes ---
+            if (node.type === "process") {
+                const cssRadius = PROCESS_RADIUS * scale; // Radius in CSS pixels
+                ctx.beginPath();
+                ctx.arc(cssX, cssY, cssRadius, 0, Math.PI * 2); // Use CSS coords & radius
+                ctx.fill(); ctx.stroke();
+            } else { // Resource
+                const cssSize = RESOURCE_SIZE * scale; // Size in CSS pixels
+                const halfCssSize = cssSize / 2;
+                ctx.fillRect(cssX - halfCssSize, cssY - halfCssSize, cssSize, cssSize); // Use CSS coords & size
+                ctx.strokeRect(cssX - halfCssSize, cssY - halfCssSize, cssSize, cssSize); // Use CSS coords & size
+
+                // --- Draw Instance Count (using CSS coordinates) ---
+                if (node.totalInstances > 1 && scale > 0.7 && alpha > 0.7) {
                     ctx.filter = "none"; const available = getAvailableInstances(node);
                     ctx.fillStyle = INSTANCE_TEXT_COLOR; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                    const fontSize = Math.max(8, Math.round(RESOURCE_TEXT_FONT_SIZE * scale));
-                    ctx.font = `bold ${fontSize}px sans-serif`;
-                    ctx.fillText(`${available}/${node.totalInstances}`, node.x, node.y + fontSize * 0.7);
+                    const cssFontSize = Math.max(8, Math.round(RESOURCE_TEXT_FONT_SIZE * scale)); // CSS px
+                    ctx.font = `bold ${cssFontSize}px sans-serif`; // Set CSS font size
+                    const cssYOffset = cssFontSize * 0.7; // Offset in CSS px
+                    ctx.fillText(`${available}/${node.totalInstances}`, cssX, cssY + cssYOffset); // Position using CSS coords
                 }
             }
-            if (scale > 0.6 && alpha > 0.6) { // Draw Node ID
+
+            // --- Draw Node ID (using CSS coordinates) ---
+            if (scale > 0.6 && alpha > 0.6) {
                 ctx.filter = "none"; ctx.fillStyle = TEXT_COLOR; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                const fontSize = Math.max(8, Math.round(14 * scale)); ctx.font = `${fontSize}px sans-serif`;
-                ctx.globalAlpha = Math.min(1, alpha * 1.5);
-                let textY = node.y;
-                if (node.type === "resource" && node.totalInstances > 1) { textY -= RESOURCE_TEXT_FONT_SIZE * 0.6; }
-                ctx.fillText(node.id, node.x, textY);
+                const cssFontSize = Math.max(8, Math.round(14 * scale)); // CSS px
+                ctx.font = `${cssFontSize}px sans-serif`; // Set CSS font size
+                // ctx.globalAlpha = Math.min(1, alpha * 1.5); // Already set
+                let textCssY = cssY; // Start with CSS Y coord
+                if (node.type === "resource" && node.totalInstances > 1) {
+                    const cssYOffset = RESOURCE_TEXT_FONT_SIZE * 0.6; // Offset in CSS px
+                    textCssY -= cssYOffset;
+                }
+                ctx.fillText(node.id, cssX, textCssY); // Position using CSS coords
             }
             ctx.restore();
         });
 
-        if (needsAnotherFrame || draggingNode || isVisualizingDeadlock || hasAssignmentEdges || selectedNode1 || deadlockedNodes.size > 0) {
+        // Draw click position marker USING CSS COORDINATES (visual aid)
+        if (lastClickPos) { // lastClickPos stores {x: cssX, y: cssY}
+            ctx.save();
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.7)';
+            ctx.beginPath();
+            // Draw using CSS coordinates. The current scaled transform handles placement.
+            // Use radius / dpr so it visually appears as 5 CSS pixels.
+            ctx.arc(lastClickPos.x, lastClickPos.y, 5 / dpr, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // --- Animation Frame Request Logic ---
+        if (needsAnotherFrame || draggingNode || isVisualizingDeadlock || hasAssignmentEdges || selectedNode1 || deadlockedNodes.size > 0 || lastClickPos) {
             animationFrameId = requestAnimationFrame(draw);
-        } else { animationFrameId = null; }
+        } else {
+            if(lastClickPos && !(needsAnotherFrame || draggingNode || isVisualizingDeadlock || hasAssignmentEdges || selectedNode1 || deadlockedNodes.size > 0)) {
+                lastClickPos = null;
+            }
+            animationFrameId = null;
+        }
     }
+    // END: Reverted draw function
+
 
     // --- Core Logic Functions (Add, Remove, Edit, etc.) ---
 
+    // START: Corrected _addNode function (Stores BUFFER coordinates) - CORRECT
     function _addNode(id, type, x, y, instances = 1) {
+        // x, y ARE BUFFER coordinates
         id = id.trim().toUpperCase();
-        if (!id) {
-             logMessage("ERROR", `Node ID cannot be empty.`);
-             return null;
-        }
-        if (findNodeById(id)) {
-            logMessage("ERROR", `Node with ID '${id}' already exists.`);
-            return null;
-        }
-        if (!/^[A-Z0-9_]+$/.test(id)) {
-             logMessage("ERROR", `Invalid Node ID format: '${id}'. Use letters, numbers, underscore.`);
-             return null;
-        }
-        const newNode = { id: id, type: type, x: x, y: y, isAnimating: true, animationStart: performance.now(), currentScale: 0, currentAlpha: 0, currentBlur: 5 };
+        if (!id) { logMessage("ERROR", `Node ID cannot be empty.`); return null; }
+        if (findNodeById(id)) { logMessage("ERROR", `Node with ID '${id}' already exists.`); return null; }
+        if (!/^[A-Z0-9_]+$/.test(id)) { logMessage("ERROR", `Invalid Node ID format: '${id}'. Use letters, numbers, underscore.`); return null; }
+        const newNode = { id: id, type: type, x: x, y: y, /* Store BUFFER coords */
+                          isAnimating: true, animationStart: performance.now(),
+                          currentScale: 0, currentAlpha: 0, currentBlur: 5 };
         if (type === "resource") { newNode.totalInstances = Math.max(1, Math.min(100, instances)); }
         nodes.push(newNode);
+        console.log(`[_addNode] Node ${newNode.id} stored with BUFFER coords: x=${newNode.x.toFixed(2)}, y=${newNode.y.toFixed(2)}`); // DEBUG
         logMessage("SUCCESS", `Added ${type} node '${id}'${type === "resource" ? ` with ${newNode.totalInstances} instance(s).` : "."}`);
-        ensureAnimationLoop();
-        return newNode;
+        ensureAnimationLoop(); return newNode;
     }
+    // END: Corrected _addNode function
 
+    // START: Corrected submitAddProcess function (Calculates and passes BUFFER coordinates) - CORRECT
     function submitAddProcess() {
-      let id = processIdInput.value.trim().toUpperCase();
-      if (!id) {
-        let counter = 1; while(findNodeById(`P${counter}`)) { counter++; } id = `P${counter}`;
-      } else { if (!id.startsWith("P")) id = "P" + id; }
-      const dpr = window.devicePixelRatio || 1; const padding = Math.max(PROCESS_RADIUS, RESOURCE_SIZE / 2) + 10;
-      const canvasWidth = canvas.width / dpr; const canvasHeight = canvas.height / dpr;
-      const spawnX = padding + Math.random() * (canvasWidth - 2 * padding);
-      const spawnY = padding + Math.random() * (canvasHeight - 2 * padding);
-      if (_addNode(id, "process", spawnX, spawnY)) { closeModal("addProcessModal"); }
+        let id = processIdInput.value.trim().toUpperCase(); let type = "process";
+        if (!id) { let counter = 1; while(findNodeById(`P${counter}`)) { counter++; } id = `P${counter}`; }
+        else { if (!id.startsWith("P")) id = "P" + id; }
+        const dpr = window.devicePixelRatio || 1;
+        const bufferPadding = (Math.max(PROCESS_RADIUS, RESOURCE_SIZE / 2) + 10) * dpr;
+        const canvasWidth = canvas.width; const canvasHeight = canvas.height;
+        const spawnableWidth = canvasWidth - 2 * bufferPadding;
+        const spawnableHeight = canvasHeight - 2 * bufferPadding;
+        const spawnX = (spawnableWidth > 0) ? (bufferPadding + Math.random() * spawnableWidth) : (canvasWidth / 2); // BUFFER coord
+        const spawnY = (spawnableHeight > 0) ? (bufferPadding + Math.random() * spawnableHeight) : (canvasHeight / 2); // BUFFER coord
+        // console.log(`[submitAddProcess] Calculated spawn BUFFER coords: x=${spawnX.toFixed(2)}, y=${spawnY.toFixed(2)}`); // DEBUG
+        if (_addNode(id, type, spawnX, spawnY)) { closeModal("addProcessModal"); }
     }
+    // END: Corrected submitAddProcess function
 
+    // START: Corrected submitAddResource function (Calculates and passes BUFFER coordinates) - CORRECT
     function submitAddResource() {
-      let id = resourceIdInput.value.trim().toUpperCase();
-      const instances = parseInt(resourceInstancesInput.value) || 1;
-      if (!id) {
-         let counter = 1; while(findNodeById(`R${counter}`)) { counter++; } id = `R${counter}`;
-      } else { if (!id.startsWith("R")) id = "R" + id; }
-      if (instances < 1 || instances > 100) { logMessage("ERROR", "Invalid instance count (must be 1-100)."); alert("Invalid instance count (must be 1-100)."); return; }
-      const dpr = window.devicePixelRatio || 1; const padding = Math.max(PROCESS_RADIUS, RESOURCE_SIZE / 2) + 10;
-      const canvasWidth = canvas.width / dpr; const canvasHeight = canvas.height / dpr;
-      const spawnX = padding + Math.random() * (canvasWidth - 2 * padding);
-      const spawnY = padding + Math.random() * (canvasHeight - 2 * padding);
-      if (_addNode(id, "resource", spawnX, spawnY, instances)) { closeModal("addResourceModal"); }
+        let id = resourceIdInput.value.trim().toUpperCase(); let type = "resource";
+        const instances = parseInt(resourceInstancesInput.value) || 1;
+        if (!id) { let counter = 1; while(findNodeById(`R${counter}`)) { counter++; } id = `R${counter}`; }
+        else { if (!id.startsWith("R")) id = "R" + id; }
+        if (instances < 1 || instances > 100) { logMessage("ERROR", "Invalid instance count (must be 1-100)."); alert("Invalid instance count (must be 1-100)."); return; }
+        const dpr = window.devicePixelRatio || 1;
+        const bufferPadding = (Math.max(PROCESS_RADIUS, RESOURCE_SIZE / 2) + 10) * dpr;
+        const canvasWidth = canvas.width; const canvasHeight = canvas.height;
+        const spawnableWidth = canvasWidth - 2 * bufferPadding;
+        const spawnableHeight = canvasHeight - 2 * bufferPadding;
+        const spawnX = (spawnableWidth > 0) ? (bufferPadding + Math.random() * spawnableWidth) : (canvasWidth / 2); // BUFFER coord
+        const spawnY = (spawnableHeight > 0) ? (bufferPadding + Math.random() * spawnableHeight) : (canvasHeight / 2); // BUFFER coord
+        // console.log(`[submitAddResource] Calculated spawn BUFFER coords: x=${spawnX.toFixed(2)}, y=${spawnY.toFixed(2)}`); // DEBUG
+        if (_addNode(id, type, spawnX, spawnY, instances)) { closeModal("addResourceModal"); }
     }
+    // END: Corrected submitAddResource function
 
-    // --- Edit Node Functions ---
-    function openEditModal() {
-        if (!selectedNode1 || selectedNode2) {
-            logMessage("WARN", "Select exactly one node to edit.");
-            return;
-        }
-        if (selectedNode1.type === 'process') {
-            openModal('editProcessModal');
-        } else if (selectedNode1.type === 'resource') {
-            openModal('editResourceModal');
-        }
+    // --- Edit Node Functions (No changes needed) ---
+    function openEditModal() { /* ... as before ... */
+        if (!selectedNode1 || selectedNode2) { logMessage("WARN", "Select exactly one node to edit."); return; }
+        if (selectedNode1.type === 'process') { openModal('editProcessModal'); }
+        else if (selectedNode1.type === 'resource') { openModal('editResourceModal'); }
     }
-
-    function submitEditProcess() {
+    function submitEditProcess() { /* ... as before ... */
         const originalId = editProcessOriginalIdInput.value;
         const nodeToEdit = findNodeById(originalId);
-        if (!nodeToEdit || nodeToEdit.type !== 'process') {
-            logMessage("ERROR", `Original process node '${originalId}' not found for editing.`);
-            closeModal('editProcessModal');
-            return;
-        }
-
+        if (!nodeToEdit || nodeToEdit.type !== 'process') { logMessage("ERROR", `Original process node '${originalId}' not found for editing.`); closeModal('editProcessModal'); return; }
         const newId = editProcessIdInput.value.trim().toUpperCase();
-
-        // --- Validation ---
-        if (!newId) {
-            logMessage("ERROR", "Process ID cannot be empty."); return;
-        }
-        if (!/^[A-Z0-9_]+$/.test(newId)) {
-            logMessage("ERROR", `Invalid Process ID format: '${newId}'. Use letters, numbers, underscore.`); return;
-        }
-        if (newId !== originalId && findNodeById(newId)) {
-            logMessage("ERROR", `Process ID '${newId}' already exists.`); return;
-        }
-
-        // --- Apply Changes ---
+        if (!newId) { logMessage("ERROR", "Process ID cannot be empty."); return; }
+        if (!/^[A-Z0-9_]+$/.test(newId)) { logMessage("ERROR", `Invalid Process ID format: '${newId}'. Use letters, numbers, underscore.`); return; }
+        if (newId !== originalId && findNodeById(newId)) { logMessage("ERROR", `Process ID '${newId}' already exists.`); return; }
         let idChanged = false;
         if (newId !== originalId) {
-            nodeToEdit.id = newId;
-            idChanged = true;
-            // Update edges
-            edges.forEach(edge => {
-                if (edge.from === originalId) edge.from = newId;
-                if (edge.to === originalId) edge.to = newId;
-            });
-            // Update deadlock set
-            if (deadlockedNodes.has(originalId)) {
-                deadlockedNodes.delete(originalId);
-                deadlockedNodes.add(newId);
-            }
-             // Update selection if edited node was selected
-             if (selectedNode1 && selectedNode1.id === originalId) selectedNode1.id = newId; // update the object reference
+            nodeToEdit.id = newId; idChanged = true;
+            edges.forEach(edge => { if (edge.from === originalId) edge.from = newId; if (edge.to === originalId) edge.to = newId; });
+            if (deadlockedNodes.has(originalId)) { deadlockedNodes.delete(originalId); deadlockedNodes.add(newId); }
+            if (selectedNode1 && selectedNode1.id === originalId) selectedNode1.id = newId;
         }
-
         logMessage("SUCCESS", `Process node updated ${idChanged ? `from '${originalId}' to '${newId}'` : `'${originalId}' (no changes)`}.`);
-        closeModal('editProcessModal');
-        ensureAnimationLoop();
+        closeModal('editProcessModal'); ensureAnimationLoop();
     }
-
-
-    function submitEditResource() {
+    function submitEditResource() { /* ... as before ... */
         const originalId = editResourceOriginalIdInput.value;
         const nodeToEdit = findNodeById(originalId);
-
-        if (!nodeToEdit || nodeToEdit.type !== 'resource') {
-            logMessage("ERROR", `Original resource node '${originalId}' not found for editing.`);
-            closeModal('editResourceModal');
-            return;
-        }
-
+        if (!nodeToEdit || nodeToEdit.type !== 'resource') { logMessage("ERROR", `Original resource node '${originalId}' not found for editing.`); closeModal('editResourceModal'); return; }
         const newId = editResourceIdInput.value.trim().toUpperCase();
         const newInstances = parseInt(editResourceInstancesInput.value);
-
-        // --- Validation ---
         if (!newId) { logMessage("ERROR", "Resource ID cannot be empty."); return; }
         if (!/^[A-Z0-9_]+$/.test(newId)) { logMessage("ERROR", `Invalid Resource ID format: '${newId}'. Use letters, numbers, underscore.`); return; }
         if (isNaN(newInstances) || newInstances < 1 || newInstances > 100) { logMessage("ERROR", "Invalid instance count (must be 1-100)."); return; }
         if (newId !== originalId && findNodeById(newId)) { logMessage("ERROR", `Resource ID '${newId}' already exists.`); return; }
-
-        // Validate instance count vs assigned count
         const assignedCount = getAssignedInstancesCount(originalId);
-        if (newInstances < assignedCount) {
-            logMessage("ERROR", `Cannot set instances (${newInstances}) less than currently assigned (${assignedCount}).`); return;
-        }
-
-        // --- Apply Changes ---
-        let idChanged = false;
-        let instancesChanged = false;
-
+        if (newInstances < assignedCount) { logMessage("ERROR", `Cannot set instances (${newInstances}) less than currently assigned (${assignedCount}).`); return; }
+        let idChanged = false; let instancesChanged = false;
         if (newId !== originalId) {
-            nodeToEdit.id = newId;
-            idChanged = true;
-            edges.forEach(edge => {
-                if (edge.from === originalId) edge.from = newId;
-                if (edge.to === originalId) edge.to = newId;
-            });
+            nodeToEdit.id = newId; idChanged = true;
+            edges.forEach(edge => { if (edge.from === originalId) edge.from = newId; if (edge.to === originalId) edge.to = newId; });
             if (deadlockedNodes.has(originalId)) { deadlockedNodes.delete(originalId); deadlockedNodes.add(newId); }
-             if (selectedNode1 && selectedNode1.id === originalId) selectedNode1.id = newId; // update the object reference
+             if (selectedNode1 && selectedNode1.id === originalId) selectedNode1.id = newId;
         }
-        if (newInstances !== nodeToEdit.totalInstances) {
-            nodeToEdit.totalInstances = newInstances;
-            instancesChanged = true;
-        }
-
-        if (idChanged || instancesChanged) {
-             logMessage("SUCCESS", `Resource node ${idChanged ? `updated from '${originalId}' to '${newId}'` : `'${originalId}' updated`}. ${instancesChanged ? `Instances set to ${newInstances}.` : ''}`);
-        } else {
-            logMessage("INFO", `Resource node '${originalId}' - no changes made.`);
-        }
-
-        closeModal('editResourceModal');
-        ensureAnimationLoop();
+        if (newInstances !== nodeToEdit.totalInstances) { nodeToEdit.totalInstances = newInstances; instancesChanged = true; }
+        if (idChanged || instancesChanged) { logMessage("SUCCESS", `Resource node ${idChanged ? `updated from '${originalId}' to '${newId}'` : `'${originalId}' updated`}. ${instancesChanged ? `Instances set to ${newInstances}.` : ''}`); }
+        else { logMessage("INFO", `Resource node '${originalId}' - no changes made.`); }
+        closeModal('editResourceModal'); ensureAnimationLoop();
     }
 
-
-    function _createEdge(fromId, toId, type) {
+    // --- Edge/Node Manipulation (No changes needed) ---
+    function _createEdge(fromId, toId, type) { /* ... as before ... */
         fromId = fromId.toUpperCase(); toId = toId.toUpperCase();
         const node1 = findNodeById(fromId); const node2 = findNodeById(toId);
         if (!node1 || !node2) { logMessage("ERROR", `Cannot create edge: Node ${!node1 ? fromId : toId} not found.`); return false; }
@@ -1342,8 +1394,7 @@ REQ P1 R1;"></textarea>
         logMessage("SUCCESS", `Added ${type} edge: ${fromId} -> ${toId}.`);
         ensureAnimationLoop(); return true;
     }
-
-    function requestEdgeAction(source = "Button") {
+    function requestEdgeAction(source = "Button") { /* ... as before ... */
         if (!selectedNode1 || !selectedNode2) { logMessage("WARN", "Select one Process and one Resource first."); return false; }
         let pNode = null, rNode = null;
         if (selectedNode1.type === "process" && selectedNode2.type === "resource") { pNode = selectedNode1; rNode = selectedNode2; }
@@ -1352,8 +1403,7 @@ REQ P1 R1;"></textarea>
         if (_createEdge(pNode.id, rNode.id, "request")) { logMessage("INFO", `Request action (${source}) successful: ${pNode.id} -> ${rNode.id}.`); clearSelection(); return true; }
         return false;
     }
-
-    function assignEdgeAction(source = "Button") {
+    function assignEdgeAction(source = "Button") { /* ... as before ... */
         if (!selectedNode1 || !selectedNode2) { logMessage("WARN", "Select one Process and one Resource first."); return false; }
         let pNode = null, rNode = null;
         if (selectedNode1.type === "process" && selectedNode2.type === "resource") { pNode = selectedNode1; rNode = selectedNode2; }
@@ -1362,8 +1412,7 @@ REQ P1 R1;"></textarea>
         if (_createEdge(rNode.id, pNode.id, "assignment")) { logMessage("INFO", `Assignment action (${source}) successful: ${rNode.id} -> ${pNode.id}.`); clearSelection(); return true; }
         return false;
     }
-
-    function releaseResourceAction(source = "Button") {
+    function releaseResourceAction(source = "Button") { /* ... as before ... */
         if (!selectedNode1 || !selectedNode2) { logMessage("WARN", "Select one Process and one Resource first."); return false; }
         let pNode = null, rNode = null;
         if (selectedNode1.type === "process" && selectedNode2.type === "resource") { pNode = selectedNode1; rNode = selectedNode2; }
@@ -1375,8 +1424,7 @@ REQ P1 R1;"></textarea>
         logMessage("SUCCESS", `Released resource ${rNode.id} from process ${pNode.id} (${source}).`);
         clearSelection(); ensureAnimationLoop(); return true;
     }
-
-    function removeEdge(node1Id, node2Id) { // Removes edges *between* the two nodes
+    function removeEdge(node1Id, node2Id) { /* ... as before ... */
         const initialLength = edges.length; let removedType = null;
         edges = edges.filter((edge) => {
             const match = (edge.from === node1Id && edge.to === node2Id) || (edge.from === node2Id && edge.to === node1Id);
@@ -1384,16 +1432,14 @@ REQ P1 R1;"></textarea>
         });
         return { success: edges.length < initialLength, type: removedType };
     }
-
-    function removeEdgeAction() {
+    function removeEdgeAction() { /* ... as before ... */
         if (!selectedNode1 || !selectedNode2) { logMessage("WARN", "Select two nodes first to remove an edge between them."); return; }
         const { success: removed, type: removedType } = removeEdge(selectedNode1.id, selectedNode2.id);
         if (removed) { logMessage("SUCCESS", `Removed ${removedType ? removedType + ' ' : ''}edge between ${selectedNode1.id} and ${selectedNode2.id}.`); clearSelection(); }
         else { logMessage("INFO", `No edge found between ${selectedNode1.id} and ${selectedNode2.id}.`); clearSelection(); }
         ensureAnimationLoop();
     }
-
-    function _removeNode(nodeId) {
+    function _removeNode(nodeId) { /* ... as before ... */
         nodeId = nodeId.toUpperCase();
         const nodeIndex = nodes.findIndex((n) => n.id === nodeId);
         if (nodeIndex === -1) { logMessage("ERROR", `Cannot remove node: ID '${nodeId}' not found.`); return false; }
@@ -1405,28 +1451,23 @@ REQ P1 R1;"></textarea>
         if (selectedNode2 && selectedNode2.id === nodeId) selectedNode2 = null;
         deadlockedNodes.delete(nodeId);
         logMessage("SUCCESS", `Removed node ${nodeId} and ${removedEdges} associated edge(s).`);
-        updateToolbarButtonStates(); // Update button states after removal
+        updateToolbarButtonStates();
         ensureAnimationLoop(); return true;
     }
-
-    function removeNodeAction(source = "Button") {
+    function removeNodeAction(source = "Button") { /* ... as before ... */
         if (!selectedNode1 || selectedNode2) { logMessage("WARN", "Select exactly one node to remove it."); return; }
         const nodeToRemoveId = selectedNode1.id;
         if (_removeNode(nodeToRemoveId)) { logMessage("INFO", `Remove node action (${source}) successful: ${nodeToRemoveId}.`); }
-        // Selection is handled within _removeNode and updateToolbarButtonStates
     }
-
-    function clearSelection() {
+    function clearSelection() { /* ... as before ... */
         if (selectedNode1 || selectedNode2) {
             logMessage("INFO", `Selection cleared.`);
-            selectedNode1 = null;
-            selectedNode2 = null;
-            updateToolbarButtonStates(); // Update buttons after clearing
+            selectedNode1 = null; selectedNode2 = null;
+            updateToolbarButtonStates();
             ensureAnimationLoop();
         }
     }
-
-    function _clearAll() {
+    function _clearAll() { /* ... as before ... */
         if (isVisualizingDeadlock) { stopDeadlockVisualization(); }
         nodes = []; edges = []; processCounter = 0; resourceCounter = 0;
         selectedNode1 = null; selectedNode2 = null; deadlockedNodes.clear(); draggingNode = null;
@@ -1434,29 +1475,25 @@ REQ P1 R1;"></textarea>
         updateToolbarButtonStates();
         ensureAnimationLoop(); return true;
     }
+    function clearAllAction(source = "Button") { /* ... as before ... */ return _clearAll(); }
 
-    function clearAllAction(source = "Button") { return _clearAll(); }
-
-    // --- Update Toolbar Button States ---
-    function updateToolbarButtonStates() {
+    // --- Update Toolbar Button States (No changes needed) ---
+    function updateToolbarButtonStates() { /* ... as before ... */
         const oneSelected = selectedNode1 && !selectedNode2;
         const twoSelected = selectedNode1 && selectedNode2;
         const pSelected = oneSelected && selectedNode1.type === 'process';
         const rSelected = oneSelected && selectedNode1.type === 'resource';
         const pAndRSelected = twoSelected && selectedNode1.type !== selectedNode2.type;
-
         requestEdgeBtn.disabled = !pAndRSelected;
         assignEdgeBtn.disabled = !pAndRSelected;
         releaseResourceBtn.disabled = !pAndRSelected;
         removeEdgeBtn.disabled = !twoSelected;
         removeNodeBtn.disabled = !oneSelected;
-        editNodeBtn.disabled = !oneSelected; // Enable Edit only when one node is selected
+        editNodeBtn.disabled = !oneSelected;
     }
 
-
-    // --- Deadlock Detection & Visualization (Unchanged from previous fix) ---
-
-    function* visualizeDeadlockGenerator() {
+    // --- Deadlock Detection & Visualization (No changes needed) ---
+    function* visualizeDeadlockGenerator() { /* ... as before ... */
         const adj = new Map(); nodes.forEach((n) => adj.set(n.id, []));
         edges.forEach((edge) => {
             if (edge.type === 'request') { adj.get(edge.from)?.push(edge.to); }
@@ -1467,7 +1504,6 @@ REQ P1 R1;"></textarea>
         });
         const visited = new Set(); const recursionStack = new Set(); const path = [];
         const nodesInCycles = new Set(); let firstCycleFound = null;
-
         function* detectCycleUtil(nodeId) {
             visited.add(nodeId); recursionStack.add(nodeId); path.push(nodeId);
             yield { visited: new Set(visited), stack: new Set(recursionStack), current: nodeId, path: [...path], cycleFound: firstCycleFound, status: `Visiting ${nodeId}. Stack: [${Array.from(recursionStack).join(', ')}]. Path: ${path.join("->")}` };
@@ -1494,8 +1530,7 @@ REQ P1 R1;"></textarea>
         else { finalStatus = "No deadlock detected after checking all nodes."; }
         return { visited: new Set(visited), stack: new Set(recursionStack), current: null, path: [], nodesInCycles: nodesInCycles, firstCycleFound: firstCycleFound, finalResult: true, status: finalStatus };
     }
-
-    function startDeadlockVisualization() {
+    function startDeadlockVisualization() { /* ... as before ... */
         if (isVisualizingDeadlock) return; if (nodes.length === 0) { logMessage("WARN", "Cannot visualize deadlock: No nodes on canvas."); return; }
         isVisualizingDeadlock = true; deadlockedNodes.clear(); deadlockVizGeneratorInstance = visualizeDeadlockGenerator();
         const initialStateResult = deadlockVizGeneratorInstance.next();
@@ -1510,16 +1545,14 @@ REQ P1 R1;"></textarea>
         if (deadlockVizState.cycleFound && deadlockVizState.cycleFound.length > 0) { deadlockVizState.cycleFound.forEach(id => deadlockedNodes.add(id)); }
         updateVisualizationUI(); ensureAnimationLoop();
     }
-
-    function stopDeadlockVisualization(completed = false) {
+    function stopDeadlockVisualization(completed = false) { /* ... as before ... */
         if (!isVisualizingDeadlock) return;
         const finalMessage = completed ? "Visualization completed." : "Visualization stopped by user.";
         logMessage("VIZ", `--- ${finalMessage} ---`);
         isVisualizingDeadlock = false; deadlockVizGeneratorInstance = null; deadlockVizState = null;
         updateVisualizationUI(); ensureAnimationLoop();
     }
-
-    function nextDeadlockStep() {
+    function nextDeadlockStep() { /* ... as before ... */
         if (!isVisualizingDeadlock || !deadlockVizGeneratorInstance) return;
         const result = deadlockVizGeneratorInstance.next();
         if (!result.done) {
@@ -1536,8 +1569,7 @@ REQ P1 R1;"></textarea>
             stopDeadlockVisualization(true);
         }
     }
-
-    function runDeadlockVizToEnd() {
+    function runDeadlockVizToEnd() { /* ... as before ... */
         if (!isVisualizingDeadlock || !deadlockVizGeneratorInstance) return;
         logMessage("VIZ", "Running visualization to end..."); let result; let lastValidStateBeforeDone = null;
         do { result = deadlockVizGeneratorInstance.next(); if (!result.done) { lastValidStateBeforeDone = result.value; deadlockVizState = lastValidStateBeforeDone; if (lastValidStateBeforeDone && lastValidStateBeforeDone.cycleFound) { lastValidStateBeforeDone.cycleFound.forEach(id => deadlockedNodes.add(id)); } } } while (!result.done);
@@ -1549,8 +1581,7 @@ REQ P1 R1;"></textarea>
         else { logMessage("ERROR", "Visualization run finished unexpectedly (no final state returned)."); }
         stopDeadlockVisualization(true);
     }
-
-    function detectDeadlockNow() {
+    function detectDeadlockNow() { /* ... as before ... */
         if (nodes.length === 0) { logMessage("WARN", "Cannot detect deadlock: No nodes on canvas."); return; }
         if (isVisualizingDeadlock) { logMessage("INFO", "Stopping ongoing visualization before direct detection."); stopDeadlockVisualization(); }
         logMessage("INFO", "--- Running Direct Deadlock Detection ---"); const generator = visualizeDeadlockGenerator(); let result;
@@ -1563,31 +1594,28 @@ REQ P1 R1;"></textarea>
         else { logMessage("ERROR", "Deadlock detection finished unexpectedly (final state missing)."); }
         ensureAnimationLoop();
     }
-
-    function updateVisualizationUI() {
-      const visualizing = isVisualizingDeadlock;
-      bodyElement.classList.toggle("visualizing", visualizing);
-      canvas.classList.toggle("visualizing", visualizing);
-      document.querySelectorAll('.normal-control').forEach(btn => { btn.disabled = visualizing; });
-      document.querySelectorAll('.visualization-control').forEach(btn => { btn.disabled = !visualizing; });
-      stopDeadlockVizBtn.disabled = !visualizing;
-      if (!deadlockVizGeneratorInstance || (deadlockVizState && deadlockVizState.finalResult)) { stepDeadlockVizBtn.disabled = true; runDeadlockVizBtn.disabled = true; }
-      // Re-enable normal buttons if not visualizing
-       if (!visualizing) {
-           updateToolbarButtonStates();
-       }
+    function updateVisualizationUI() { /* ... as before ... */
+        const visualizing = isVisualizingDeadlock;
+        bodyElement.classList.toggle("visualizing", visualizing);
+        canvas.classList.toggle("visualizing", visualizing);
+        document.querySelectorAll('.normal-control').forEach(btn => { btn.disabled = visualizing; });
+        document.querySelectorAll('.visualization-control').forEach(btn => { btn.disabled = !visualizing; });
+        stopDeadlockVizBtn.disabled = !visualizing;
+        if (!deadlockVizGeneratorInstance || (deadlockVizState && deadlockVizState.finalResult)) { stepDeadlockVizBtn.disabled = true; runDeadlockVizBtn.disabled = true; }
+        if (!visualizing) { updateToolbarButtonStates(); }
     }
 
     // --- Scripting ---
-    function parseScript(scriptText) {
-      const commands = []; const lines = scriptText.split("\n");
-      lines.forEach((line) => {
-        let contentWithoutComment = line; const commentIndex = line.indexOf("//");
-        if (commentIndex !== -1) { contentWithoutComment = line.substring(0, commentIndex); }
-        const parts = contentWithoutComment.split(";");
-        parts.forEach((part) => { const command = part.trim(); if (command.length > 0) { commands.push(command); } });
-      }); return commands;
+    function parseScript(scriptText) { /* ... as before ... */
+        const commands = []; const lines = scriptText.split("\n");
+        lines.forEach((line) => {
+            let contentWithoutComment = line; const commentIndex = line.indexOf("//");
+            if (commentIndex !== -1) { contentWithoutComment = line.substring(0, commentIndex); }
+            const parts = contentWithoutComment.split(";");
+            parts.forEach((part) => { const command = part.trim(); if (command.length > 0) { commands.push(command); } });
+        }); return commands;
     }
+    // START: executeCommand (Calculates and passes BUFFER coordinates for ADD) - CORRECT
     function executeCommand(cmd, cmdIndex) {
       const parts = cmd.toUpperCase().split(/\s+/); const operation = parts[0]; const args = parts.slice(1); let success = true;
       try {
@@ -1596,10 +1624,17 @@ REQ P1 R1;"></textarea>
             if (args.length < 2 || (args[0] !== "P" && args[0] !== "R")) throw new Error("Usage: ADD [P|R] ID [Instances]");
             const type = args[0] === "P" ? "process" : "resource"; const id = args[1]; if (!id) throw new Error("Node ID required");
             let instances = 1; if (type === "resource") { instances = args.length > 2 ? parseInt(args[2]) : 1; if (isNaN(instances) || instances < 1 || instances > 100) throw new Error("Invalid instance count (1-100)"); }
-            const dpr = window.devicePixelRatio || 1; const padding = Math.max(PROCESS_RADIUS, RESOURCE_SIZE / 2) + 10;
-            const canvasWidth = canvas.width / dpr; const canvasHeight = canvas.height / dpr;
-            const spawnX = padding + Math.random() * (canvasWidth - 2 * padding); const spawnY = padding + Math.random() * (canvasHeight - 2 * padding);
-            if (!_addNode(id, type, spawnX, spawnY, instances)) success = false; break;
+            const dpr = window.devicePixelRatio || 1;
+            const bufferPadding = (Math.max(PROCESS_RADIUS, RESOURCE_SIZE / 2) + 10) * dpr;
+            const canvasWidth = canvas.width; const canvasHeight = canvas.height;
+            const spawnableWidth = canvasWidth - 2 * bufferPadding;
+            const spawnableHeight = canvasHeight - 2 * bufferPadding;
+            const spawnX = (spawnableWidth > 0) ? (bufferPadding + Math.random() * spawnableWidth) : (canvasWidth / 2); // BUFFER coord
+            const spawnY = (spawnableHeight > 0) ? (bufferPadding + Math.random() * spawnableHeight) : (canvasHeight / 2); // BUFFER coord
+            // console.log(`[executeCommand ADD] Calculated spawn BUFFER coords: x=${spawnX.toFixed(2)}, y=${spawnY.toFixed(2)}`); // DEBUG
+            if (!_addNode(id, type, spawnX, spawnY, instances)) success = false;
+            break;
+          // ... other cases remain the same ...
           case "REQ": if (args.length !== 2) throw new Error("Usage: REQ ProcessID ResourceID"); if (!_createEdge(args[0], args[1], "request")) success = false; break;
           case "ASSIGN": if (args.length !== 2) throw new Error("Usage: ASSIGN ResourceID ProcessID"); if (!_createEdge(args[0], args[1], "assignment")) success = false; break;
           case "REMOVE":
@@ -1617,48 +1652,74 @@ REQ P1 R1;"></textarea>
       } catch (error) { success = false; logMessage("ERROR", `Script error (cmd ${cmdIndex + 1} '${cmd}'): ${error.message}`); }
       return success;
     }
-    function runScript() {
-      const scriptText = scriptInput.value; const commands = parseScript(scriptText); closeModal("scriptModal");
-      if (commands.length === 0) { logMessage("WARN", "Script is empty or contains only comments."); return; }
-      if (isVisualizingDeadlock) { stopDeadlockVisualization(); } logMessage("INFO", `--- Running Script (${commands.length} commands) ---`);
-      let errors = 0; commands.forEach((cmd, index) => { if (!executeCommand(cmd, index)) { errors++; } });
-      logMessage("INFO", `--- Script Finished (${errors} error(s)) ---`); clearSelection(); ensureAnimationLoop();
+    // END: executeCommand
+    function runScript() { /* ... as before ... */
+        const scriptText = scriptInput.value; const commands = parseScript(scriptText); closeModal("scriptModal");
+        if (commands.length === 0) { logMessage("WARN", "Script is empty or contains only comments."); return; }
+        if (isVisualizingDeadlock) { stopDeadlockVisualization(); } logMessage("INFO", `--- Running Script (${commands.length} commands) ---`);
+        let errors = 0; commands.forEach((cmd, index) => { if (!executeCommand(cmd, index)) { errors++; } });
+        logMessage("INFO", `--- Script Finished (${errors} error(s)) ---`); clearSelection(); ensureAnimationLoop();
     }
-    function generateScript() {
-      const scriptLines = []; scriptLines.push("// --- Generated RAG Script ---"); scriptLines.push(`// Timestamp: ${new Date().toISOString()}`); scriptLines.push("// Add nodes first, then edges\n"); scriptLines.push("// Nodes");
-      nodes.forEach((node) => { if (node.type === "process") { scriptLines.push(`ADD P ${node.id};`); } else { scriptLines.push(`ADD R ${node.id} ${node.totalInstances};`); } });
-      scriptLines.push("\n// Edges"); edges.forEach((edge) => { if (edge.type === "request") { scriptLines.push(`REQ ${edge.from} ${edge.to};`); } else { scriptLines.push(`ASSIGN ${edge.from} ${edge.to};`); } });
-      scriptLines.push("\n// --- End of Script ---"); return scriptLines.join("\n");
+    function generateScript() { /* ... as before ... */
+        const scriptLines = []; scriptLines.push("// --- Generated RAG Script ---"); scriptLines.push(`// Timestamp: ${new Date().toISOString()}`); scriptLines.push("// Add nodes first, then edges\n"); scriptLines.push("// Nodes");
+        nodes.forEach((node) => { if (node.type === "process") { scriptLines.push(`ADD P ${node.id};`); } else { scriptLines.push(`ADD R ${node.id} ${node.totalInstances};`); } });
+        scriptLines.push("\n// Edges"); edges.forEach((edge) => { if (edge.type === "request") { scriptLines.push(`REQ ${edge.from} ${edge.to};`); } else { scriptLines.push(`ASSIGN ${edge.from} ${edge.to};`); } });
+        scriptLines.push("\n// --- End of Script ---"); return scriptLines.join("\n");
     }
-
 
     // --- Event Listeners ---
 
     // Canvas Interactions
+    // START BLOCK 4: mousedown listener (Uses BUFFER coords for logic, CSS for marker) - CORRECT
     canvas.addEventListener("mousedown", (e) => {
-      if (activeModal || isVisualizingDeadlock) return;
-      const mousePos = getMousePos(canvas, e);
-      const clickedNode = getNodeAtPos(mousePos.x, mousePos.y);
-      if (clickedNode) {
-        draggingNode = clickedNode; dragOffsetX = mousePos.x - clickedNode.x; dragOffsetY = mousePos.y - clickedNode.y;
-        if (!selectedNode1) { selectedNode1 = clickedNode; logMessage("INFO", `Selected ${clickedNode.id}.`); }
-        else if (selectedNode1 === clickedNode) { /* Keep selected */ }
-        else if (!selectedNode2) { if (selectedNode1.type === clickedNode.type) { logMessage("INFO", `Cleared previous selection. Selected ${clickedNode.id}.`); selectedNode1 = clickedNode; selectedNode2 = null; } else { selectedNode2 = clickedNode; logMessage("INFO", `Selected ${selectedNode1.id} and ${selectedNode2.id}. Ready for edge action.`); } }
-        else { selectedNode1 = clickedNode; selectedNode2 = null; logMessage("INFO", `Cleared previous selection. Selected ${clickedNode.id}.`); }
-      } else { if (selectedNode1 || selectedNode2) { clearSelection(); } }
-      updateToolbarButtonStates(); // Update button states after click/selection change
-      ensureAnimationLoop();
+        lastClickPos = null; if (activeModal || isVisualizingDeadlock) { return; }
+        const mousePos = getMousePos(canvas, e); // Gets {x, y, cssX, cssY}
+        lastClickPos = { x: mousePos.cssX, y: mousePos.cssY }; // Store CSS for marker
+        const clickedNode = getNodeAtPos(mousePos.x, mousePos.y); // Use BUFFER for hit detect
+        if (clickedNode) {
+            draggingNode = clickedNode;
+            dragOffsetX = mousePos.x - clickedNode.x; // BUFFER offset
+            dragOffsetY = mousePos.y - clickedNode.y; // BUFFER offset
+            // Selection Logic ... (as before) ...
+             if (!selectedNode1) {
+                selectedNode1 = clickedNode; logMessage("INFO", `Selected ${clickedNode.id}.`);
+            } else if (selectedNode1 === clickedNode) { /* No change */ }
+            else if (!selectedNode2) {
+                if (selectedNode1.type === clickedNode.type) {
+                    logMessage("INFO", `Cleared previous selection. Selected ${clickedNode.id}.`);
+                    selectedNode1 = clickedNode; selectedNode2 = null;
+                } else {
+                    selectedNode2 = clickedNode; logMessage("INFO", `Selected ${selectedNode1.id} and ${selectedNode2.id}.`);
+                }
+            } else {
+                selectedNode1 = clickedNode; selectedNode2 = null;
+                logMessage("INFO", `Cleared previous selection. Selected ${clickedNode.id}.`);
+            }
+        } else {
+            if (selectedNode1 || selectedNode2) { clearSelection(); }
+        }
+        updateToolbarButtonStates(); ensureAnimationLoop();
     });
+    // END BLOCK 4
+
+    // START: Corrected mousemove listener (Updates BUFFER coordinates using BUFFER logic) - CORRECT
     canvas.addEventListener("mousemove", (e) => {
       if (draggingNode && !activeModal && !isVisualizingDeadlock) {
-        const mousePos = getMousePos(canvas, e); draggingNode.x = mousePos.x - dragOffsetX; draggingNode.y = mousePos.y - dragOffsetY;
-        const dpr = window.devicePixelRatio || 1; const canvasWidth = canvas.width / dpr; const canvasHeight = canvas.height / dpr;
-        const boundaryOffset = (draggingNode.type === "process" ? PROCESS_RADIUS : RESOURCE_SIZE / 2);
-        draggingNode.x = Math.max(boundaryOffset, Math.min(canvasWidth - boundaryOffset, draggingNode.x));
-        draggingNode.y = Math.max(boundaryOffset, Math.min(canvasHeight - boundaryOffset, draggingNode.y));
+        const mousePos = getMousePos(canvas, e); // Gets {x, y, cssX, cssY}
+        // Calculate new node position in BUFFER space
+        draggingNode.x = mousePos.x - dragOffsetX; // Updates BUFFER coord
+        draggingNode.y = mousePos.y - dragOffsetY; // Updates BUFFER coord
+        // Boundary checks using BUFFER dimensions and BUFFER offset
+        const canvasWidth = canvas.width; const canvasHeight = canvas.height;
+        const dpr = window.devicePixelRatio || 1;
+        const bufferBoundaryOffset = (draggingNode.type === "process" ? PROCESS_RADIUS : RESOURCE_SIZE / 2) * dpr;
+        draggingNode.x = Math.max(bufferBoundaryOffset, Math.min(canvasWidth - bufferBoundaryOffset, draggingNode.x));
+        draggingNode.y = Math.max(bufferBoundaryOffset, Math.min(canvasHeight - bufferBoundaryOffset, draggingNode.y));
         ensureAnimationLoop();
       }
     });
+    // END: Corrected mousemove listener
+
     canvas.addEventListener("mouseup", (e) => { if (draggingNode) { draggingNode = null; ensureAnimationLoop(); } });
     canvas.addEventListener("mouseout", (e) => { if (draggingNode) { draggingNode = null; ensureAnimationLoop(); } });
 
@@ -1670,7 +1731,7 @@ REQ P1 R1;"></textarea>
     releaseResourceBtn.addEventListener("click", () => releaseResourceAction("Button"));
     removeEdgeBtn.addEventListener("click", removeEdgeAction);
     removeNodeBtn.addEventListener("click", () => removeNodeAction("Button"));
-    editNodeBtn.addEventListener("click", openEditModal); // New listener
+    editNodeBtn.addEventListener("click", openEditModal);
     directDeadlockBtn.addEventListener("click", detectDeadlockNow);
     visualizeDeadlockBtn.addEventListener("click", startDeadlockVisualization);
     stepDeadlockVizBtn.addEventListener("click", nextDeadlockStep);
@@ -1685,34 +1746,41 @@ REQ P1 R1;"></textarea>
     document.querySelectorAll('.modal .modal-close-button').forEach(btn => { const modal = btn.closest('.modal'); if (modal) { btn.addEventListener('click', () => closeModal(modal.id)); } });
 
     // Keyboard Shortcuts
-    function handleKeyPress(event) {
-      const activeElement = document.activeElement; const isInputFocused = activeElement && (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA");
-      if (event.key === "Enter" && isInputFocused && activeModal) { event.preventDefault(); if (activeModal === 'addProcessModal') submitAddProcess(); else if (activeModal === 'addResourceModal') submitAddResource(); else if (activeModal === 'editProcessModal') submitEditProcess(); else if (activeModal === 'editResourceModal') submitEditResource(); else if (activeModal === 'scriptModal') runScript(); return; }
-      if (isInputFocused && event.key !== "Escape") { return; }
-      if (event.key === "Escape") { event.preventDefault(); if (activeModal) { closeModal(activeModal); return; } else if (isVisualizingDeadlock) { stopDeadlockVisualization(); return; } else if (selectedNode1 || selectedNode2) { clearSelection(); return; } }
-      let actionHandled = false;
-      if (isVisualizingDeadlock) { if(!activeModal) { switch (event.key.toLowerCase()) { case " ": case "spacebar": nextDeadlockStep(); actionHandled = true; break; case "r": runDeadlockVizToEnd(); actionHandled = true; break; } } }
-      else { if (!activeModal) { switch (event.key.toLowerCase()) { case "p": openModal("addProcessModal"); actionHandled = true; break; case "r": openModal("addResourceModal"); actionHandled = true; break; case "q": if(!requestEdgeBtn.disabled) requestEdgeAction("Shortcut Q"); actionHandled = true; break; case "a": if(!assignEdgeBtn.disabled) assignEdgeAction("Shortcut A"); actionHandled = true; break; case "l": if(!releaseResourceBtn.disabled) releaseResourceAction("Shortcut L"); actionHandled = true; break; case "delete": case "backspace": case "x": if(!removeNodeBtn.disabled) removeNodeAction("Shortcut Key"); actionHandled = true; break; case "m": if(!editNodeBtn.disabled) openEditModal(); actionHandled = true; break; case "k": detectDeadlockNow(); actionHandled = true; break; case "d": startDeadlockVisualization(); actionHandled = true; break; case "e": openModal("exportModal"); actionHandled = true; break; case "c": if (confirm("Are you sure you want to clear everything?")) { clearAllAction("Shortcut C"); } actionHandled = true; break; } } }
-      if (actionHandled) { event.preventDefault(); }
+    function handleKeyPress(event) { /* ... as before ... */
+        const activeElement = document.activeElement; const isInputFocused = activeElement && (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA");
+        if (event.key === "Enter" && isInputFocused && activeModal) { event.preventDefault(); if (activeModal === 'addProcessModal') submitAddProcess(); else if (activeModal === 'addResourceModal') submitAddResource(); else if (activeModal === 'editProcessModal') submitEditProcess(); else if (activeModal === 'editResourceModal') submitEditResource(); else if (activeModal === 'scriptModal') runScript(); return; }
+        if (isInputFocused && event.key !== "Escape") { return; }
+        if (event.key === "Escape") { event.preventDefault(); if (activeModal) { closeModal(activeModal); return; } else if (isVisualizingDeadlock) { stopDeadlockVisualization(); return; } else if (selectedNode1 || selectedNode2) { clearSelection(); return; } }
+        let actionHandled = false;
+        if (isVisualizingDeadlock) { if(!activeModal) { switch (event.key.toLowerCase()) { case " ": case "spacebar": nextDeadlockStep(); actionHandled = true; break; case "r": runDeadlockVizToEnd(); actionHandled = true; break; } } }
+        else { if (!activeModal) { switch (event.key.toLowerCase()) { case "p": openModal("addProcessModal"); actionHandled = true; break; case "r": openModal("addResourceModal"); actionHandled = true; break; case "q": if(!requestEdgeBtn.disabled) requestEdgeAction("Shortcut Q"); actionHandled = true; break; case "a": if(!assignEdgeBtn.disabled) assignEdgeAction("Shortcut A"); actionHandled = true; break; case "l": if(!releaseResourceBtn.disabled) releaseResourceAction("Shortcut L"); actionHandled = true; break; case "delete": case "backspace": case "x": if(!removeNodeBtn.disabled) removeNodeAction("Shortcut Key"); actionHandled = true; break; case "m": if(!editNodeBtn.disabled) openEditModal(); actionHandled = true; break; case "k": detectDeadlockNow(); actionHandled = true; break; case "d": startDeadlockVisualization(); actionHandled = true; break; case "e": openModal("exportModal"); actionHandled = true; break; case "c": if (confirm("Are you sure you want to clear everything?")) { clearAllAction("Shortcut C"); } actionHandled = true; break; } } }
+        if (actionHandled) { event.preventDefault(); }
     }
     window.addEventListener("keydown", handleKeyPress);
 
-    // Canvas Resizing
-   function resizeCanvas() {
-      const container = canvas.parentElement; const dpr = window.devicePixelRatio || 1; const rect = container.getBoundingClientRect();
-      canvas.style.width = `${rect.width}px`; canvas.style.height = `${rect.height}px`;
-      const newWidth = Math.round(rect.width * dpr); const newHeight = Math.round(rect.height * dpr);
-      if (canvas.width !== newWidth || canvas.height !== newHeight) { canvas.width = newWidth; canvas.height = newHeight; ctx.scale(dpr, dpr); logMessage("INFO", `Canvas resized to ${Math.round(rect.width)}x${Math.round(rect.height)} (CSS pixels)`); ensureAnimationLoop(); }
+    // Canvas Resizing (Applies DPR scaling to context) - CORRECT
+    function resizeCanvas() {
+        const container = canvas.parentElement;
+        const dpr = window.devicePixelRatio || 1;
+        const rect = container.getBoundingClientRect();
+        canvas.style.width = `${rect.width}px`;
+        canvas.style.height = `${rect.height}px`;
+        const newWidth = Math.round(rect.width * dpr);
+        const newHeight = Math.round(rect.height * dpr);
+        if (canvas.width !== newWidth || canvas.height !== newHeight) {
+            canvas.width = newWidth; canvas.height = newHeight;
+            // Apply the scaling transform that the reverted draw function expects
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            logMessage("INFO", `Canvas resized to ${Math.round(rect.width)}x${Math.round(rect.height)} (CSS) / ${newWidth}x${newHeight} (buffer)`);
+            ensureAnimationLoop();
+        }
     }
     window.addEventListener("resize", resizeCanvas);
 
     // --- Initialization ---
     function initialize() {
-      const container = canvas.parentElement; const dpr = window.devicePixelRatio || 1; const rect = container.getBoundingClientRect();
-      canvas.style.width = `${rect.width}px`; canvas.style.height = `${rect.height}px`;
-      canvas.width = Math.round(rect.width * dpr); canvas.height = Math.round(rect.height * dpr);
-      ctx.scale(dpr, dpr); // Scale context *once*
-      updateToolbarButtonStates(); // Set initial disabled states
+      resizeCanvas(); // Set initial size and scaling transform
+      updateToolbarButtonStates();
       updateVisualizationUI();
       let introAlreadyShown = false; try { introAlreadyShown = localStorage.getItem("ragIntroShown") === "true"; } catch (e) { console.warn("LocalStorage read error:", e); }
       if (!introAlreadyShown) { openModal("introModal"); }
@@ -1720,7 +1788,6 @@ REQ P1 R1;"></textarea>
       ensureAnimationLoop();
     }
     document.addEventListener("DOMContentLoaded", initialize);
-
 
   </script>
 
