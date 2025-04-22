@@ -1698,27 +1698,76 @@ REQ P1 R1;"></textarea>
     window.addEventListener("keydown", handleKeyPress);
 
     // Canvas Resizing
+        // --- Canvas Resizing ---
     function resizeCanvas() {
-      const container = canvas.parentElement; const dpr = window.devicePixelRatio || 1; const rect = container.getBoundingClientRect();
-      canvas.style.width = `${rect.width}px`; canvas.style.height = `${rect.height}px`;
-      const newWidth = Math.round(rect.width * dpr); const newHeight = Math.round(rect.height * dpr);
-      if (canvas.width !== newWidth || canvas.height !== newHeight) { canvas.width = newWidth; canvas.height = newHeight; ctx.scale(dpr, dpr); logMessage("INFO", `Canvas resized to ${Math.round(rect.width)}x${Math.round(rect.height)} (CSS pixels)`); ensureAnimationLoop(); }
+      const container = canvas.parentElement;
+      // Ensure container exists and has dimensions before proceeding
+      if (!container) {
+        console.error("Canvas container not found during resize.");
+        return;
+      }
+      const dpr = window.devicePixelRatio || 1;
+      const rect = container.getBoundingClientRect();
+
+      // Check if size is valid (might be 0 during initial loading/layout shifts)
+      if (rect.width <= 0 || rect.height <= 0) {
+           console.warn("resizeCanvas called with zero or negative dimensions, skipping resize for now.");
+           // Optional: Could add a setTimeout retry here if needed, but often the
+           // next resize event or initial draw call will fix it.
+           return;
+      }
+
+      // Set display size based on container
+      canvas.style.width = `${rect.width}px`;
+      canvas.style.height = `${rect.height}px`;
+
+      // Calculate internal buffer size based on display size and DPR
+      const newWidth = Math.round(rect.width * dpr);
+      const newHeight = Math.round(rect.height * dpr);
+
+      // Only resize and rescale if dimensions actually changed to avoid unnecessary redraws/logs
+      if (canvas.width !== newWidth || canvas.height !== newHeight) {
+          canvas.width = newWidth;
+          canvas.height = newHeight;
+
+          // Reset transform before applying scale - crucial for consistent state
+          // This prevents cumulative scaling if resizeCanvas is called multiple times
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.scale(dpr, dpr); // Apply DPR scaling
+
+          logMessage("INFO", `Canvas resized to ${Math.round(rect.width)}x${Math.round(rect.height)} (CSS pixels), buffer ${newWidth}x${newHeight}`);
+          ensureAnimationLoop(); // Trigger redraw after resize
+      }
     }
-    window.addEventListener("resize", resizeCanvas);
 
     // --- Initialization ---
     function initialize() {
-      const container = canvas.parentElement; const dpr = window.devicePixelRatio || 1; const rect = container.getBoundingClientRect();
-      canvas.style.width = `${rect.width}px`; canvas.style.height = `${rect.height}px`;
-      canvas.width = Math.round(rect.width * dpr); canvas.height = Math.round(rect.height * dpr);
-      ctx.scale(dpr, dpr); // Scale context *once*
-      updateToolbarButtonStates(); // Set initial disabled states
+      // Initial setup of buttons and UI states
+      updateToolbarButtonStates();
       updateVisualizationUI();
-      let introAlreadyShown = false; try { introAlreadyShown = localStorage.getItem("ragIntroShown") === "true"; } catch (e) { console.warn("LocalStorage read error:", e); }
-      if (!introAlreadyShown) { openModal("introModal"); }
+
+      // Call resizeCanvas here to set the *initial* size and scale correctly
+      // AFTER the main DOM elements are ready and likely laid out.
+      resizeCanvas();
+
+      // Add the resize listener for subsequent window size changes
+      window.addEventListener("resize", resizeCanvas);
+
+      // Show intro modal if needed
+      let introAlreadyShown = false;
+      try {
+        introAlreadyShown = localStorage.getItem("ragIntroShown") === "true";
+      } catch (e) {
+        console.warn("LocalStorage read error:", e);
+      }
+      if (!introAlreadyShown) {
+        openModal("introModal");
+      }
+
       logMessage("INFO", "--- RAG Simulator v2.3 Initialized ---");
-      ensureAnimationLoop();
+      ensureAnimationLoop(); // Start the animation loop
     }
+
     document.addEventListener("DOMContentLoaded", initialize);
 
   </script>
