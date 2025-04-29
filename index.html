@@ -101,11 +101,12 @@
       position: relative; /* Needed for absolute positioning of canvas if required */
       overflow: hidden; /* Hide anything extending beyond the container */
       background-color: #ffffff; /* White background for the canvas area */
-      border: 1px solid #d1d5db; /* gray-300 */
+      border: 2px solid #d1d5db; /* gray-300 - Increased border width */
       border-radius: 0.375rem;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
         0 2px 4px -2px rgba(0, 0, 0, 0.1);
       min-height: 300px; /* Adjust min-height if needed */
+      transition: background-color 0.3s ease, border-color 0.3s ease; /* Added transition */
     }
     #ragCanvas {
       display: block; /* Remove extra space below canvas */
@@ -131,6 +132,7 @@
       color: #1f2937; /* Darker text */
       border: 1px solid #e5e7eb; /* gray-200 */
       box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; /* Added transition */
     }
     .log-entry {
       padding: 2px 6px;
@@ -218,13 +220,14 @@
     .modal-content {
       background-color: #ffffff;
       margin: auto; /* Center horizontally */
-      padding: 25px 30px;
+      padding: 30px 35px; /* Slightly increase padding */
       border: 1px solid #e5e7eb; /* gray-200 */
       border-radius: 8px;
-      width: 90%; /* Default width */
-      max-width: 500px; /* Maximum width */
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      width: 50%; /* Default width */
+      /* max-width: 550px; */
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -4px rgba(0, 0, 0, 0.15); /* Larger shadow */
       position: relative; /* For positioning the close button */
+      transition: background-color 0.3s ease, border-color 0.3s ease; /* Added transition */
     }
     .modal-close-button {
       color: #aaa;
@@ -243,17 +246,17 @@
     }
     .form-input {
       width: 100%;
-      padding: 0.5rem 0.75rem;
+      padding: 0.6rem 0.85rem; /* Slightly increase padding */
       border: 1px solid #d1d5db;
       border-radius: 0.375rem;
-      font-size: 0.875rem;
+      font-size: 0.95rem; /* Increased from 0.875rem */
       margin-bottom: 0.75rem;
       display: block;
       line-height: 1.25rem;
       color: #1f2937; /* gray-800 */
       background-color: #ffffff;
       box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
-      transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+      transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, background-color 0.3s ease, color 0.3s ease; /* Added transition */
     }
     .form-input:focus {
       outline: 2px solid transparent;
@@ -267,23 +270,25 @@
      .form-input[readonly] {
       background-color: #f3f4f6; /* gray-100 */
       cursor: not-allowed;
+      transition: background-color 0.3s ease; /* Added transition */
     }
     textarea.form-input {
-        min-height: 100px;
+        min-height: 110px; /* Slightly increase min-height */
         font-family: inherit; /* Use body font */
     }
     .form-label {
       display: block;
       margin-bottom: 0.25rem;
-      font-size: 0.875rem;
+      font-size: 0.95rem; /* Increased from 0.875rem */
       font-weight: 500;
       color: #374151;
       margin-bottom: 0.5rem;
+      transition: color 0.3s ease; /* Added transition */
     }
     .form-button {
-      padding: 0.5rem 1rem;
+      padding: 0.6rem 1.1rem; /* Slightly increase padding */
       border-radius: 0.375rem;
-      font-size: 0.875rem;
+      font-size: 0.95rem; /* Increased from 0.875rem */
       font-weight: 600;
       cursor: pointer;
       transition: background-color 0.15s ease-in-out, opacity 0.15s ease-in-out;
@@ -346,12 +351,13 @@
     }
     #scriptInput,
     #exportScriptArea {
-      height: 200px;
+      height: 220px; /* Increase height */
       font-family: "Courier New", Courier, monospace;
-      font-size: 0.8rem;
+      font-size: 0.85rem; /* Increased from 0.8rem */
     }
     #exportScriptArea {
       background-color: #f9fafb;
+      transition: background-color 0.3s ease; /* Added transition */
     }
 
     #introModal .modal-content {
@@ -409,10 +415,11 @@
         margin-bottom: 4px;
     }
     #aboutModal code {
-        font-size: 0.85em;
+        font-size: 0.9em; /* Increased from 0.85em */
         padding: 2px 4px;
         background-color: #e5e7eb; /* gray-200 */
         border-radius: 3px;
+        transition: background-color 0.3s ease, color 0.3s ease; /* Added transition */
     }
     /* Style for disabled toolbar buttons */
     .normal-control:disabled {
@@ -430,11 +437,150 @@
     .top-bar button#clearSelection i {
         margin-right: 0.2rem; /* Slightly less for smaller icon */
     }
+    #introModal .space-y-3,
+    #aboutModal .space-y-3 {
+        font-size: 0.95rem; /* Increased from text-sm (0.875rem) */
+    }
+    .modal-content h2 { /* Target h2 specifically within modal-content */
+        font-size: 1.25rem; /* Increased from text-lg/xl */
+        margin-bottom: 1rem; /* Increased margin */
+        transition: color 0.3s ease; /* Added transition */
+    }
+
+    /* --- Dark Mode Styles --- */
+    body.dark {
+      background-color: #111827; /* gray-900 */
+      color: #d1d5db; /* gray-300 */
+    }
+    body.dark .main-container {
+      background-color: #1f2937; /* gray-800 */
+    }
+    body.dark .left-panel {
+      background-color: #374151; /* gray-700 */
+      border-color: #4b5563; /* gray-600 */
+      color: #f3f4f6; /* gray-100 */
+    }
+    body.dark .canvas-container {
+      background-color: #111827; /* gray-900 */
+      border-color: #4b5563; /* gray-600 */
+    }
+    body.dark .log-container {
+      background-color: #374151; /* gray-700 */
+      border-color: #4b5563; /* gray-600 */
+      color: #e5e7eb; /* gray-200 */
+    }
+    body.dark .log-entry time {
+      color: #9ca3af; /* gray-400 */
+    }
+    /* Dark mode log level adjustments */
+    body.dark .log-info { background-color: #0c4a6e; border-color: #38bdf8; color: #e0f2fe; } /* sky-800 bg, sky-400 border, sky-100 text */
+    body.dark .log-success { background-color: #166534; border-color: #4ade80; color: #dcfce7; } /* green-800 bg, green-400 border, green-100 text */
+    body.dark .log-warn { background-color: #854d0e; border-color: #facc15; color: #fef9c3; } /* yellow-800 bg, yellow-400 border, yellow-100 text */
+    body.dark .log-error { background-color: #991b1b; border-color: #f87171; color: #fee2e2; } /* red-800 bg, red-400 border, red-100 text */
+    body.dark .log-viz { background-color: #581c87; border-color: #c084fc; color: #f3e8ff; } /* purple-800 bg, purple-400 border, purple-100 text */
+    body.dark .log-viz-step { background-color: #4c1d95; border-color: #a78bfa; color: #ede9fe; } /* violet-800 bg, violet-400 border, violet-100 text */
+    body.dark .log-viz-result { background-color: #115e59; border-color: #5eead4; color: #ccfbf1; } /* teal-800 bg, teal-400 border, teal-100 text */
+    body.dark .log-deadlock { background-color: #b91c1c; border-color: #ef4444; color: #fecaca; } /* red-700 bg, red-500 border, red-200 text */
+
+    body.dark .modal-content {
+      background-color: #4b5563; /* gray-600 */
+      border-color: #6b7280; /* gray-500 */
+      color: #f3f4f6; /* gray-100 */
+    }
+     body.dark .modal-content h2 {
+        color: #f9fafb; /* gray-50 */
+     }
+    body.dark .modal-close-button {
+      color: #d1d5db; /* gray-300 */
+    }
+    body.dark .modal-close-button:hover,
+    body.dark .modal-close-button:focus {
+      color: #f9fafb; /* gray-50 */
+    }
+    body.dark .form-input {
+      background-color: #374151; /* gray-700 */
+      border-color: #6b7280; /* gray-500 */
+      color: #f3f4f6; /* gray-100 */
+    }
+    body.dark .form-input::placeholder {
+        color: #9ca3af; /* gray-400 */
+    }
+    body.dark .form-input:focus {
+      border-color: #60a5fa; /* blue-400 */
+      box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.5); /* Ring effect */
+    }
+    body.dark .form-input[readonly] {
+      background-color: #4b5563; /* gray-600 */
+    }
+    body.dark .form-label {
+      color: #d1d5db; /* gray-300 */
+    }
+    body.dark #exportScriptArea {
+      background-color: #1f2937; /* gray-800 */
+    }
+    body.dark #aboutModal code {
+        background-color: #374151; /* gray-700 */
+        color: #e5e7eb; /* gray-200 */
+    }
+    body.dark .top-bar button { /* Adjust default button colors */
+        background-color: #4b5563; /* gray-600 */
+        border-color: #6b7280; /* gray-500 */
+        color: #f3f4f6; /* gray-100 */
+    }
+    body.dark .top-bar button:hover:not(:disabled) {
+        background-color: #52525b; /* zinc-600 */
+        border-color: #71717a; /* zinc-500 */
+    }
+    /* Override specific button types for dark mode */
+    body.dark .top-bar button#addProcessBtn { background-color: #075985; border-color: #38bdf8; color: #e0f2fe; } /* sky-800 */
+    body.dark .top-bar button#addProcessBtn:hover:not(:disabled) { background-color: #0369a1; border-color: #7dd3fc; } /* sky-700 */
+    body.dark .top-bar button#addResourceBtn { background-color: #9a3412; border-color: #fb923c; color: #ffedd5; } /* orange-800 */
+    body.dark .top-bar button#addResourceBtn:hover:not(:disabled) { background-color: #c2410c; border-color: #fdba74; } /* orange-700 */
+    body.dark .top-bar button#requestEdge { background-color: #991b1b; border-color: #f87171; color: #fee2e2; } /* red-800 */
+    body.dark .top-bar button#requestEdge:hover:not(:disabled) { background-color: #b91c1c; border-color: #fca5a5; } /* red-700 */
+    body.dark .top-bar button#assignEdge { background-color: #166534; border-color: #4ade80; color: #dcfce7; } /* green-800 */
+    body.dark .top-bar button#assignEdge:hover:not(:disabled) { background-color: #15803d; border-color: #86efac; } /* green-700 */
+    body.dark .top-bar button#releaseResourceBtn { background-color: #854d0e; border-color: #facc15; color: #fef9c3; } /* yellow-800 */
+    body.dark .top-bar button#releaseResourceBtn:hover:not(:disabled) { background-color: #a16207; border-color: #fde047; } /* yellow-700 */
+    body.dark .top-bar button#editNodeBtn { background-color: #1e40af; border-color: #60a5fa; color: #dbeafe; } /* blue-800 */
+    body.dark .top-bar button#editNodeBtn:hover:not(:disabled) { background-color: #1e3a8a; border-color: #93c5fd; } /* blue-700 */
+    body.dark .top-bar button#visualizeDeadlockBtn { background-color: #581c87; border-color: #c084fc; color: #f3e8ff; } /* purple-800 */
+    body.dark .top-bar button#visualizeDeadlockBtn:hover:not(:disabled) { background-color: #6b21a8; border-color: #d8b4fe; } /* purple-700 */
+    body.dark .top-bar button#directDeadlockBtn { background-color: #6b21a8; border-color: #a855f7; color: #e9d5ff; } /* purple-700 */
+    body.dark .top-bar button#directDeadlockBtn:hover:not(:disabled) { background-color: #7e22ce; border-color: #c084fc; } /* purple-600 */
+    body.dark .top-bar button#scriptButton { background-color: #115e59; border-color: #5eead4; color: #ccfbf1; } /* teal-800 */
+    body.dark .top-bar button#scriptButton:hover:not(:disabled) { background-color: #134e4a; border-color: #99f6e4; } /* teal-700 */
+    body.dark .top-bar button#exportScriptButton { background-color: #155e75; border-color: #67e8f9; color: #cffafe; } /* cyan-800 */
+    body.dark .top-bar button#exportScriptButton:hover:not(:disabled) { background-color: #164e63; border-color: #a5f3fc; } /* cyan-700 */
+    body.dark .top-bar button#clearAllButton { background-color: #b91c1c; border-color: #ef4444; color: #fecaca; } /* red-700 */
+    body.dark .top-bar button#clearAllButton:hover:not(:disabled) { background-color: #991b1b; border-color: #f87171; } /* red-800 */
+    body.dark .top-bar button#aboutButton { background-color: #3730a3; border-color: #818cf8; color: #e0e7ff; } /* indigo-800 */
+    body.dark .top-bar button#aboutButton:hover:not(:disabled) { background-color: #4338ca; border-color: #a5b4fc; } /* indigo-700 */
+    body.dark .top-bar button#darkModeToggle { background-color: #1f2937; border-color: #4b5563; color: #fde047; } /* gray-800 bg, yellow text */
+    body.dark .top-bar button#darkModeToggle:hover:not(:disabled) { background-color: #111827; border-color: #6b7280; } /* gray-900 bg */
+
+    body.dark .normal-control:disabled {
+        opacity: 0.4;
+        background-color: #4b5563 !important;
+        border-color: #6b7280 !important;
+        color: #cecece !important;
+    }
+    body.dark .visualization-control { color: #d8b4fe; } /* purple-300 */
+
+    /* Dark mode modal buttons */
+    body.dark .button-primary { background-color: #3b82f6; color: #ffffff; border-color: #3b82f6; } /* blue-500 */
+    body.dark .button-primary:hover:not(:disabled) { background-color: #2563eb; border-color: #2563eb; } /* blue-600 */
+    body.dark .button-secondary { background-color: #4b5563; color: #f3f4f6; border-color: #6b7280; } /* gray-600 */
+    body.dark .button-secondary:hover:not(:disabled) { background-color: #52525b; border-color: #71717a; } /* zinc-600 */
+    body.dark .button-success { background-color: #22c55e; color: #ffffff; border-color: #22c55e; } /* green-500 */
+    body.dark .button-success:hover:not(:disabled) { background-color: #16a34a; border-color: #16a34a; } /* green-600 */
+    body.dark .button-danger { background-color: #ef4444; color: #ffffff; border-color: #ef4444; } /* red-500 */
+    body.dark .button-danger:hover:not(:disabled) { background-color: #dc2626; border-color: #dc2626; } /* red-600 */
 
   </style>
 </head>
 
-<body class="font-mono">
+<body class="font-mono"> <!-- Removed initial class, JS will add light/dark -->
 
   <!-- Intro Modal -->
   <div id="introModal" class="modal">
@@ -527,6 +673,10 @@
           <button id="aboutButton"
             class="normal-control py-1 px-3 border border-indigo-300 bg-indigo-100 hover:bg-indigo-200 rounded shadow-sm text-sm transition-colors duration-150 inline-flex items-center gap-1.5">
             <i class="fa-solid fa-circle-info"></i>About
+          </button>
+          <button id="darkModeToggle" title="Toggle Dark/Light Mode (T)"
+            class="normal-control py-1 px-3 border border-gray-400 bg-gray-200 hover:bg-gray-300 rounded shadow-sm text-sm transition-colors duration-150 inline-flex items-center gap-1.5">
+            <i class="fa-solid fa-moon"></i>Dark Mode
           </button>
 
           <!-- Visualization Controls -->
@@ -648,7 +798,7 @@
     <div class="modal-content">
       <span class="modal-close-button" onclick="closeModal('scriptModal')">×</span>
       <h2 class="text-lg font-semibold mb-4 text-gray-800"><i class="fa-solid fa-scroll text-teal-600 mr-2"></i>Run Script</h2>
-      <p class="text-sm text-gray-600 mb-3">
+      <p class="text-sm mb-3">
         Enter commands separated by semicolons (;) or newlines.<br />
         Use <code class="text-xs bg-gray-100 p-1 rounded">//</code> for comments.
       </p>
@@ -674,7 +824,7 @@ REQ P1 R1;"></textarea>
       <h2 class="text-lg font-semibold mb-4 text-gray-800">
         <i class="fa-solid fa-file-export text-cyan-600 mr-2"></i>Export Graph Script
       </h2>
-      <p class="text-sm text-gray-600 mb-3">
+      <p class="text-sm mb-3">
         Copy the script below to recreate the current graph state.
       </p>
       <label for="exportScriptArea" class="form-label">Generated Script:</label>
@@ -694,10 +844,10 @@ REQ P1 R1;"></textarea>
   <div id="aboutModal" class="modal">
       <div class="modal-content">
         <span class="modal-close-button" onclick="closeModal('aboutModal')">×</span>
-        <h2 class="text-xl font-semibold mb-4 text-gray-800">
+        <h2 class="text-xl font-semibold mb-4">
           <i class="fa-solid fa-circle-info text-indigo-500 mr-2"></i>About RAG Simulator v2.3
         </h2>
-        <div class="space-y-3 text-gray-700 text-sm">
+        <div class="space-y-3 text-sm">
           <p>A simulator for visualizing Resource Allocation Graphs (RAGs).</p>
           <p class="text-center font-bold">
             Made by: <a href="https://github.com/JhaAnurag">Anurag,</a> Amit, Himanshu
@@ -782,6 +932,7 @@ REQ P1 R1;"></textarea>
     const exportScriptButton = document.getElementById("exportScriptButton");
     const clearAllButton = document.getElementById("clearAllButton");
     const aboutButton = document.getElementById("aboutButton");
+    const darkModeToggle = document.getElementById("darkModeToggle"); // New Dark Mode Button
     const stepDeadlockVizBtn = document.getElementById("stepDeadlockVizBtn");
     const runDeadlockVizBtn = document.getElementById("runDeadlockVizBtn");
     const stopDeadlockVizBtn = document.getElementById("stopDeadlockVizBtn");
@@ -821,11 +972,23 @@ REQ P1 R1;"></textarea>
     const NODE_STROKE_COLOR = "#1f2937"; // gray-800
     const TEXT_COLOR = "#1f2937"; // gray-800
     const INSTANCE_TEXT_COLOR = "#374151"; // gray-700
+    // Dark Mode Colors
+    const DARK_PROCESS_COLOR = "#0c4a6e"; // sky-800
+    const DARK_RESOURCE_COLOR = "#9a3412"; // orange-800
+    const DARK_NODE_STROKE_COLOR = "#d1d5db"; // gray-300
+    const DARK_TEXT_COLOR = "#f3f4f6"; // gray-100
+    const DARK_INSTANCE_TEXT_COLOR = "#9ca3af"; // gray-400
+    const DARK_REQUEST_EDGE_COLOR = "#f87171"; // red-400
+    const DARK_ASSIGN_EDGE_COLOR = "#4ade80"; // green-400
+    const DARK_NODE_SELECTED_COLOR = "#fde047"; // yellow-300
+    const DARK_DEADLOCK_HIGHLIGHT_COLOR = "#c084fc"; // purple-400
+    const DARK_EDGE_SELECTED_HIGHLIGHT_COLOR = "#fcd34d"; // amber-300
+
     const HIGHLIGHTED_EDGE_WIDTH = 3;
     const NORMAL_EDGE_WIDTH = 2;
     const PROCESS_RADIUS = 31;
     const RESOURCE_SIZE = 55;
-    const RESOURCE_TEXT_FONT_SIZE = 12;
+    const RESOURCE_TEXT_FONT_SIZE = 13;
     const ARROW_SIZE = 8;
     const GAP = 5;
     const ANIMATION_DURATION = 500;
@@ -851,6 +1014,7 @@ REQ P1 R1;"></textarea>
     let isVisualizingDeadlock = false;
     let deadlockVizState = null;
     let deadlockVizGeneratorInstance = null;
+    let isDarkMode = false; // Track dark mode state
 
     // --- Modal Functions ---
     function openModal(modalId) {
@@ -1050,679 +1214,1319 @@ REQ P1 R1;"></textarea>
     function ensureAnimationLoop() { if (!animationFrameId) { animationFrameId = requestAnimationFrame(draw); } }
 
     function draw() {
-        const dpr = window.devicePixelRatio || 1;
-        ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
-        const now = performance.now();
-        let needsAnotherFrame = false;
-        let hasAssignmentEdges = false;
+      const dpr = window.devicePixelRatio || 1;
+      const canvasWidth = canvas.clientWidth;
+      const canvasHeight = canvas.clientHeight;
+      if (canvas.width !== canvasWidth * dpr || canvas.height !== canvasHeight * dpr) {
+        canvas.width = canvasWidth * dpr;
+        canvas.height = canvasHeight * dpr;
+        ctx.scale(dpr, dpr);
+      }
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight); // Use clientWidth/Height for clearing
 
-        nodes.forEach((node) => { // Node Animation Update
-            if (node.isAnimating) {
-                needsAnotherFrame = true;
-                const elapsed = now - node.animationStart;
-                let progress = Math.min(elapsed / ANIMATION_DURATION, 1);
-                let easedProgress = easeOutCubic(progress);
-                node.currentScale = easedProgress; node.currentAlpha = easedProgress;
-                node.currentBlur = (1 - easedProgress) * 5;
-                if (progress >= 1) {
-                    node.isAnimating = false; node.currentScale = 1.0;
-                    node.currentAlpha = 1.0; node.currentBlur = 0.0;
-                }
-            } else {
-                node.currentScale = 1.0; node.currentAlpha = 1.0; node.currentBlur = 0.0;
+      const now = performance.now();
+      let needsAnotherFrame = false;
+      let hasAssignmentEdges = false;
+
+      // Determine colors based on mode
+      const currentTextColor = isDarkMode ? DARK_TEXT_COLOR : TEXT_COLOR;
+      const currentInstanceTextColor = isDarkMode ? DARK_INSTANCE_TEXT_COLOR : INSTANCE_TEXT_COLOR;
+      const currentStrokeColor = isDarkMode ? DARK_NODE_STROKE_COLOR : NODE_STROKE_COLOR;
+      const currentRequestEdgeColor = isDarkMode ? DARK_REQUEST_EDGE_COLOR : REQUEST_EDGE_COLOR;
+      const currentAssignEdgeColor = isDarkMode ? DARK_ASSIGN_EDGE_COLOR : ASSIGN_EDGE_COLOR;
+      const currentSelectedEdgeColor = isDarkMode ? DARK_EDGE_SELECTED_HIGHLIGHT_COLOR : EDGE_SELECTED_HIGHLIGHT_COLOR;
+      const currentDeadlockColor = isDarkMode ? DARK_DEADLOCK_HIGHLIGHT_COLOR : DEADLOCK_HIGHLIGHT_COLOR;
+      const currentSelectedNodeColor = isDarkMode ? DARK_NODE_SELECTED_COLOR : NODE_SELECTED_COLOR;
+      const currentProcessColor = isDarkMode ? DARK_PROCESS_COLOR : PROCESS_COLOR;
+      const currentResourceColor = isDarkMode ? DARK_RESOURCE_COLOR : RESOURCE_COLOR;
+
+
+      nodes.forEach((node) => { // Node Animation Update
+        if (node.isAnimating) {
+          const elapsed = now - node.animationStartTime;
+          const progress = Math.min(elapsed / ANIMATION_DURATION, 1);
+          const easedProgress = easeOutCubic(progress);
+          node.currentScale = node.startScale + (node.targetScale - node.startScale) * easedProgress;
+          node.currentAlpha = node.startAlpha + (node.targetAlpha - node.startAlpha) * easedProgress;
+          if (progress < 1) {
+            needsAnotherFrame = true;
+          } else {
+            node.isAnimating = false;
+            node.currentScale = node.targetScale; // Ensure final state
+            node.currentAlpha = node.targetAlpha;
+            if (node.targetAlpha === 0) { // Remove node after fade out
+                nodes = nodes.filter(n => n.id !== node.id);
+                // Also remove edges connected to this node
+                edges = edges.filter(e => e.from !== node.id && e.to !== node.id);
+                updateButtonStates(); // Update buttons as node is gone
             }
-        });
+          }
+        } else {
+            node.currentScale = 1.0;
+            node.currentAlpha = 1.0;
+        }
+      });
 
-        edges.forEach((edge) => { // Draw Edges
-            const node1 = findNodeById(edge.from); const node2 = findNodeById(edge.to);
-            if (!node1 || !node2) return;
-            const edgeAlpha = Math.min(node1.currentAlpha ?? 1.0, node2.currentAlpha ?? 1.0);
-            if (edgeAlpha <= 0.01) return;
+      edges.forEach((edge) => { // Draw Edges
+        const node1 = findNodeById(edge.from);
+        const node2 = findNodeById(edge.to);
+        if (!node1 || !node2) return;
 
-            const node1IsDeadlocked = deadlockedNodes.has(node1.id);
-            const node2IsDeadlocked = deadlockedNodes.has(node2.id);
-            const isDeadlockEdge = node1IsDeadlocked && node2IsDeadlocked;
-            const isSelectedEdge = selectedNode1 && (edge.from === selectedNode1.id || edge.to === selectedNode1.id);
-            let currentLineWidth = NORMAL_EDGE_WIDTH;
-            let currentColor = edge.type === "request" ? REQUEST_EDGE_COLOR : ASSIGN_EDGE_COLOR;
-            if (isDeadlockEdge) { currentColor = DEADLOCK_HIGHLIGHT_COLOR; currentLineWidth = HIGHLIGHTED_EDGE_WIDTH; }
-            else if (isSelectedEdge) { currentColor = EDGE_SELECTED_HIGHLIGHT_COLOR; currentLineWidth = HIGHLIGHTED_EDGE_WIDTH; }
+        const edgeAlpha = Math.min(node1.currentAlpha ?? 1.0, node2.currentAlpha ?? 1.0);
+        if (edgeAlpha <= 0) return; // Don't draw if invisible
 
-            ctx.save(); ctx.globalAlpha = edgeAlpha;
-            const points = getEdgePoints(node1, node2);
-            drawArrow(ctx, points.start.x, points.start.y, points.end.x, points.end.y, currentColor, currentLineWidth);
+        const { start, end } = getEdgePoints(node1, node2);
+        let edgeColor = edge.type === "request" ? currentRequestEdgeColor : currentAssignEdgeColor;
+        let lineWidth = NORMAL_EDGE_WIDTH;
 
-            if (edge.type === 'assignment') { // Assignment Edge Animation
-                hasAssignmentEdges = true;
-                const dx = points.end.x - points.start.x; const dy = points.end.y - points.start.y;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist > ANIMATION_DOT_SIZE * 3) {
-                    const progress = (now / ASSIGNMENT_ANIMATION_SPEED) % 1;
-                    const dotX = points.start.x + dx * progress; const dotY = points.start.y + dy * progress;
-                    ctx.fillStyle = ASSIGN_EDGE_COLOR; ctx.beginPath();
-                    ctx.arc(dotX, dotY, ANIMATION_DOT_SIZE, 0, Math.PI * 2); ctx.fill();
-                }
-            }
-            ctx.restore();
-        });
+        // Highlight selected edge
+        if (selectedNode1 && selectedNode2 &&
+            ((edge.from === selectedNode1.id && edge.to === selectedNode2.id) ||
+             (edge.from === selectedNode2.id && edge.to === selectedNode1.id))) {
+          edgeColor = currentSelectedEdgeColor;
+          lineWidth = HIGHLIGHTED_EDGE_WIDTH;
+        }
 
-        nodes.forEach((node) => { // Draw Nodes
-            ctx.save();
-            const scale = node.currentScale ?? 1.0; let alpha = node.currentAlpha ?? 1.0;
-            const blur = node.currentBlur ?? 0.0;
-            if (alpha <= 0.01 || scale <= 0.01) { ctx.restore(); return; }
-            ctx.globalAlpha = alpha; if (blur > 0.1) { ctx.filter = `blur(${blur}px)`; }
+        // Highlight deadlocked edge
+        if (deadlockedNodes.has(edge.from) && deadlockedNodes.has(edge.to)) {
+            edgeColor = currentDeadlockColor;
+            lineWidth = HIGHLIGHTED_EDGE_WIDTH;
+        }
 
-            let baseFillStyle = node.type === "process" ? PROCESS_COLOR : RESOURCE_COLOR;
-            let strokeStyle = NODE_STROKE_COLOR; let lineWidth = 1;
+        ctx.save();
+        ctx.globalAlpha = edgeAlpha;
+        drawArrow(ctx, start.x, start.y, end.x, end.y, edgeColor, lineWidth);
 
-            if (isVisualizingDeadlock && deadlockVizState) { // Visualization Styling
-                needsAnotherFrame = true;
-                const { visited, stack, current } = deadlockVizState; let vizHighlight = false;
-                if (stack?.has(node.id)) { baseFillStyle = "#fecaca"; strokeStyle = "#dc2626"; lineWidth = 2.5; vizHighlight = true; }
-                else if (visited?.has(node.id)) { baseFillStyle = "#e0e7ff"; strokeStyle = "#6366f1"; lineWidth = 2; vizHighlight = true; }
-                if (current === node.id) { strokeStyle = "#ca8a04"; lineWidth = 3.5; vizHighlight = true; }
-                if (!vizHighlight) { alpha = Math.max(0.15, alpha * 0.4); }
-                 ctx.globalAlpha = alpha;
-            }
-            else if (deadlockedNodes.has(node.id)) { strokeStyle = DEADLOCK_HIGHLIGHT_COLOR; lineWidth = 3; } // Deadlock Styling
-            else if (node === selectedNode1 || node === selectedNode2) { strokeStyle = NODE_SELECTED_COLOR; lineWidth = 2.5; } // Selection Styling
+        // Assignment Animation Dot
+        if (edge.type === 'assignment' && edge.isAnimating) {
+            hasAssignmentEdges = true;
+            const elapsed = now - edge.animationStartTime;
+            const progress = (elapsed % ASSIGNMENT_ANIMATION_SPEED) / ASSIGNMENT_ANIMATION_SPEED;
+            const dotX = start.x + (end.x - start.x) * progress;
+            const dotY = start.y + (end.y - start.y) * progress;
+            ctx.fillStyle = edgeColor; // Use edge color for dot
+            ctx.beginPath();
+            ctx.arc(dotX, dotY, ANIMATION_DOT_SIZE, 0, Math.PI * 2);
+            ctx.fill();
+            needsAnotherFrame = true; // Keep animating if dots are moving
+        }
+        ctx.restore();
+      });
 
-            ctx.fillStyle = baseFillStyle; ctx.strokeStyle = strokeStyle; ctx.lineWidth = lineWidth;
+      nodes.forEach((node) => { // Draw Nodes
+        if (node.currentAlpha <= 0) return; // Don't draw if invisible
 
-            if (node.type === "process") { // Draw Process Circle
-                const currentRadius = PROCESS_RADIUS * scale; ctx.beginPath();
-                ctx.arc(node.x, node.y, currentRadius, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-            } else { // Draw Resource Square
-                const currentSize = RESOURCE_SIZE * scale; const halfSize = currentSize / 2;
-                ctx.fillRect(node.x - halfSize, node.y - halfSize, currentSize, currentSize);
-                ctx.strokeRect(node.x - halfSize, node.y - halfSize, currentSize, currentSize);
-                if (node.totalInstances > 1 && scale > 0.7 && alpha > 0.7) { // Draw Instance Count
-                    ctx.filter = "none"; const available = getAvailableInstances(node);
-                    ctx.fillStyle = INSTANCE_TEXT_COLOR; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                    const fontSize = Math.max(8, Math.round(RESOURCE_TEXT_FONT_SIZE * scale));
-                    ctx.font = `bold ${fontSize}px sans-serif`;
-                    ctx.fillText(`${available}/${node.totalInstances}`, node.x, node.y + fontSize * 0.7);
-                }
-            }
-            if (scale > 0.6 && alpha > 0.6) { // Draw Node ID
-                ctx.filter = "none"; ctx.fillStyle = TEXT_COLOR; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                const fontSize = Math.max(8, Math.round(14 * scale)); ctx.font = `${fontSize}px sans-serif`;
-                ctx.globalAlpha = Math.min(1, alpha * 1.5);
-                let textY = node.y;
-                if (node.type === "resource" && node.totalInstances > 1) { textY -= RESOURCE_TEXT_FONT_SIZE * 0.6; }
-                ctx.fillText(node.id, node.x, textY);
-            }
-            ctx.restore();
-        });
+        ctx.save();
+        ctx.globalAlpha = node.currentAlpha;
+        ctx.translate(node.x, node.y);
+        ctx.scale(node.currentScale, node.currentScale);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = currentStrokeColor;
+        ctx.fillStyle = node.type === "process" ? currentProcessColor : currentResourceColor;
 
-        if (needsAnotherFrame || draggingNode || isVisualizingDeadlock || hasAssignmentEdges || selectedNode1 || deadlockedNodes.size > 0) {
-            animationFrameId = requestAnimationFrame(draw);
-        } else { animationFrameId = null; }
+        // Selection and Deadlock Highlighting
+        let isSelected = (selectedNode1 && node.id === selectedNode1.id) || (selectedNode2 && node.id === selectedNode2.id);
+        let isDeadlocked = deadlockedNodes.has(node.id);
+
+        if (isDeadlocked) {
+            ctx.strokeStyle = currentDeadlockColor;
+            ctx.lineWidth = 5;
+        } else if (isSelected) {
+            ctx.strokeStyle = currentSelectedNodeColor;
+            ctx.lineWidth = 5;
+        }
+
+        // Draw Shape
+        if (node.type === "process") {
+          ctx.beginPath();
+          ctx.arc(0, 0, PROCESS_RADIUS, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        } else {
+          const halfSize = RESOURCE_SIZE / 2;
+          ctx.fillRect(-halfSize, -halfSize, RESOURCE_SIZE, RESOURCE_SIZE);
+          ctx.strokeRect(-halfSize, -halfSize, RESOURCE_SIZE, RESOURCE_SIZE);
+
+          // Draw Instances Text
+          ctx.fillStyle = currentInstanceTextColor;
+          ctx.font = `${RESOURCE_TEXT_FONT_SIZE}px sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          const available = getAvailableInstances(node);
+          ctx.fillText(`${available}/${node.totalInstances}`, 0, 16);
+        }
+
+        // Draw Node ID
+        ctx.fillStyle = currentTextColor;
+        ctx.font = "bold 16px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        const textYOffset = node.type === "process" ? 0 : (RESOURCE_SIZE / 2) +10; // Below resource box
+        ctx.fillText(node.id, 0, 0);
+
+        ctx.restore();
+      });
+
+      if (needsAnotherFrame || draggingNode || hasAssignmentEdges) {
+        animationFrameId = requestAnimationFrame(draw);
+      } else {
+        animationFrameId = null; // Stop loop if nothing is happening
+      }
     }
 
     // --- Core Logic Functions (Add, Remove, Edit, etc.) ---
 
     function _addNode(id, type, x, y, instances = 1) {
-        id = id.trim().toUpperCase();
-        if (!id) {
-             logMessage("ERROR", `Node ID cannot be empty.`);
-             return null;
+      // Check for duplicate ID
+      if (findNodeById(id)) {
+        logMessage("WARN", `Node with ID '${id}' already exists.`);
+        return null;
+      }
+
+      const newNode = {
+        id: id.toUpperCase(), // Store IDs in uppercase for consistency
+        type: type,
+        x: x,
+        y: y,
+        totalInstances: type === "resource" ? Math.max(1, instances) : 1, // Ensure at least 1 instance
+        // Animation properties
+        isAnimating: true,
+        animationStartTime: performance.now(),
+        startScale: 0.1,
+        targetScale: 1.0,
+        currentScale: 0.1,
+        startAlpha: 0.0,
+        targetAlpha: 1.0,
+        currentAlpha: 0.0,
+      };
+      nodes.push(newNode);
+      logMessage("SUCCESS", `Added ${type} '${newNode.id}'` + (type === 'resource' ? ` with ${newNode.totalInstances} instance(s).` : '.'));
+      ensureAnimationLoop();
+      return newNode;
+    }
+
+    function addProcess(id = null) {
+      let processId = id;
+      if (!processId) {
+        processCounter = 1; // Start from P1
+        while (findNodeById(`P${processCounter}`)) {
+          processCounter++;
         }
-        if (findNodeById(id)) {
-            logMessage("ERROR", `Node with ID '${id}' already exists.`);
-            return null;
+        processId = `P${processCounter}`;
+      } else if (findNodeById(id)) {
+         logMessage("WARN", `Process ID '${id}' already exists.`);
+         return; // Don't add if ID explicitly provided and exists
+      }
+
+      const { x, y } = getRandomPosition();
+      _addNode(processId, "process", x, y);
+      updateButtonStates();
+    }
+
+    function addResource(id = null, instances = 1) {
+      let resourceId = id;
+      if (!resourceId) {
+        resourceCounter = 1; // Start from R1
+        while (findNodeById(`R${resourceCounter}`)) {
+          resourceCounter++;
         }
-        if (!/^[A-Z0-9_]+$/.test(id)) {
-             logMessage("ERROR", `Invalid Node ID format: '${id}'. Use letters, numbers, underscore.`);
-             return null;
-        }
-        const newNode = { id: id, type: type, x: x, y: y, isAnimating: true, animationStart: performance.now(), currentScale: 0, currentAlpha: 0, currentBlur: 5 };
-        if (type === "resource") { newNode.totalInstances = Math.max(1, Math.min(100, instances)); }
-        nodes.push(newNode);
-        logMessage("SUCCESS", `Added ${type} node '${id}'${type === "resource" ? ` with ${newNode.totalInstances} instance(s).` : "."}`);
-        ensureAnimationLoop();
-        return newNode;
+        resourceId = `R${resourceCounter}`;
+      } else if (findNodeById(id)) {
+         logMessage("WARN", `Resource ID '${id}' already exists.`);
+         return; // Don't add if ID explicitly provided and exists
+      }
+
+      const { x, y } = getRandomPosition();
+      _addNode(resourceId, "resource", x, y, instances);
+      updateButtonStates();
     }
 
     function submitAddProcess() {
-      let id = processIdInput.value.trim().toUpperCase();
-      if (!id) {
-        let counter = 1; while(findNodeById(`P${counter}`)) { counter++; } id = `P${counter}`;
-      } else { if (!id.startsWith("P")) id = "P" + id; }
-      const dpr = window.devicePixelRatio || 1; const padding = Math.max(PROCESS_RADIUS, RESOURCE_SIZE / 2) + 10;
-      const canvasWidth = canvas.width / dpr; const canvasHeight = canvas.height / dpr;
-      const spawnX = padding + Math.random() * (canvasWidth - 2 * padding);
-      const spawnY = padding + Math.random() * (canvasHeight - 2 * padding);
-      if (_addNode(id, "process", spawnX, spawnY)) { closeModal("addProcessModal"); }
+      const id = processIdInput.value.trim();
+      addProcess(id || null); // Pass null if empty to auto-generate
+      closeModal("addProcessModal");
     }
 
     function submitAddResource() {
-      let id = resourceIdInput.value.trim().toUpperCase();
-      const instances = parseInt(resourceInstancesInput.value) || 1;
-      if (!id) {
-         let counter = 1; while(findNodeById(`R${counter}`)) { counter++; } id = `R${counter}`;
-      } else { if (!id.startsWith("R")) id = "R" + id; }
-      if (instances < 1 || instances > 100) { logMessage("ERROR", "Invalid instance count (must be 1-100)."); alert("Invalid instance count (must be 1-100)."); return; }
-      const dpr = window.devicePixelRatio || 1; const padding = Math.max(PROCESS_RADIUS, RESOURCE_SIZE / 2) + 10;
-      const canvasWidth = canvas.width / dpr; const canvasHeight = canvas.height / dpr;
-      const spawnX = padding + Math.random() * (canvasWidth - 2 * padding);
-      const spawnY = padding + Math.random() * (canvasHeight - 2 * padding);
-      if (_addNode(id, "resource", spawnX, spawnY, instances)) { closeModal("addResourceModal"); }
-    }
-
-    // --- Edit Node Functions ---
-    function openEditModal() {
-        if (!selectedNode1 || selectedNode2) {
-            logMessage("WARN", "Select exactly one node to edit.");
-            return;
-        }
-        if (selectedNode1.type === 'process') {
-            openModal('editProcessModal');
-        } else if (selectedNode1.type === 'resource') {
-            openModal('editResourceModal');
-        }
+      const id = resourceIdInput.value.trim();
+      const instances = parseInt(resourceInstancesInput.value, 10) || 1;
+      addResource(id || null, instances); // Pass null if empty to auto-generate
+      closeModal("addResourceModal");
     }
 
     function submitEditProcess() {
         const originalId = editProcessOriginalIdInput.value;
-        const nodeToEdit = findNodeById(originalId);
-        if (!nodeToEdit || nodeToEdit.type !== 'process') {
-            logMessage("ERROR", `Original process node '${originalId}' not found for editing.`);
-            closeModal('editProcessModal');
+        const newId = editProcessIdInput.value.trim().toUpperCase();
+        const node = findNodeById(originalId);
+
+        if (!node) {
+            logMessage("ERROR", `Cannot find process with original ID '${originalId}' to edit.`);
+            closeModal("editProcessModal");
             return;
         }
 
-        const newId = editProcessIdInput.value.trim().toUpperCase();
-
-        // --- Validation ---
         if (!newId) {
-            logMessage("ERROR", "Process ID cannot be empty."); return;
+            logMessage("ERROR", "Process ID cannot be empty.");
+            editProcessIdInput.focus();
+            return;
         }
-        if (!/^[A-Z0-9_]+$/.test(newId)) {
-            logMessage("ERROR", `Invalid Process ID format: '${newId}'. Use letters, numbers, underscore.`); return;
-        }
+
+        // Check if the new ID conflicts with another existing node
         if (newId !== originalId && findNodeById(newId)) {
-            logMessage("ERROR", `Process ID '${newId}' already exists.`); return;
+            logMessage("ERROR", `Process ID '${newId}' already exists.`);
+            editProcessIdInput.focus();
+            return;
         }
 
-        // --- Apply Changes ---
-        let idChanged = false;
-        if (newId !== originalId) {
-            nodeToEdit.id = newId;
-            idChanged = true;
-            // Update edges
-            edges.forEach(edge => {
-                if (edge.from === originalId) edge.from = newId;
-                if (edge.to === originalId) edge.to = newId;
-            });
-            // Update deadlock set
-            if (deadlockedNodes.has(originalId)) {
-                deadlockedNodes.delete(originalId);
-                deadlockedNodes.add(newId);
-            }
-             // Update selection if edited node was selected
-             if (selectedNode1 && selectedNode1.id === originalId) selectedNode1.id = newId; // update the object reference
-        }
+        // Update node ID
+        node.id = newId;
 
-        logMessage("SUCCESS", `Process node updated ${idChanged ? `from '${originalId}' to '${newId}'` : `'${originalId}' (no changes)`}.`);
-        closeModal('editProcessModal');
+        // Update edges connected to this node
+        edges.forEach(edge => {
+            if (edge.from === originalId) edge.from = newId;
+            if (edge.to === originalId) edge.to = newId;
+        });
+
+        logMessage("SUCCESS", `Process '${originalId}' renamed to '${newId}'.`);
+        closeModal("editProcessModal");
+        clearSelection(); // Clear selection after edit
         ensureAnimationLoop();
     }
-
 
     function submitEditResource() {
         const originalId = editResourceOriginalIdInput.value;
-        const nodeToEdit = findNodeById(originalId);
+        const newId = editResourceIdInput.value.trim().toUpperCase();
+        const newInstances = parseInt(editResourceInstancesInput.value, 10);
+        const node = findNodeById(originalId);
 
-        if (!nodeToEdit || nodeToEdit.type !== 'resource') {
-            logMessage("ERROR", `Original resource node '${originalId}' not found for editing.`);
-            closeModal('editResourceModal');
+        if (!node) {
+            logMessage("ERROR", `Cannot find resource with original ID '${originalId}' to edit.`);
+            closeModal("editResourceModal");
             return;
         }
 
-        const newId = editResourceIdInput.value.trim().toUpperCase();
-        const newInstances = parseInt(editResourceInstancesInput.value);
+        if (!newId) {
+            logMessage("ERROR", "Resource ID cannot be empty.");
+            editResourceIdInput.focus();
+            return;
+        }
 
-        // --- Validation ---
-        if (!newId) { logMessage("ERROR", "Resource ID cannot be empty."); return; }
-        if (!/^[A-Z0-9_]+$/.test(newId)) { logMessage("ERROR", `Invalid Resource ID format: '${newId}'. Use letters, numbers, underscore.`); return; }
-        if (isNaN(newInstances) || newInstances < 1 || newInstances > 100) { logMessage("ERROR", "Invalid instance count (must be 1-100)."); return; }
-        if (newId !== originalId && findNodeById(newId)) { logMessage("ERROR", `Resource ID '${newId}' already exists.`); return; }
+        if (isNaN(newInstances) || newInstances < 1) {
+            logMessage("ERROR", "Number of instances must be a positive integer.");
+            editResourceInstancesInput.focus();
+            return;
+        }
 
-        // Validate instance count vs assigned count
+        // Check if the new ID conflicts with another existing node
+        if (newId !== originalId && findNodeById(newId)) {
+            logMessage("ERROR", `Resource ID '${newId}' already exists.`);
+            editResourceIdInput.focus();
+            return;
+        }
+
         const assignedCount = getAssignedInstancesCount(originalId);
         if (newInstances < assignedCount) {
-            logMessage("ERROR", `Cannot set instances (${newInstances}) less than currently assigned (${assignedCount}).`); return;
+            logMessage("ERROR", `Cannot set instances (${newInstances}) less than currently assigned (${assignedCount}).`);
+            editResourceInstancesInput.focus();
+            return;
         }
 
-        // --- Apply Changes ---
-        let idChanged = false;
-        let instancesChanged = false;
+        // Update node properties
+        const oldInstances = node.totalInstances;
+        node.id = newId;
+        node.totalInstances = newInstances;
 
-        if (newId !== originalId) {
-            nodeToEdit.id = newId;
-            idChanged = true;
-            edges.forEach(edge => {
-                if (edge.from === originalId) edge.from = newId;
-                if (edge.to === originalId) edge.to = newId;
-            });
-            if (deadlockedNodes.has(originalId)) { deadlockedNodes.delete(originalId); deadlockedNodes.add(newId); }
-             if (selectedNode1 && selectedNode1.id === originalId) selectedNode1.id = newId; // update the object reference
-        }
-        if (newInstances !== nodeToEdit.totalInstances) {
-            nodeToEdit.totalInstances = newInstances;
-            instancesChanged = true;
-        }
-
-        if (idChanged || instancesChanged) {
-             logMessage("SUCCESS", `Resource node ${idChanged ? `updated from '${originalId}' to '${newId}'` : `'${originalId}' updated`}. ${instancesChanged ? `Instances set to ${newInstances}.` : ''}`);
-        } else {
-            logMessage("INFO", `Resource node '${originalId}' - no changes made.`);
-        }
-
-        closeModal('editResourceModal');
-        ensureAnimationLoop();
-    }
-
-
-    function _createEdge(fromId, toId, type) {
-        fromId = fromId.toUpperCase(); toId = toId.toUpperCase();
-        const node1 = findNodeById(fromId); const node2 = findNodeById(toId);
-        if (!node1 || !node2) { logMessage("ERROR", `Cannot create edge: Node ${!node1 ? fromId : toId} not found.`); return false; }
-        if (type === "request" && !(node1.type === "process" && node2.type === "resource")) { logMessage("ERROR", `Invalid request edge: Must be Process -> Resource. Got ${fromId}(${node1.type}) -> ${toId}(${node2.type}).`); return false; }
-        if (type === "assignment" && !(node1.type === "resource" && node2.type === "process")) { logMessage("ERROR", `Invalid assignment edge: Must be Resource -> Process. Got ${fromId}(${node1.type}) -> ${toId}(${node2.type}).`); return false; }
-        if (type === "assignment" && getAvailableInstances(node1) <= 0) { logMessage("WARN", `Cannot assign ${fromId} to ${toId}: No available instances of ${fromId}.`); return false; }
-        const exists = edges.some(edge => edge.from === fromId && edge.to === toId && edge.type === type);
-        if (exists) { logMessage("INFO", `${type.charAt(0).toUpperCase() + type.slice(1)} edge ${fromId} -> ${toId} already exists.`); return true; }
-        const conflictType = type === "request" ? "assignment" : "request";
-        const conflictEdgeIndex = edges.findIndex(edge => edge.from === node2.id && edge.to === node1.id && edge.type === conflictType);
-        if (conflictEdgeIndex !== -1) { edges.splice(conflictEdgeIndex, 1); logMessage("INFO", `Removed conflicting ${conflictType} edge between ${node2.id} and ${node1.id}.`); ensureAnimationLoop(); }
-        edges.push({ from: fromId, to: toId, type: type });
-        logMessage("SUCCESS", `Added ${type} edge: ${fromId} -> ${toId}.`);
-        ensureAnimationLoop(); return true;
-    }
-
-    function requestEdgeAction(source = "Button") {
-        if (!selectedNode1 || !selectedNode2) { logMessage("WARN", "Select one Process and one Resource first."); return false; }
-        let pNode = null, rNode = null;
-        if (selectedNode1.type === "process" && selectedNode2.type === "resource") { pNode = selectedNode1; rNode = selectedNode2; }
-        else if (selectedNode1.type === "resource" && selectedNode2.type === "process") { pNode = selectedNode2; rNode = selectedNode1; }
-        else { logMessage("WARN", "Select one Process and one Resource to make a request."); return false; }
-        if (_createEdge(pNode.id, rNode.id, "request")) { logMessage("INFO", `Request action (${source}) successful: ${pNode.id} -> ${rNode.id}.`); clearSelection(); return true; }
-        return false;
-    }
-
-    function assignEdgeAction(source = "Button") {
-        if (!selectedNode1 || !selectedNode2) { logMessage("WARN", "Select one Process and one Resource first."); return false; }
-        let pNode = null, rNode = null;
-        if (selectedNode1.type === "process" && selectedNode2.type === "resource") { pNode = selectedNode1; rNode = selectedNode2; }
-        else if (selectedNode1.type === "resource" && selectedNode2.type === "process") { pNode = selectedNode2; rNode = selectedNode1; }
-        else { logMessage("WARN", "Select one Process and one Resource to make an assignment."); return false; }
-        if (_createEdge(rNode.id, pNode.id, "assignment")) { logMessage("INFO", `Assignment action (${source}) successful: ${rNode.id} -> ${pNode.id}.`); clearSelection(); return true; }
-        return false;
-    }
-
-    function releaseResourceAction(source = "Button") {
-        if (!selectedNode1 || !selectedNode2) { logMessage("WARN", "Select one Process and one Resource first."); return false; }
-        let pNode = null, rNode = null;
-        if (selectedNode1.type === "process" && selectedNode2.type === "resource") { pNode = selectedNode1; rNode = selectedNode2; }
-        else if (selectedNode1.type === "resource" && selectedNode2.type === "process") { pNode = selectedNode2; rNode = selectedNode1; }
-        else { logMessage("WARN", "Select one Process and one Resource to release an assignment."); return false; }
-        const assignmentEdgeIndex = edges.findIndex(edge => edge.from === rNode.id && edge.to === pNode.id && edge.type === "assignment");
-        if (assignmentEdgeIndex === -1) { logMessage("INFO", `No assignment edge found from ${rNode.id} to ${pNode.id} to release.`); return false; }
-        edges.splice(assignmentEdgeIndex, 1);
-        logMessage("SUCCESS", `Released resource ${rNode.id} from process ${pNode.id} (${source}).`);
-        clearSelection(); ensureAnimationLoop(); return true;
-    }
-
-    function removeEdge(node1Id, node2Id) { // Removes edges *between* the two nodes
-        const initialLength = edges.length; let removedType = null;
-        edges = edges.filter((edge) => {
-            const match = (edge.from === node1Id && edge.to === node2Id) || (edge.from === node2Id && edge.to === node1Id);
-            if (match) removedType = edge.type; return !match;
+        // Update edges connected to this node
+        edges.forEach(edge => {
+            if (edge.from === originalId) edge.from = newId;
+            if (edge.to === originalId) edge.to = newId;
         });
-        return { success: edges.length < initialLength, type: removedType };
-    }
 
-    function removeEdgeAction() {
-        if (!selectedNode1 || !selectedNode2) { logMessage("WARN", "Select two nodes first to remove an edge between them."); return; }
-        const { success: removed, type: removedType } = removeEdge(selectedNode1.id, selectedNode2.id);
-        if (removed) { logMessage("SUCCESS", `Removed ${removedType ? removedType + ' ' : ''}edge between ${selectedNode1.id} and ${selectedNode2.id}.`); clearSelection(); }
-        else { logMessage("INFO", `No edge found between ${selectedNode1.id} and ${selectedNode2.id}.`); clearSelection(); }
+        logMessage("SUCCESS", `Resource '${originalId}' updated to ID '${newId}' and ${newInstances} instance(s) (was ${oldInstances}).`);
+        closeModal("editResourceModal");
+        clearSelection(); // Clear selection after edit
         ensureAnimationLoop();
     }
 
-    function _removeNode(nodeId) {
-        nodeId = nodeId.toUpperCase();
-        const nodeIndex = nodes.findIndex((n) => n.id === nodeId);
-        if (nodeIndex === -1) { logMessage("ERROR", `Cannot remove node: ID '${nodeId}' not found.`); return false; }
-        const node = nodes[nodeIndex]; nodes.splice(nodeIndex, 1);
-        const initialEdgeCount = edges.length;
-        edges = edges.filter((edge) => edge.from !== nodeId && edge.to !== nodeId);
-        const removedEdges = initialEdgeCount - edges.length;
-        if (selectedNode1 && selectedNode1.id === nodeId) selectedNode1 = null;
-        if (selectedNode2 && selectedNode2.id === nodeId) selectedNode2 = null;
-        deadlockedNodes.delete(nodeId);
-        logMessage("SUCCESS", `Removed node ${nodeId} and ${removedEdges} associated edge(s).`);
-        updateToolbarButtonStates(); // Update button states after removal
-        ensureAnimationLoop(); return true;
+
+    function addEdge(type) {
+      if (!selectedNode1 || !selectedNode2) {
+        logMessage("WARN", "Select two nodes first.");
+        return;
+      }
+      if (selectedNode1.type === selectedNode2.type) {
+        logMessage("WARN", "Edges must connect a Process and a Resource.");
+        return;
+      }
+
+      let processNode, resourceNode;
+      if (selectedNode1.type === "process") {
+        processNode = selectedNode1;
+        resourceNode = selectedNode2;
+      } else {
+        processNode = selectedNode2;
+        resourceNode = selectedNode1;
+      }
+
+      const fromNode = type === "request" ? processNode : resourceNode;
+      const toNode = type === "request" ? resourceNode : processNode;
+
+      // Check if edge already exists
+      const edgeExists = edges.some(
+        (e) => e.from === fromNode.id && e.to === toNode.id
+      );
+      if (edgeExists) {
+        logMessage("INFO", `Edge from '${fromNode.id}' to '${toNode.id}' already exists.`);
+        return;
+      }
+
+      // Check for assignment availability
+      if (type === "assignment") {
+        const available = getAvailableInstances(resourceNode);
+        if (available <= 0) {
+          logMessage("WARN", `No available instances of Resource '${resourceNode.id}' to assign.`);
+          return;
+        }
+        // Check if this process already holds an instance (prevent multiple assignments of same resource type to same process)
+        const alreadyAssigned = edges.some(e => e.from === resourceNode.id && e.to === processNode.id && e.type === 'assignment');
+        if (alreadyAssigned) {
+            logMessage("WARN", `Process '${processNode.id}' already holds an instance of Resource '${resourceNode.id}'.`);
+            return;
+        }
+      }
+
+      // Check if adding an assignment edge would satisfy an existing request edge
+      let removedRequest = false;
+      if (type === "assignment") {
+          const requestIndex = edges.findIndex(e => e.from === processNode.id && e.to === resourceNode.id && e.type === 'request');
+          if (requestIndex > -1) {
+              edges.splice(requestIndex, 1); // Remove the request edge
+              removedRequest = true;
+              logMessage("INFO", `Request edge P:${processNode.id} -> R:${resourceNode.id} satisfied and removed.`);
+          }
+      }
+
+
+      const newEdge = {
+        from: fromNode.id,
+        to: toNode.id,
+        type: type,
+        isAnimating: type === 'assignment', // Only animate assignment edges initially
+        animationStartTime: type === 'assignment' ? performance.now() : 0
+      };
+      edges.push(newEdge);
+      logMessage("SUCCESS", `Added ${type} edge: ${fromNode.type === 'process' ? 'P':'R'}:${fromNode.id} -> ${toNode.type === 'process' ? 'P':'R'}:${toNode.id}.`);
+
+      clearSelection(); // Clear selection after adding edge
+      updateButtonStates();
+      ensureAnimationLoop();
     }
 
-    function removeNodeAction(source = "Button") {
-        if (!selectedNode1 || selectedNode2) { logMessage("WARN", "Select exactly one node to remove it."); return; }
-        const nodeToRemoveId = selectedNode1.id;
-        if (_removeNode(nodeToRemoveId)) { logMessage("INFO", `Remove node action (${source}) successful: ${nodeToRemoveId}.`); }
-        // Selection is handled within _removeNode and updateToolbarButtonStates
+    function releaseResource() {
+        if (!selectedNode1 || !selectedNode2) {
+            logMessage("WARN", "Select a Process and its assigned Resource first.");
+            return;
+        }
+        if (selectedNode1.type === selectedNode2.type) {
+            logMessage("WARN", "Select one Process and one Resource.");
+            return;
+        }
+
+        let processNode, resourceNode;
+        if (selectedNode1.type === "process") {
+            processNode = selectedNode1;
+            resourceNode = selectedNode2;
+        } else {
+            processNode = selectedNode2;
+            resourceNode = selectedNode1;
+        }
+
+        const edgeIndex = edges.findIndex(e => e.from === resourceNode.id && e.to === processNode.id && e.type === 'assignment');
+
+        if (edgeIndex === -1) {
+            logMessage("WARN", `No assignment edge found from Resource '${resourceNode.id}' to Process '${processNode.id}' to release.`);
+            return;
+        }
+
+        edges.splice(edgeIndex, 1);
+        logMessage("SUCCESS", `Resource '${resourceNode.id}' released by Process '${processNode.id}'.`);
+        clearSelection();
+        updateButtonStates();
+        ensureAnimationLoop();
+    }
+
+
+    function removeSelectedEdge() {
+        if (!selectedNode1 || !selectedNode2) {
+            logMessage("WARN", "Select two connected nodes to remove the edge between them.");
+            return;
+        }
+
+        const edgeIndex1 = edges.findIndex(e => e.from === selectedNode1.id && e.to === selectedNode2.id);
+        const edgeIndex2 = edges.findIndex(e => e.from === selectedNode2.id && e.to === selectedNode1.id);
+
+        if (edgeIndex1 !== -1) {
+            const removedEdge = edges.splice(edgeIndex1, 1)[0];
+            logMessage("SUCCESS", `Removed ${removedEdge.type} edge from '${removedEdge.from}' to '${removedEdge.to}'.`);
+        } else if (edgeIndex2 !== -1) {
+            const removedEdge = edges.splice(edgeIndex2, 1)[0];
+            logMessage("SUCCESS", `Removed ${removedEdge.type} edge from '${removedEdge.from}' to '${removedEdge.to}'.`);
+        } else {
+            logMessage("WARN", `No edge found between '${selectedNode1.id}' and '${selectedNode2.id}'.`);
+            return; // Return early if no edge was found
+        }
+
+        clearSelection();
+        updateButtonStates();
+        ensureAnimationLoop();
+    }
+
+    function removeSelectedNode() {
+      if (!selectedNode1 || selectedNode2) {
+        logMessage("WARN", "Select exactly one node to remove.");
+        return;
+      }
+
+      const nodeToRemove = selectedNode1;
+
+      // Start fade-out animation instead of immediate removal
+      nodeToRemove.isAnimating = true;
+      nodeToRemove.animationStartTime = performance.now();
+      nodeToRemove.startScale = nodeToRemove.currentScale ?? 1.0;
+      nodeToRemove.targetScale = 0.1;
+      nodeToRemove.startAlpha = nodeToRemove.currentAlpha ?? 1.0;
+      nodeToRemove.targetAlpha = 0.0;
+
+      logMessage("SUCCESS", `Removing ${nodeToRemove.type} '${nodeToRemove.id}'...`);
+
+      // Clear selection and update buttons immediately
+      clearSelection(); // This also calls updateButtonStates
+      ensureAnimationLoop(); // Start animation loop
     }
 
     function clearSelection() {
-        if (selectedNode1 || selectedNode2) {
-            logMessage("INFO", `Selection cleared.`);
-            selectedNode1 = null;
-            selectedNode2 = null;
-            updateToolbarButtonStates(); // Update buttons after clearing
-            ensureAnimationLoop();
+      selectedNode1 = null;
+      selectedNode2 = null;
+      deadlockedNodes.clear(); // Also clear deadlock highlights on selection clear
+      updateButtonStates();
+      ensureAnimationLoop(); // Redraw to remove highlights
+    }
+
+    function clearAll() {
+      if (nodes.length === 0 && edges.length === 0) {
+          logMessage("INFO", "Canvas is already empty.");
+          return;
+      }
+      if (confirm("Are you sure you want to clear the entire canvas?")) {
+        nodes = [];
+        edges = [];
+        processCounter = 0;
+        resourceCounter = 0;
+        clearSelection(); // Resets selection and updates buttons
+        logMessage("SUCCESS", "Canvas cleared.");
+        ensureAnimationLoop();
+      }
+    }
+
+    function getRandomPosition() {
+      const padding = Math.max(PROCESS_RADIUS, RESOURCE_SIZE / 2) + 10; // Padding from edges
+      const x = padding + Math.random() * (canvas.clientWidth - 2 * padding);
+      const y = padding + Math.random() * (canvas.clientHeight - 2 * padding);
+      return { x, y };
+    }
+
+    // --- Deadlock Detection Logic ---
+    function detectDeadlock(visualize = false) {
+        if (isVisualizingDeadlock) {
+            logMessage("WARN", "Deadlock visualization is already in progress.");
+            return;
         }
-    }
+        deadlockedNodes.clear(); // Clear previous results
 
-    function _clearAll() {
-        if (isVisualizingDeadlock) { stopDeadlockVisualization(); }
-        nodes = []; edges = []; processCounter = 0; resourceCounter = 0;
-        selectedNode1 = null; selectedNode2 = null; deadlockedNodes.clear(); draggingNode = null;
-        logMessage("WARN", `--- Canvas Cleared ---`);
-        updateToolbarButtonStates();
-        ensureAnimationLoop(); return true;
-    }
+        const adj = new Map(); // Adjacency list (nodeId -> list of neighborIds)
+        const nodeMap = new Map(nodes.map(n => [n.id, n])); // For quick node lookup
 
-    function clearAllAction(source = "Button") { return _clearAll(); }
-
-    // --- Update Toolbar Button States ---
-    function updateToolbarButtonStates() {
-        const oneSelected = selectedNode1 && !selectedNode2;
-        const twoSelected = selectedNode1 && selectedNode2;
-        const pSelected = oneSelected && selectedNode1.type === 'process';
-        const rSelected = oneSelected && selectedNode1.type === 'resource';
-        const pAndRSelected = twoSelected && selectedNode1.type !== selectedNode2.type;
-
-        requestEdgeBtn.disabled = !pAndRSelected;
-        assignEdgeBtn.disabled = !pAndRSelected;
-        releaseResourceBtn.disabled = !pAndRSelected;
-        removeEdgeBtn.disabled = !twoSelected;
-        removeNodeBtn.disabled = !oneSelected;
-        editNodeBtn.disabled = !oneSelected; // Enable Edit only when one node is selected
-    }
-
-
-    // --- Deadlock Detection & Visualization (Unchanged from previous fix) ---
-
-    function* visualizeDeadlockGenerator() {
-        const adj = new Map(); nodes.forEach((n) => adj.set(n.id, []));
-        edges.forEach((edge) => {
-            if (edge.type === 'request') { adj.get(edge.from)?.push(edge.to); }
-            else if (edge.type === 'assignment') {
-                const resourceNode = findNodeById(edge.from);
-                if (resourceNode && getAvailableInstances(resourceNode) <= 0) { adj.get(edge.from)?.push(edge.to); }
-            }
+        // Build adjacency list from edges
+        edges.forEach(edge => {
+            if (!adj.has(edge.from)) adj.set(edge.from, []);
+            adj.get(edge.from).push(edge.to);
         });
-        const visited = new Set(); const recursionStack = new Set(); const path = [];
-        const nodesInCycles = new Set(); let firstCycleFound = null;
 
-        function* detectCycleUtil(nodeId) {
-            visited.add(nodeId); recursionStack.add(nodeId); path.push(nodeId);
-            yield { visited: new Set(visited), stack: new Set(recursionStack), current: nodeId, path: [...path], cycleFound: firstCycleFound, status: `Visiting ${nodeId}. Stack: [${Array.from(recursionStack).join(', ')}]. Path: ${path.join("->")}` };
+        const visited = new Set(); // Nodes visited in the current DFS path
+        const recursionStack = new Set(); // Nodes currently in the recursion stack
+        const cyclesFound = []; // Store nodes involved in each cycle found
+
+        function dfs(nodeId) {
+            const node = nodeMap.get(nodeId);
+            if (!node) return false; // Should not happen if graph is consistent
+
+            visited.add(nodeId);
+            recursionStack.add(nodeId);
+
             const neighbors = adj.get(nodeId) || [];
-            yield { visited: new Set(visited), stack: new Set(recursionStack), current: nodeId, path: [...path], cycleFound: firstCycleFound, status: `Exploring neighbors of ${nodeId}: [${neighbors.join(", ")}]` };
             for (const neighborId of neighbors) {
-                const neighborNode = findNodeById(neighborId); if (!neighborNode) continue;
-                yield { visited: new Set(visited), stack: new Set(recursionStack), current: nodeId, targetNeighbor: neighborId, path: [...path], cycleFound: firstCycleFound, status: `Checking neighbor ${neighborId} of ${nodeId}...` };
                 if (!visited.has(neighborId)) {
-                    yield { visited: new Set(visited), stack: new Set(recursionStack), current: nodeId, targetNeighbor: neighborId, path: [...path], cycleFound: firstCycleFound, status: `Neighbor ${neighborId} not visited. Recursing...` };
-                    yield* detectCycleUtil(neighborId);
-                } else if (recursionStack.has(neighborId)) { // CYCLE DETECTED!
-                    const cycleStartIndex = path.indexOf(neighborId); const cycle = [...path.slice(cycleStartIndex), neighborId];
-                    cycle.forEach(id => nodesInCycles.add(id)); if (!firstCycleFound) { firstCycleFound = cycle; }
-                    yield { visited: new Set(visited), stack: new Set(recursionStack), current: nodeId, path: [...path], cycleFound: [...cycle], status: `CYCLE DETECTED! ${neighborId} is in stack. Cycle: ${cycle.join(" -> ")}` };
-                } else { yield { visited: new Set(visited), stack: new Set(recursionStack), current: nodeId, targetNeighbor: neighborId, path: [...path], cycleFound: firstCycleFound, status: `Neighbor ${neighborId} visited but not in stack (safe).` }; }
+                    if (dfs(neighborId)) {
+                        // Cycle detected downstream
+                        if (cyclesFound.length === 0 || !cyclesFound[cyclesFound.length - 1].includes(nodeId)) {
+                             // Only add if this node is part of the *newly* found cycle path being unwound
+                             if (recursionStack.has(nodeId)) { // Check if it's still on the stack (part of the cycle)
+                                if (cyclesFound.length === 0 || cyclesFound[cyclesFound.length - 1][0] !== neighborId) {
+                                    // Start a new cycle list if the neighbor isn't the start of the current one
+                                    cyclesFound.push([]);
+                                }
+                                cyclesFound[cyclesFound.length - 1].unshift(nodeId); // Add to the start
+                             }
+                        }
+                        return true; // Propagate cycle found signal up
+                    }
+                } else if (recursionStack.has(neighborId)) {
+                    // Cycle detected: neighbor is already in the current recursion stack
+                    cyclesFound.push([nodeId, neighborId]); // Start the cycle list
+                    return true; // Cycle found
+                }
             }
-            path.pop(); recursionStack.delete(nodeId);
-            yield { visited: new Set(visited), stack: new Set(recursionStack), current: nodeId, path: [...path], cycleFound: firstCycleFound, status: `Finished ${nodeId}, removing from stack. Stack: [${Array.from(recursionStack).join(', ')}]` };
+
+            recursionStack.delete(nodeId); // Remove node from stack as we backtrack
+            return false;
         }
-        for (const node of nodes) { if (!visited.has(node.id)) { yield { visited: new Set(visited), stack: new Set(recursionStack), current: null, path: [...path], cycleFound: firstCycleFound, status: `Starting DFS from unvisited node ${node.id}...` }; yield* detectCycleUtil(node.id); } }
-        let finalStatus;
-        if (nodesInCycles.size > 0) { finalStatus = `DEADLOCK DETECTED. Involved nodes: [${Array.from(nodesInCycles).join(', ')}]. First cycle found: ${firstCycleFound ? firstCycleFound.join(" -> ") : 'N/A'}`; }
-        else { finalStatus = "No deadlock detected after checking all nodes."; }
-        return { visited: new Set(visited), stack: new Set(recursionStack), current: null, path: [], nodesInCycles: nodesInCycles, firstCycleFound: firstCycleFound, finalResult: true, status: finalStatus };
+
+        // Run DFS from all nodes to find all possible cycles
+        for (const node of nodes) {
+            if (!visited.has(node.id)) {
+                dfs(node.id);
+            }
+        }
+
+        if (cyclesFound.length > 0) {
+            let allCycleNodes = new Set();
+            let cycleMessages = [];
+            cyclesFound.forEach((cyclePath, index) => {
+                // Refine cycle path: sometimes DFS adds extra nodes at the start during unwinding.
+                // Find the first occurrence of the end node in the path to get the true cycle.
+                const cycleStartNode = cyclePath[cyclePath.length - 1];
+                const startIndex = cyclePath.indexOf(cycleStartNode);
+                const actualCycle = cyclePath.slice(startIndex);
+
+                actualCycle.forEach(id => allCycleNodes.add(id));
+                cycleMessages.push(`Cycle ${index + 1}: ${actualCycle.join(" -> ")}`);
+            });
+
+            deadlockedNodes = allCycleNodes; // Update the set for highlighting
+            logMessage("DEADLOCK", `Deadlock detected! Involved nodes: ${Array.from(allCycleNodes).join(", ")}.`);
+            cycleMessages.forEach(msg => logMessage("VIZ_RESULT", msg)); // Log each cycle path
+            ensureAnimationLoop(); // Redraw to show highlights
+            return true; // Deadlock found
+        } else {
+            logMessage("SUCCESS", "No deadlocks detected.");
+            ensureAnimationLoop(); // Redraw to clear any previous highlights
+            return false; // No deadlock
+        }
+    }
+
+
+    // --- Deadlock Visualization Logic ---
+    function* deadlockVisualizationGenerator() {
+      logMessage("VIZ", "Starting Deadlock Visualization...");
+      yield { type: "START" }; // Signal start
+
+      const adj = new Map();
+      const nodeMap = new Map(nodes.map(n => [n.id, n]));
+      edges.forEach(edge => {
+        if (!adj.has(edge.from)) adj.set(edge.from, []);
+        adj.get(edge.from).push(edge.to);
+      });
+
+      const visited = new Set(); // Nodes fully explored
+      const recursionStack = new Set(); // Nodes in current DFS path
+      const parentMap = new Map(); // Track parent for cycle path reconstruction
+      let cycleFound = false;
+      const allCyclesNodes = new Set(); // Collect all nodes involved in any cycle
+
+      function* dfsVisualize(nodeId, depth = 0) {
+        const node = nodeMap.get(nodeId);
+        if (!node) return false;
+
+        visited.add(nodeId);
+        recursionStack.add(nodeId);
+        yield { type: "STEP", message: `${"  ".repeat(depth)}Visiting node: ${nodeId}`, highlight: nodeId, stack: Array.from(recursionStack) };
+
+        const neighbors = adj.get(nodeId) || [];
+        for (const neighborId of neighbors) {
+          parentMap.set(neighborId, nodeId); // Track parent for path reconstruction
+
+          yield { type: "STEP", message: `${"  ".repeat(depth)} Checking edge: ${nodeId} -> ${neighborId}`, highlight: [nodeId, neighborId], stack: Array.from(recursionStack) };
+
+          if (!visited.has(neighborId)) {
+            // Explore unvisited neighbor
+            const generator = dfsVisualize(neighborId, depth + 1);
+            let result = yield* generator; // Delegate to the sub-generator
+
+            if (result) { // Cycle found downstream
+              cycleFound = true; // Mark that at least one cycle was found globally
+              // Don't immediately return true here, continue checking other neighbors
+              // from the current node to find *all* cycles originating from/passing through here.
+            }
+          } else if (recursionStack.has(neighborId)) {
+            // Cycle detected! neighborId is already in the current path
+            cycleFound = true;
+            const cyclePath = [neighborId];
+            let current = nodeId;
+            while (current !== neighborId) {
+              cyclePath.unshift(current);
+              allCyclesNodes.add(current); // Add node to the set of all cycle nodes
+              current = parentMap.get(current);
+              if (!current || cyclePath.length > nodes.length) { // Safety break
+                  console.error("Error reconstructing cycle path");
+                  break;
+              }
+            }
+            cyclePath.unshift(neighborId); // Add the start node again to close the loop visually
+            allCyclesNodes.add(neighborId); // Add the final node
+
+            yield { type: "CYCLE_FOUND", message: `Cycle detected: ${cyclePath.join(" -> ")}`, cycleNodes: cyclePath };
+            // Don't return true immediately, continue searching for other cycles
+          } else {
+             yield { type: "STEP", message: `${"  ".repeat(depth)} Node ${neighborId} already visited and not in current path. Skipping.`, highlight: neighborId, stack: Array.from(recursionStack) };
+          }
+        }
+
+        recursionStack.delete(nodeId); // Backtrack
+        yield { type: "STEP", message: `${"  ".repeat(depth)}Finished exploring node: ${nodeId}. Backtracking.`, highlight: nodeId, stack: Array.from(recursionStack) };
+        // Return true if a cycle was found *during this specific invocation or its children*
+        // This signal is primarily used internally by the generator delegation (yield*)
+        // The global `cycleFound` tracks if *any* cycle was found overall.
+        // We return false here now, as we want the main loop to iterate through all nodes.
+        return false; // Let the main loop continue
+      }
+
+      // Run DFS from all nodes
+      for (const node of nodes) {
+        if (!visited.has(node.id)) {
+          parentMap.clear(); // Reset parent map for each new starting DFS tree
+          yield* dfsVisualize(node.id);
+        }
+      }
+
+      if (cycleFound) {
+        yield { type: "RESULT", message: `Deadlock visualization complete. Cycles found involving nodes: ${Array.from(allCyclesNodes).join(", ")}`, finalHighlight: Array.from(allCyclesNodes) };
+      } else {
+        yield { type: "RESULT", message: "Deadlock visualization complete. No cycles found.", finalHighlight: [] };
+      }
     }
 
     function startDeadlockVisualization() {
-        if (isVisualizingDeadlock) return; if (nodes.length === 0) { logMessage("WARN", "Cannot visualize deadlock: No nodes on canvas."); return; }
-        isVisualizingDeadlock = true; deadlockedNodes.clear(); deadlockVizGeneratorInstance = visualizeDeadlockGenerator();
-        const initialStateResult = deadlockVizGeneratorInstance.next();
-        if (initialStateResult.done) {
-            const finalState = initialStateResult.value;
-            if (finalState && finalState.nodesInCycles.size > 0) { deadlockedNodes = new Set(finalState.nodesInCycles); logMessage("VIZ_RESULT", `DEADLOCK DETECTED. Involved: [${Array.from(finalState.nodesInCycles).join(', ')}]`); }
-            else if (finalState) { logMessage("VIZ_RESULT", "No deadlock detected."); } else { logMessage("ERROR", "Visualization ended unexpectedly at start (no final state returned)."); }
-            stopDeadlockVisualization(true); return;
-        }
-        deadlockVizState = initialStateResult.value; logMessage("VIZ", "--- Starting Deadlock Visualization ---");
-        if (deadlockVizState.status) { logMessage("VIZ_STEP", deadlockVizState.status, true); }
-        if (deadlockVizState.cycleFound && deadlockVizState.cycleFound.length > 0) { deadlockVizState.cycleFound.forEach(id => deadlockedNodes.add(id)); }
-        updateVisualizationUI(); ensureAnimationLoop();
+        if (isVisualizingDeadlock) return;
+        isVisualizingDeadlock = true;
+        deadlockedNodes.clear(); // Clear previous highlights
+        deadlockVizGeneratorInstance = deadlockVisualizationGenerator();
+        bodyElement.classList.add("visualizing");
+        canvas.classList.add("visualizing");
+        updateButtonStates(); // Disable normal controls, enable viz controls
+        logMessage("VIZ", "Visualization started. Use Step/Run controls.");
+        stepDeadlockVisualization(); // Execute the first step
     }
 
-    function stopDeadlockVisualization(completed = false) {
-        if (!isVisualizingDeadlock) return;
-        const finalMessage = completed ? "Visualization completed." : "Visualization stopped by user.";
-        logMessage("VIZ", `--- ${finalMessage} ---`);
-        isVisualizingDeadlock = false; deadlockVizGeneratorInstance = null; deadlockVizState = null;
-        updateVisualizationUI(); ensureAnimationLoop();
-    }
-
-    function nextDeadlockStep() {
+    function stepDeadlockVisualization() {
         if (!isVisualizingDeadlock || !deadlockVizGeneratorInstance) return;
+
         const result = deadlockVizGeneratorInstance.next();
-        if (!result.done) {
-            deadlockVizState = result.value; if(deadlockVizState.status) { logMessage("VIZ_STEP", deadlockVizState.status, true); }
-            if (deadlockVizState.cycleFound && deadlockVizState.cycleFound.length > 0) { deadlockVizState.cycleFound.forEach(id => deadlockedNodes.add(id)); }
-            updateVisualizationUI(); ensureAnimationLoop();
-        } else {
-            const finalState = result.value; deadlockVizState = finalState; deadlockedNodes.clear();
-            if (finalState && finalState.nodesInCycles.size > 0) {
-                deadlockedNodes = new Set(finalState.nodesInCycles); const firstCycleMsg = finalState.firstCycleFound ? `. First cycle: ${finalState.firstCycleFound.join(" -> ")}` : '';
-                logMessage("VIZ_RESULT", `DEADLOCK DETECTED. Involved: [${Array.from(finalState.nodesInCycles).join(', ')}]${firstCycleMsg}`);
-            } else if (finalState) { logMessage("VIZ_RESULT", "No deadlock detected."); }
-            else { logMessage("ERROR", "Visualization ended unexpectedly (no final state returned)."); }
-            stopDeadlockVisualization(true);
+        deadlockedNodes.clear(); // Clear previous step highlight
+
+        if (result.done || !result.value) {
+            logMessage("VIZ", "Visualization finished or generator yielded undefined.");
+            stopDeadlockVisualization(false); // Stop without explicit user action if done
+            return;
         }
+
+        const stepData = result.value;
+        logMessage("VIZ_STEP", stepData.message, true); // Log step message
+
+        // Highlight based on step type
+        if (stepData.type === "STEP" || stepData.type === "CYCLE_FOUND") {
+            if (Array.isArray(stepData.highlight)) { // Edge highlight
+                // Highlight the edge (visualized by highlighting nodes in draw())
+                stepData.highlight.forEach(id => deadlockedNodes.add(id));
+            } else if (stepData.highlight) { // Node highlight
+                deadlockedNodes.add(stepData.highlight);
+            }
+            // Optionally highlight the recursion stack differently if needed
+            // if (stepData.stack) { ... }
+        }
+         if (stepData.type === "CYCLE_FOUND" && stepData.cycleNodes) {
+             stepData.cycleNodes.forEach(id => deadlockedNodes.add(id)); // Highlight cycle nodes
+             logMessage("VIZ_RESULT", `Cycle Found: ${stepData.cycleNodes.join(" -> ")}`);
+         }
+
+
+        if (stepData.type === "RESULT") {
+            logMessage(stepData.finalHighlight.length > 0 ? "DEADLOCK" : "SUCCESS", stepData.message);
+            stepData.finalHighlight.forEach(id => deadlockedNodes.add(id)); // Final highlight
+            stopDeadlockVisualization(false); // Auto-stop when result is reached
+        }
+
+        ensureAnimationLoop(); // Redraw with new highlights
     }
 
-    function runDeadlockVizToEnd() {
+    function runDeadlockVisualizationToEnd() {
         if (!isVisualizingDeadlock || !deadlockVizGeneratorInstance) return;
-        logMessage("VIZ", "Running visualization to end..."); let result; let lastValidStateBeforeDone = null;
-        do { result = deadlockVizGeneratorInstance.next(); if (!result.done) { lastValidStateBeforeDone = result.value; deadlockVizState = lastValidStateBeforeDone; if (lastValidStateBeforeDone && lastValidStateBeforeDone.cycleFound) { lastValidStateBeforeDone.cycleFound.forEach(id => deadlockedNodes.add(id)); } } } while (!result.done);
-        const finalState = result.value; deadlockVizState = finalState; deadlockedNodes.clear();
-        if (finalState && finalState.nodesInCycles.size > 0) {
-            deadlockedNodes = new Set(finalState.nodesInCycles); const firstCycleMsg = finalState.firstCycleFound ? `. First cycle: ${finalState.firstCycleFound.join(" -> ")}` : '';
-            logMessage("VIZ_RESULT", `DEADLOCK DETECTED. Involved: [${Array.from(finalState.nodesInCycles).join(', ')}]${firstCycleMsg}`);
-        } else if (finalState) { logMessage("VIZ_RESULT", "No deadlock detected."); }
-        else { logMessage("ERROR", "Visualization run finished unexpectedly (no final state returned)."); }
-        stopDeadlockVisualization(true);
+
+        logMessage("VIZ", "Running visualization to end...");
+        let result;
+        let finalData = null;
+        let steps = 0;
+        const maxSteps = nodes.length * nodes.length * 2; // Safety break
+
+        // Temporarily disable step-by-step logging during run-to-end for performance
+        const originalRenderLogs = renderLogs;
+        renderLogs = () => {}; // No-op
+
+        do {
+            result = deadlockVizGeneratorInstance.next();
+            if (!result.done && result.value) {
+                finalData = result.value; // Keep track of the last yielded value
+                 if (finalData.type === "CYCLE_FOUND") {
+                     logMessage("VIZ_RESULT", `Cycle Found: ${finalData.cycleNodes.join(" -> ")}`); // Log cycles even when running fast
+                 }
+            }
+            steps++;
+        } while (!result.done && steps < maxSteps);
+
+        renderLogs = originalRenderLogs; // Restore logging
+
+        if (steps >= maxSteps) {
+             logMessage("ERROR", "Visualization run exceeded maximum steps. Stopping.");
+        }
+
+        // Process the final result state
+        deadlockedNodes.clear();
+        if (finalData && finalData.type === "RESULT") {
+            logMessage(finalData.finalHighlight.length > 0 ? "DEADLOCK" : "SUCCESS", finalData.message);
+            finalData.finalHighlight.forEach(id => deadlockedNodes.add(id));
+        } else if (cycleFound) { // Fallback if generator finished unexpectedly after finding a cycle
+             logMessage("DEADLOCK", "Visualization finished. Cycles were detected.");
+             // Highlight all nodes found in cycles during the run (might require collecting them)
+             // For simplicity, we might just rely on the last 'finalHighlight' if available
+        } else {
+             logMessage("SUCCESS", "Visualization finished. No cycles detected.");
+        }
+
+        stopDeadlockVisualization(false); // Stop viz state
+        renderLogs(); // Render all collected logs at once
+        ensureAnimationLoop(); // Final redraw
     }
 
-    function detectDeadlockNow() {
-        if (nodes.length === 0) { logMessage("WARN", "Cannot detect deadlock: No nodes on canvas."); return; }
-        if (isVisualizingDeadlock) { logMessage("INFO", "Stopping ongoing visualization before direct detection."); stopDeadlockVisualization(); }
-        logMessage("INFO", "--- Running Direct Deadlock Detection ---"); const generator = visualizeDeadlockGenerator(); let result;
-        do { result = generator.next(); } while (!result.done);
-        const finalState = result.value; deadlockedNodes.clear();
-        if (finalState && finalState.nodesInCycles.size > 0) {
-            deadlockedNodes = new Set(finalState.nodesInCycles); const firstCycleMsg = finalState.firstCycleFound ? `. First cycle found: ${finalState.firstCycleFound.join(" -> ")}` : '';
-            logMessage("DEADLOCK", `DEADLOCK DETECTED. Involved nodes: [${Array.from(finalState.nodesInCycles).join(', ')}]${firstCycleMsg}`);
-        } else if (finalState) { logMessage("SUCCESS", "No deadlock detected."); }
-        else { logMessage("ERROR", "Deadlock detection finished unexpectedly (final state missing)."); }
-        ensureAnimationLoop();
+
+    function stopDeadlockVisualization(log = true) {
+        if (!isVisualizingDeadlock) return;
+        isVisualizingDeadlock = false;
+        deadlockVizGeneratorInstance = null;
+        bodyElement.classList.remove("visualizing");
+        canvas.classList.remove("visualizing");
+        // Don't clear deadlockedNodes here if we want the final result to persist
+        updateButtonStates();
+        if (log) logMessage("VIZ", "Visualization stopped by user.");
+        ensureAnimationLoop(); // Redraw to ensure correct state
     }
 
-    function updateVisualizationUI() {
-      const visualizing = isVisualizingDeadlock;
-      bodyElement.classList.toggle("visualizing", visualizing);
-      canvas.classList.toggle("visualizing", visualizing);
-      document.querySelectorAll('.normal-control').forEach(btn => { btn.disabled = visualizing; });
-      document.querySelectorAll('.visualization-control').forEach(btn => { btn.disabled = !visualizing; });
-      stopDeadlockVizBtn.disabled = !visualizing;
-      if (!deadlockVizGeneratorInstance || (deadlockVizState && deadlockVizState.finalResult)) { stepDeadlockVizBtn.disabled = true; runDeadlockVizBtn.disabled = true; }
-      // Re-enable normal buttons if not visualizing
-       if (!visualizing) {
-           updateToolbarButtonStates();
+
+    // --- UI Updates ---
+    function updateButtonStates() {
+      const oneSelected = selectedNode1 && !selectedNode2;
+      const twoSelected = selectedNode1 && selectedNode2;
+      const processSelected = (selectedNode1?.type === 'process') || (selectedNode2?.type === 'process');
+      const resourceSelected = (selectedNode1?.type === 'resource') || (selectedNode2?.type === 'resource');
+      const pAndRSelected = processSelected && resourceSelected && twoSelected;
+
+      // Normal Controls
+      requestEdgeBtn.disabled = !pAndRSelected || isVisualizingDeadlock;
+      assignEdgeBtn.disabled = !pAndRSelected || isVisualizingDeadlock;
+      releaseResourceBtn.disabled = !pAndRSelected || isVisualizingDeadlock;
+      removeEdgeBtn.disabled = !twoSelected || isVisualizingDeadlock;
+      removeNodeBtn.disabled = !oneSelected || isVisualizingDeadlock;
+      editNodeBtn.disabled = !oneSelected || isVisualizingDeadlock; // Enable edit for one selected node
+      visualizeDeadlockBtn.disabled = isVisualizingDeadlock || nodes.length === 0;
+      directDeadlockBtn.disabled = isVisualizingDeadlock || nodes.length === 0;
+      clearSelectionBtn.disabled = !selectedNode1 || isVisualizingDeadlock; // Disable if nothing selected
+      scriptButton.disabled = isVisualizingDeadlock;
+      exportScriptButton.disabled = isVisualizingDeadlock || nodes.length === 0;
+      clearAllButton.disabled = isVisualizingDeadlock;
+      aboutButton.disabled = isVisualizingDeadlock;
+      darkModeToggle.disabled = isVisualizingDeadlock;
+
+      // Disable add buttons during visualization too
+      addProcessBtn.disabled = isVisualizingDeadlock;
+      addResourceBtn.disabled = isVisualizingDeadlock;
+
+
+      // Visualization Controls (only relevant if isVisualizingDeadlock is true)
+      stepDeadlockVizBtn.disabled = !isVisualizingDeadlock;
+      runDeadlockVizBtn.disabled = !isVisualizingDeadlock;
+      stopDeadlockVizBtn.disabled = !isVisualizingDeadlock;
+
+      // Update button text/icons based on selection for context
+       if (pAndRSelected) {
+            let pNode = selectedNode1.type === 'process' ? selectedNode1 : selectedNode2;
+            let rNode = selectedNode1.type === 'resource' ? selectedNode1 : selectedNode2;
+            requestEdgeBtn.title = `Request ${rNode.id} for ${pNode.id} (Q)`;
+            assignEdgeBtn.title = `Assign ${rNode.id} to ${pNode.id} (A)`;
+            releaseResourceBtn.title = `Release ${rNode.id} from ${pNode.id} (L)`;
+       } else {
+            requestEdgeBtn.title = "Shortcut: Q";
+            assignEdgeBtn.title = "Shortcut: A";
+            releaseResourceBtn.title = "Shortcut: L";
+       }
+       if (oneSelected) {
+           removeNodeBtn.title = `Remove ${selectedNode1.id} (Delete/Bksp/X)`;
+           editNodeBtn.title = `Edit ${selectedNode1.id} (M)`;
+       } else {
+           removeNodeBtn.title = "Shortcut: Delete/Backspace/X";
+           editNodeBtn.title = "Shortcut: M";
+       }
+       if (twoSelected) {
+           removeEdgeBtn.title = `Remove edge between ${selectedNode1.id} and ${selectedNode2.id}`;
+       } else {
+           removeEdgeBtn.title = "Remove Edge";
        }
     }
 
-    // --- Scripting ---
-    function parseScript(scriptText) {
-      const commands = []; const lines = scriptText.split("\n");
-      lines.forEach((line) => {
-        let contentWithoutComment = line; const commentIndex = line.indexOf("//");
-        if (commentIndex !== -1) { contentWithoutComment = line.substring(0, commentIndex); }
-        const parts = contentWithoutComment.split(";");
-        parts.forEach((part) => { const command = part.trim(); if (command.length > 0) { commands.push(command); } });
-      }); return commands;
-    }
-    function executeCommand(cmd, cmdIndex) {
-      const parts = cmd.toUpperCase().split(/\s+/); const operation = parts[0]; const args = parts.slice(1); let success = true;
-      try {
-        switch (operation) {
-          case "ADD":
-            if (args.length < 2 || (args[0] !== "P" && args[0] !== "R")) throw new Error("Usage: ADD [P|R] ID [Instances]");
-            const type = args[0] === "P" ? "process" : "resource"; const id = args[1]; if (!id) throw new Error("Node ID required");
-            let instances = 1; if (type === "resource") { instances = args.length > 2 ? parseInt(args[2]) : 1; if (isNaN(instances) || instances < 1 || instances > 100) throw new Error("Invalid instance count (1-100)"); }
-            const dpr = window.devicePixelRatio || 1; const padding = Math.max(PROCESS_RADIUS, RESOURCE_SIZE / 2) + 10;
-            const canvasWidth = canvas.width / dpr; const canvasHeight = canvas.height / dpr;
-            const spawnX = padding + Math.random() * (canvasWidth - 2 * padding); const spawnY = padding + Math.random() * (canvasHeight - 2 * padding);
-            if (!_addNode(id, type, spawnX, spawnY, instances)) success = false; break;
-          case "REQ": if (args.length !== 2) throw new Error("Usage: REQ ProcessID ResourceID"); if (!_createEdge(args[0], args[1], "request")) success = false; break;
-          case "ASSIGN": if (args.length !== 2) throw new Error("Usage: ASSIGN ResourceID ProcessID"); if (!_createEdge(args[0], args[1], "assignment")) success = false; break;
-          case "REMOVE":
-            if (args.length === 1) { if (!_removeNode(args[0])) success = false; }
-            else if (args.length === 2) { const { success: removed } = removeEdge(args[0], args[1]); if (removed) { logMessage("SUCCESS", `Script: Removed edge between ${args[0]} and ${args[1]}.`); } else { logMessage("INFO", `Script: No edge found between ${args[0]} and ${args[1]} to remove.`); } }
-            else { throw new Error("Usage: REMOVE NodeID | REMOVE NodeID1 NodeID2"); } break;
-         case "RELEASE":
-            if (args.length !== 2) throw new Error("Usage: RELEASE ResourceID ProcessID"); const rNodeId = args[0]; const pNodeId = args[1];
-            const assignmentEdgeIndex = edges.findIndex(edge => edge.from === rNodeId && edge.to === pNodeId && edge.type === "assignment");
-            if (assignmentEdgeIndex !== -1) { edges.splice(assignmentEdgeIndex, 1); logMessage("SUCCESS", `Script: Released resource ${rNodeId} from process ${pNodeId}.`); ensureAnimationLoop(); }
-            else { logMessage("INFO", `Script: No assignment edge found from ${rNodeId} to ${pNodeId} to release.`); } break;
-          case "CLEAR": _clearAll(); break;
-          default: throw new Error(`Unknown command: ${operation}`);
-        }
-      } catch (error) { success = false; logMessage("ERROR", `Script error (cmd ${cmdIndex + 1} '${cmd}'): ${error.message}`); }
-      return success;
-    }
-    function runScript() {
-      const scriptText = scriptInput.value; const commands = parseScript(scriptText); closeModal("scriptModal");
-      if (commands.length === 0) { logMessage("WARN", "Script is empty or contains only comments."); return; }
-      if (isVisualizingDeadlock) { stopDeadlockVisualization(); } logMessage("INFO", `--- Running Script (${commands.length} commands) ---`);
-      let errors = 0; commands.forEach((cmd, index) => { if (!executeCommand(cmd, index)) { errors++; } });
-      logMessage("INFO", `--- Script Finished (${errors} error(s)) ---`); clearSelection(); ensureAnimationLoop();
-    }
-    function generateScript() {
-      const scriptLines = []; scriptLines.push("// --- Generated RAG Script ---"); scriptLines.push(`// Timestamp: ${new Date().toISOString()}`); scriptLines.push("// Add nodes first, then edges\n"); scriptLines.push("// Nodes");
-      nodes.forEach((node) => { if (node.type === "process") { scriptLines.push(`ADD P ${node.id};`); } else { scriptLines.push(`ADD R ${node.id} ${node.totalInstances};`); } });
-      scriptLines.push("\n// Edges"); edges.forEach((edge) => { if (edge.type === "request") { scriptLines.push(`REQ ${edge.from} ${edge.to};`); } else { scriptLines.push(`ASSIGN ${edge.from} ${edge.to};`); } });
-      scriptLines.push("\n// --- End of Script ---"); return scriptLines.join("\n");
-    }
-
-
     // --- Event Listeners ---
+    function setupEventListeners() {
+      // Buttons
+      addProcessBtn.addEventListener("click", () => openModal("addProcessModal"));
+      addResourceBtn.addEventListener("click", () => openModal("addResourceModal"));
+      requestEdgeBtn.addEventListener("click", () => addEdge("request"));
+      assignEdgeBtn.addEventListener("click", () => addEdge("assignment"));
+      releaseResourceBtn.addEventListener("click", releaseResource);
+      removeEdgeBtn.addEventListener("click", removeSelectedEdge);
+      removeNodeBtn.addEventListener("click", removeSelectedNode);
+      editNodeBtn.addEventListener("click", () => { // Open correct edit modal
+          if (selectedNode1?.type === 'process') openModal('editProcessModal');
+          else if (selectedNode1?.type === 'resource') openModal('editResourceModal');
+      });
+      visualizeDeadlockBtn.addEventListener("click", startDeadlockVisualization);
+      directDeadlockBtn.addEventListener("click", () => detectDeadlock(false)); // Direct detection
+      clearSelectionBtn.addEventListener("click", clearSelection);
+      scriptButton.addEventListener("click", () => openModal("scriptModal"));
+      exportScriptButton.addEventListener("click", () => openModal("exportModal"));
+      clearAllButton.addEventListener("click", clearAll);
+      aboutButton.addEventListener("click", () => openModal("aboutModal"));
+      darkModeToggle.addEventListener("click", toggleDarkMode); // Dark Mode Toggle
 
-    // Canvas Interactions
-    canvas.addEventListener("mousedown", (e) => {
-      if (activeModal || isVisualizingDeadlock) return;
-      const mousePos = getMousePos(canvas, e);
-      const clickedNode = getNodeAtPos(mousePos.x, mousePos.y);
+      // Visualization Buttons
+      stepDeadlockVizBtn.addEventListener("click", stepDeadlockVisualization);
+      runDeadlockVizBtn.addEventListener("click", runDeadlockVisualizationToEnd);
+      stopDeadlockVizBtn.addEventListener("click", () => stopDeadlockVisualization(true)); // Stop via button logs message
+
+      // Copy Script Button
+      copyScriptButton.addEventListener("click", copyScriptToClipboard);
+
+
+      // Canvas Interaction
+      canvas.addEventListener("mousedown", handleMouseDown);
+      canvas.addEventListener("mousemove", handleMouseMove);
+      canvas.addEventListener("mouseup", handleMouseUp);
+      canvas.addEventListener("dblclick", handleDoubleClick); // Handle double click for editing
+
+      // Keyboard Shortcuts
+      window.addEventListener("keydown", handleKeyDown);
+
+      // Modal Enter Key Submission
+      processIdInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submitAddProcess(); });
+      resourceIdInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submitAddResource(); });
+      resourceInstancesInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submitAddResource(); });
+      editProcessIdInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submitEditProcess(); });
+      editResourceIdInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submitEditResource(); });
+      editResourceInstancesInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submitEditResource(); });
+      // Don't submit script modal on Enter in textarea, allow newlines
+    }
+
+    function handleMouseDown(e) {
+      if (isVisualizingDeadlock) return; // Ignore clicks during visualization
+      const pos = getMousePos(canvas, e);
+      const clickedNode = getNodeAtPos(pos.x, pos.y);
+
       if (clickedNode) {
-        draggingNode = clickedNode; dragOffsetX = mousePos.x - clickedNode.x; dragOffsetY = mousePos.y - clickedNode.y;
-        if (!selectedNode1) { selectedNode1 = clickedNode; logMessage("INFO", `Selected ${clickedNode.id}.`); }
-        else if (selectedNode1 === clickedNode) { /* Keep selected */ }
-        else if (!selectedNode2) { if (selectedNode1.type === clickedNode.type) { logMessage("INFO", `Cleared previous selection. Selected ${clickedNode.id}.`); selectedNode1 = clickedNode; selectedNode2 = null; } else { selectedNode2 = clickedNode; logMessage("INFO", `Selected ${selectedNode1.id} and ${selectedNode2.id}. Ready for edge action.`); } }
-        else { selectedNode1 = clickedNode; selectedNode2 = null; logMessage("INFO", `Cleared previous selection. Selected ${clickedNode.id}.`); }
-      } else { if (selectedNode1 || selectedNode2) { clearSelection(); } }
-      updateToolbarButtonStates(); // Update button states after click/selection change
-      ensureAnimationLoop();
-    });
-    canvas.addEventListener("mousemove", (e) => {
-      if (draggingNode && !activeModal && !isVisualizingDeadlock) {
-        const mousePos = getMousePos(canvas, e); draggingNode.x = mousePos.x - dragOffsetX; draggingNode.y = mousePos.y - dragOffsetY;
-        const dpr = window.devicePixelRatio || 1; const canvasWidth = canvas.width / dpr; const canvasHeight = canvas.height / dpr;
-        const boundaryOffset = (draggingNode.type === "process" ? PROCESS_RADIUS : RESOURCE_SIZE / 2);
-        draggingNode.x = Math.max(boundaryOffset, Math.min(canvasWidth - boundaryOffset, draggingNode.x));
-        draggingNode.y = Math.max(boundaryOffset, Math.min(canvasHeight - boundaryOffset, draggingNode.y));
-        ensureAnimationLoop();
+        draggingNode = clickedNode;
+        dragOffsetX = pos.x - clickedNode.x;
+        dragOffsetY = pos.y - clickedNode.y;
+        // Don't select immediately on mousedown, wait for mouseup without drag
+      } else {
+        // Clicked on empty space - potentially start clearing selection on mouseup
+        draggingNode = null;
       }
-    });
-    canvas.addEventListener("mouseup", (e) => { if (draggingNode) { draggingNode = null; ensureAnimationLoop(); } });
-    canvas.addEventListener("mouseout", (e) => { if (draggingNode) { draggingNode = null; ensureAnimationLoop(); } });
-
-    // Button Clicks
-    addProcessBtn.addEventListener("click", () => openModal("addProcessModal"));
-    addResourceBtn.addEventListener("click", () => openModal("addResourceModal"));
-    requestEdgeBtn.addEventListener("click", () => requestEdgeAction("Button"));
-    assignEdgeBtn.addEventListener("click", () => assignEdgeAction("Button"));
-    releaseResourceBtn.addEventListener("click", () => releaseResourceAction("Button"));
-    removeEdgeBtn.addEventListener("click", removeEdgeAction);
-    removeNodeBtn.addEventListener("click", () => removeNodeAction("Button"));
-    editNodeBtn.addEventListener("click", openEditModal); // New listener
-    directDeadlockBtn.addEventListener("click", detectDeadlockNow);
-    visualizeDeadlockBtn.addEventListener("click", startDeadlockVisualization);
-    stepDeadlockVizBtn.addEventListener("click", nextDeadlockStep);
-    runDeadlockVizBtn.addEventListener("click", runDeadlockVizToEnd);
-    stopDeadlockVizBtn.addEventListener("click", () => stopDeadlockVisualization());
-    clearSelectionBtn.addEventListener("click", clearSelection);
-    scriptButton.addEventListener("click", () => openModal("scriptModal"));
-    exportScriptButton.addEventListener("click", () => openModal("exportModal"));
-    clearAllButton.addEventListener("click", () => { if (confirm("Are you sure you want to clear everything? This cannot be undone.")) { clearAllAction("Button"); } });
-    aboutButton.addEventListener("click", () => openModal("aboutModal"));
-    copyScriptButton.addEventListener("click", () => { navigator.clipboard.writeText(exportScriptArea.value).then(() => { copyScriptButton.textContent = "Copied!"; logMessage("INFO", "Generated script copied to clipboard."); setTimeout(() => { copyScriptButton.textContent = "Copy to Clipboard"; }, 2000); }).catch((err) => { copyScriptButton.textContent = "Copy Failed"; logMessage("ERROR", `Failed to copy script: ${err}`); setTimeout(() => { copyScriptButton.textContent = "Copy to Clipboard"; }, 2000); }); });
-    document.querySelectorAll('.modal .modal-close-button').forEach(btn => { const modal = btn.closest('.modal'); if (modal) { btn.addEventListener('click', () => closeModal(modal.id)); } });
-
-    // Keyboard Shortcuts
-    function handleKeyPress(event) {
-      const activeElement = document.activeElement; const isInputFocused = activeElement && (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA");
-      if (event.key === "Enter" && isInputFocused && activeModal) { event.preventDefault(); if (activeModal === 'addProcessModal') submitAddProcess(); else if (activeModal === 'addResourceModal') submitAddResource(); else if (activeModal === 'editProcessModal') submitEditProcess(); else if (activeModal === 'editResourceModal') submitEditResource(); else if (activeModal === 'scriptModal') runScript(); return; }
-      if (isInputFocused && event.key !== "Escape") { return; }
-      if (event.key === "Escape") { event.preventDefault(); if (activeModal) { closeModal(activeModal); return; } else if (isVisualizingDeadlock) { stopDeadlockVisualization(); return; } else if (selectedNode1 || selectedNode2) { clearSelection(); return; } }
-      let actionHandled = false;
-      if (isVisualizingDeadlock) { if(!activeModal) { switch (event.key.toLowerCase()) { case " ": case "spacebar": nextDeadlockStep(); actionHandled = true; break; case "r": runDeadlockVizToEnd(); actionHandled = true; break; } } }
-      else { if (!activeModal) { switch (event.key.toLowerCase()) { case "p": openModal("addProcessModal"); actionHandled = true; break; case "r": openModal("addResourceModal"); actionHandled = true; break; case "q": if(!requestEdgeBtn.disabled) requestEdgeAction("Shortcut Q"); actionHandled = true; break; case "a": if(!assignEdgeBtn.disabled) assignEdgeAction("Shortcut A"); actionHandled = true; break; case "l": if(!releaseResourceBtn.disabled) releaseResourceAction("Shortcut L"); actionHandled = true; break; case "delete": case "backspace": case "x": if(!removeNodeBtn.disabled) removeNodeAction("Shortcut Key"); actionHandled = true; break; case "m": if(!editNodeBtn.disabled) openEditModal(); actionHandled = true; break; case "k": detectDeadlockNow(); actionHandled = true; break; case "d": startDeadlockVisualization(); actionHandled = true; break; case "e": openModal("exportModal"); actionHandled = true; break; case "c": if (confirm("Are you sure you want to clear everything?")) { clearAllAction("Shortcut C"); } actionHandled = true; break; } } }
-      if (actionHandled) { event.preventDefault(); }
+      ensureAnimationLoop(); // Start animation loop for potential drag
     }
-    window.addEventListener("keydown", handleKeyPress);
 
-    // Canvas Resizing
-   function resizeCanvas() {
-      const container = canvas.parentElement; const dpr = window.devicePixelRatio || 1; const rect = container.getBoundingClientRect();
-      canvas.style.width = `${rect.width}px`; canvas.style.height = `${rect.height}px`;
-      const newWidth = Math.round(rect.width * dpr); const newHeight = Math.round(rect.height * dpr);
-      if (canvas.width !== newWidth || canvas.height !== newHeight) { canvas.width = newWidth; canvas.height = newHeight; ctx.scale(dpr, dpr); logMessage("INFO", `Canvas resized to ${Math.round(rect.width)}x${Math.round(rect.height)} (CSS pixels)`); ensureAnimationLoop(); }
+    function handleMouseMove(e) {
+      if (draggingNode && !isVisualizingDeadlock) {
+        const pos = getMousePos(canvas, e);
+        draggingNode.x = pos.x - dragOffsetX;
+        draggingNode.y = pos.y - dragOffsetY;
+        // Keep node within canvas bounds (optional)
+        const padding = (draggingNode.type === 'process' ? PROCESS_RADIUS : RESOURCE_SIZE / 2) * (draggingNode.currentScale ?? 1.0);
+        draggingNode.x = Math.max(padding, Math.min(canvas.clientWidth - padding, draggingNode.x));
+        draggingNode.y = Math.max(padding, Math.min(canvas.clientHeight - padding, draggingNode.y));
+        ensureAnimationLoop(); // Ensure redraw during drag
+      }
     }
-    window.addEventListener("resize", resizeCanvas);
+
+    function handleMouseUp(e) {
+        if (isVisualizingDeadlock) return;
+        const pos = getMousePos(canvas, e);
+        const clickedNode = getNodeAtPos(pos.x, pos.y); // Check node at mouseup position
+
+        if (draggingNode) {
+            // If we were dragging a node, check if it moved significantly
+            const dx = pos.x - (draggingNode.x + dragOffsetX);
+            const dy = pos.y - (draggingNode.y + dragOffsetY);
+            const movedDistance = Math.sqrt(dx*dx + dy*dy);
+
+            if (movedDistance < 5) { // Threshold to differentiate click from drag
+                // It was a click on the node we started dragging
+                handleNodeSelection(draggingNode);
+            } else {
+                 logMessage("INFO", `Moved ${draggingNode.type} '${draggingNode.id}'.`);
+            }
+        } else if (clickedNode) {
+             // Clicked on a node without starting a drag on it (unlikely but possible)
+             handleNodeSelection(clickedNode);
+        } else {
+            // Clicked on empty space, clear selection
+            clearSelection();
+        }
+
+        draggingNode = null; // End drag operation
+        updateButtonStates();
+        ensureAnimationLoop(); // Redraw needed for selection changes or final drag position
+    }
+
+     function handleDoubleClick(e) {
+        if (isVisualizingDeadlock) return;
+        const pos = getMousePos(canvas, e);
+        const clickedNode = getNodeAtPos(pos.x, pos.y);
+
+        if (clickedNode) {
+            // Select the node first
+            selectedNode1 = clickedNode;
+            selectedNode2 = null;
+            updateButtonStates(); // Update buttons to enable edit
+
+            // Open the appropriate edit modal
+            if (clickedNode.type === 'process') {
+                openModal('editProcessModal');
+            } else if (clickedNode.type === 'resource') {
+                openModal('editResourceModal');
+            }
+            ensureAnimationLoop(); // Redraw selection highlight
+        }
+    }
+
+    function handleNodeSelection(node) {
+        if (!node) return;
+
+        if (!selectedNode1) {
+            selectedNode1 = node;
+        } else if (!selectedNode2) {
+            if (node.id !== selectedNode1.id) {
+                selectedNode2 = node;
+            } else {
+                // Clicked the same node again, deselect it
+                selectedNode1 = null;
+            }
+        } else {
+            // Both are selected, start fresh with the new click
+            selectedNode1 = node;
+            selectedNode2 = null;
+        }
+        deadlockedNodes.clear(); // Clear deadlock highlights when selection changes
+        updateButtonStates();
+        ensureAnimationLoop();
+    }
+
+
+    function handleKeyDown(e) {
+      // Ignore keydowns if a modal is open and the target is an input/textarea
+      if (activeModal && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+        // Allow Escape key even in modals to close them
+        if (e.key === "Escape") {
+             closeModal(activeModal);
+        }
+        return;
+      }
+       // Allow Escape key during visualization to stop it
+       if (isVisualizingDeadlock && e.key === "Escape") {
+           stopDeadlockVisualization(true);
+           return; // Don't process other keys during viz
+       }
+       // Allow Space/R during visualization for controls
+       if (isVisualizingDeadlock) {
+           if (e.key === " ") { // Spacebar
+               e.preventDefault(); // Prevent page scroll
+               stepDeadlockVisualization();
+           } else if (e.key.toUpperCase() === "R") {
+               runDeadlockVisualizationToEnd();
+           }
+           return; // Don't process other keys during viz
+       }
+
+      // Normal mode shortcuts
+      switch (e.key.toUpperCase()) {
+        case "P": addProcessBtn.click(); break;
+        case "R": addResourceBtn.click(); break;
+        case "Q": if (!requestEdgeBtn.disabled) requestEdgeBtn.click(); break;
+        case "A": if (!assignEdgeBtn.disabled) assignEdgeBtn.click(); break;
+        case "L": if (!releaseResourceBtn.disabled) releaseResourceBtn.click(); break;
+        case "DELETE":
+        case "BACKSPACE":
+        case "X":
+          if (!removeNodeBtn.disabled) removeNodeBtn.click();
+          break;
+        case "M": // Edit shortcut
+           if (!editNodeBtn.disabled) editNodeBtn.click();
+           break;
+        case "D": if (!visualizeDeadlockBtn.disabled) visualizeDeadlockBtn.click(); break;
+        case "K": if (!directDeadlockBtn.disabled) directDeadlockBtn.click(); break; // Direct Detect shortcut
+        case "ESCAPE":
+            if (selectedNode1) { // Only clear selection if something is selected
+                clearSelectionBtn.click();
+            } else if (activeModal) { // Close modal if open and no selection
+                closeModal(activeModal);
+            }
+          break;
+        case "C": if (!clearAllButton.disabled) clearAllButton.click(); break;
+        case "E": if (!exportScriptButton.disabled) exportScriptButton.click(); break; // Export shortcut
+        case "T": if (!darkModeToggle.disabled) darkModeToggle.click(); break; // Dark Mode Toggle Shortcut
+      }
+    }
+
+    // --- Scripting ---
+    function runScript() {
+        const scriptText = scriptInput.value;
+        const commands = scriptText.split(/;|\n/).map(cmd => cmd.trim()).filter(cmd => cmd && !cmd.startsWith("//"));
+
+        logMessage("INFO", `Running script with ${commands.length} commands...`);
+        let errors = 0;
+
+        commands.forEach((cmd, index) => {
+            const parts = cmd.match(/(?:[^\s"]+|"[^"]*")+/g) || []; // Split by space, respecting quotes
+            if (parts.length === 0) return;
+
+            const command = parts[0].toUpperCase();
+            const args = parts.slice(1).map(arg => arg.replace(/^"|"$/g, '')); // Remove quotes
+
+            try {
+                switch (command) {
+                    case "ADD":
+                        if (args.length < 2) throw new Error("ADD requires type (P/R) and ID.");
+                        const type = args[0].toUpperCase();
+                        const id = args[1];
+                        if (type === "P") {
+                            if (args.length !== 2) throw new Error("ADD P requires ID.");
+                            addProcess(id);
+                        } else if (type === "R") {
+                            if (args.length < 2 || args.length > 3) throw new Error("ADD R requires ID and optional instances.");
+                            const instances = args.length === 3 ? parseInt(args[2], 10) : 1;
+                            if (isNaN(instances) || instances < 1) throw new Error("Resource instances must be a positive number.");
+                            addResource(id, instances);
+                        } else {
+                            throw new Error(`Invalid type for ADD: ${args[0]}. Use P or R.`);
+                        }
+                        break;
+                    case "REQ":
+                    case "REQUEST":
+                        if (args.length !== 2) throw new Error("REQ requires ProcessID and ResourceID.");
+                        selectNodesByIds(args[0], args[1]);
+                        addEdge("request");
+                        break;
+                    case "ASSIGN":
+                        if (args.length !== 2) throw new Error("ASSIGN requires ProcessID and ResourceID.");
+                        selectNodesByIds(args[0], args[1]); // Note: Assignment goes R -> P
+                        addEdge("assignment");
+                        break;
+                    case "RELEASE":
+                         if (args.length !== 2) throw new Error("RELEASE requires ProcessID and ResourceID.");
+                         selectNodesByIds(args[0], args[1]);
+                         releaseResource();
+                         break;
+                    case "REMOVE":
+                         if (args.length !== 1 && args.length !== 2) throw new Error("REMOVE requires NodeID or two NodeIDs for an edge.");
+                         if (args.length === 1) { // Remove Node
+                             selectNodesByIds(args[0], null);
+                             removeSelectedNode();
+                         } else { // Remove Edge
+                             selectNodesByIds(args[0], args[1]);
+                             removeSelectedEdge();
+                         }
+                         break;
+                    case "CLEAR":
+                        clearAll(); // Consider if confirmation is needed here? For now, script clears directly.
+                        break;
+                    default:
+                        throw new Error(`Unknown command: ${command}`);
+                }
+            } catch (error) {
+                logMessage("ERROR", `Script error on line ${index + 1} ('${cmd}'): ${error.message}`);
+                errors++;
+            } finally {
+                 clearSelection(); // Clear selection after each command attempt
+            }
+        });
+
+        if (errors > 0) {
+            logMessage("WARN", `Script finished with ${errors} error(s).`);
+        } else {
+            logMessage("SUCCESS", "Script finished successfully.");
+        }
+        closeModal("scriptModal");
+        ensureAnimationLoop(); // Ensure canvas updates after script run
+    }
+
+    // Helper for script execution
+    function selectNodesByIds(id1, id2) {
+        clearSelection();
+        selectedNode1 = findNodeById(id1);
+        if (!selectedNode1) throw new Error(`Node with ID '${id1}' not found.`);
+        if (id2) {
+            selectedNode2 = findNodeById(id2);
+            if (!selectedNode2) throw new Error(`Node with ID '${id2}' not found.`);
+        }
+        updateButtonStates(); // Update based on new selection
+    }
+
+    function generateScript() {
+        let script = "// Generated by RAG Simulator v2.3\n";
+        script += "// Date: " + new Date().toISOString() + "\n\n";
+        script += "// Processes\n";
+        nodes.filter(n => n.type === 'process').forEach(p => {
+            script += `ADD P "${p.id}";\n`; // Quote IDs in case they contain spaces
+        });
+        script += "\n// Resources\n";
+        nodes.filter(n => n.type === 'resource').forEach(r => {
+            script += `ADD R "${r.id}" ${r.totalInstances};\n`;
+        });
+        script += "\n// Edges\n";
+        edges.forEach(e => {
+            const fromNode = findNodeById(e.from);
+            const toNode = findNodeById(e.to);
+            if (!fromNode || !toNode) return; // Skip if nodes don't exist (shouldn't happen)
+
+            if (e.type === 'request') { // P -> R
+                script += `REQ "${e.from}" "${e.to}";\n`;
+            } else if (e.type === 'assignment') { // R -> P
+                script += `ASSIGN "${e.to}" "${e.from}"; // Note: ASSIGN takes P then R\n`;
+            }
+        });
+
+        return script;
+    }
+
+    function copyScriptToClipboard() {
+        const scriptText = exportScriptArea.value;
+        navigator.clipboard.writeText(scriptText).then(() => {
+            logMessage("SUCCESS", "Script copied to clipboard!");
+            copyScriptButton.textContent = "Copied!";
+            copyScriptButton.disabled = true;
+            setTimeout(() => {
+                 copyScriptButton.textContent = "Copy to Clipboard";
+                 copyScriptButton.disabled = false;
+            }, 1500);
+        }).catch(err => {
+            logMessage("ERROR", "Failed to copy script: " + err);
+            alert("Failed to copy script. Please copy manually.");
+        });
+    }
+
+    // --- Dark Mode Logic ---
+    function applyDarkModePreference() {
+        try {
+            const savedMode = localStorage.getItem("ragDarkMode");
+            if (savedMode === "dark") {
+                isDarkMode = true;
+                bodyElement.classList.add("dark");
+                darkModeToggle.innerHTML = '<i class="fa-solid fa-sun"></i> Light Mode';
+                darkModeToggle.title = "Switch to Light Mode (T)";
+            } else {
+                isDarkMode = false;
+                bodyElement.classList.remove("dark"); // Ensure light mode if not dark
+                darkModeToggle.innerHTML = '<i class="fa-solid fa-moon"></i> Dark Mode';
+                 darkModeToggle.title = "Switch to Dark Mode (T)";
+            }
+        } catch (e) {
+            console.warn("LocalStorage not available, cannot load dark mode preference.", e);
+            isDarkMode = false; // Default to light mode
+            bodyElement.classList.remove("dark");
+            darkModeToggle.innerHTML = '<i class="fa-solid fa-moon"></i> Dark Mode';
+            darkModeToggle.title = "Switch to Dark Mode (T)";
+        }
+        ensureAnimationLoop(); // Redraw with correct colors
+    }
+
+    function toggleDarkMode() {
+        isDarkMode = !isDarkMode;
+        bodyElement.classList.toggle("dark");
+        try {
+            localStorage.setItem("ragDarkMode", isDarkMode ? "dark" : "light");
+            logMessage("INFO", `Switched to ${isDarkMode ? 'Dark' : 'Light'} Mode.`);
+        } catch (e) {
+            console.warn("LocalStorage not available, cannot save dark mode preference.", e);
+             logMessage("WARN", "Could not save dark mode preference (LocalStorage might be disabled).");
+        }
+
+        // Update button text/icon
+        if (isDarkMode) {
+            darkModeToggle.innerHTML = '<i class="fa-solid fa-sun"></i> Light Mode';
+            darkModeToggle.title = "Switch to Light Mode (T)";
+        } else {
+            darkModeToggle.innerHTML = '<i class="fa-solid fa-moon"></i> Dark Mode';
+            darkModeToggle.title = "Switch to Dark Mode (T)";
+        }
+        ensureAnimationLoop(); // Redraw with new theme
+    }
+
 
     // --- Initialization ---
-    function initialize() {
-      const container = canvas.parentElement; const dpr = window.devicePixelRatio || 1; const rect = container.getBoundingClientRect();
-      canvas.style.width = `${rect.width}px`; canvas.style.height = `${rect.height}px`;
-      canvas.width = Math.round(rect.width * dpr); canvas.height = Math.round(rect.height * dpr);
-      ctx.scale(dpr, dpr); // Scale context *once*
-      updateToolbarButtonStates(); // Set initial disabled states
-      updateVisualizationUI();
-      let introAlreadyShown = false; try { introAlreadyShown = localStorage.getItem("ragIntroShown") === "true"; } catch (e) { console.warn("LocalStorage read error:", e); }
-      if (!introAlreadyShown) { openModal("introModal"); }
-      logMessage("INFO", "--- RAG Simulator v2.3 Initialized ---");
-      ensureAnimationLoop();
-    }
-    document.addEventListener("DOMContentLoaded", initialize);
+    function init() {
+      // Initial canvas setup (consider moving resize logic here too)
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.clientWidth * dpr;
+      canvas.height = canvas.clientHeight * dpr;
+      ctx.scale(dpr, dpr);
 
+      // Apply saved dark mode preference
+      applyDarkModePreference();
+
+      // Setup listeners
+      setupEventListeners();
+
+      // Initial log message
+      logMessage("INFO", "RAG Simulator Initialized. Add nodes or run a script.");
+
+      // Show intro modal if not previously dismissed
+      let introShown = false;
+      try {
+        introShown = localStorage.getItem("ragIntroShown") === "true";
+      } catch (e) {
+        console.warn("LocalStorage not available, cannot check intro preference.", e);
+      }
+      if (!introShown) {
+        openModal("introModal");
+      }
+
+      // Initial draw and button state update
+      updateButtonStates();
+      ensureAnimationLoop(); // Start animation loop if needed (e.g., for initial state)
+
+      // Add resize listener
+      window.addEventListener('resize', () => {
+          // No need to rescale context here, draw() handles it
+          ensureAnimationLoop(); // Redraw on resize
+      });
+    }
+
+    // --- Start the application ---
+    init();
 
   </script>
-
 </body>
 </html>
