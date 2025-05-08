@@ -666,6 +666,10 @@
             class="normal-control py-1 px-3 border border-cyan-300 bg-cyan-100 hover:bg-cyan-200 rounded shadow-sm text-sm transition-colors duration-150 inline-flex items-center gap-1.5">
             <i class="fa-solid fa-file-export"></i>Export Script
           </button>
+          <button id="aiGenerateBtn" title="Generate graph from text (G)"
+            class="normal-control py-1 px-3 border border-pink-300 bg-pink-100 hover:bg-pink-200 rounded shadow-sm text-sm transition-colors duration-150 inline-flex items-center gap-1.5">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>Generate (AI)
+          </button>
           <button id="clearAllButton" title="Shortcut: C"
             class="normal-control py-1 px-3 border border-red-400 bg-red-200 hover:bg-red-300 rounded shadow-sm text-sm font-semibold transition-colors duration-150 inline-flex items-center gap-1.5">
             <i class="fa-solid fa-eraser"></i>Clear All
@@ -908,6 +912,32 @@ REQ P1 R1;"></textarea>
       </div>
     </div>
 
+  <!-- AI Generate Modal -->
+  <div id="aiGenerateModal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close-button" onclick="closeModal('aiGenerateModal')">×</span>
+      <h2 class="text-lg font-semibold mb-4 text-gray-800">
+        <i class="fa-solid fa-wand-magic-sparkles text-pink-500 mr-2"></i>Generate Graph with AI
+      </h2>
+      <p class="text-sm mb-3">
+        Describe the processes, resources, requests, and assignments in natural language.
+        The AI will attempt to generate the corresponding script commands.
+      </p>
+      <label for="aiInput" class="form-label">Describe the graph:</label>
+      <textarea id="aiInput" class="form-input" rows="5" placeholder="e.g., Create process P1 requesting resource R1. R1 has 2 instances and is also assigned to P2."></textarea>
+      <div class="flex justify-end gap-2 mt-4">
+        <button class="form-button button-secondary" onclick="closeModal('aiGenerateModal')">
+          <i class="fa-solid fa-xmark"></i>Cancel
+        </button>
+        <button id="submitAiGenerateBtn" class="form-button button-primary" onclick="submitAiGenerate()">
+          <i class="fa-solid fa-robot"></i>Generate
+        </button>
+      </div>
+      <div id="aiErrorLog" class="text-red-600 text-sm mt-3" style="display: none;"></div>
+    </div>
+  </div>
+
+
   <!-- Embedded JavaScript -->
   <script>
     // --- DOM Element References ---
@@ -937,7 +967,7 @@ REQ P1 R1;"></textarea>
     const runDeadlockVizBtn = document.getElementById("runDeadlockVizBtn");
     const stopDeadlockVizBtn = document.getElementById("stopDeadlockVizBtn");
     const copyScriptButton = document.getElementById("copyScriptButton");
-
+    const aiGenerateBtn = document.getElementById("aiGenerateBtn"); // New AI Button
     // Modals
     const introModal = document.getElementById("introModal");
     const addProcessModal = document.getElementById("addProcessModal");
@@ -947,6 +977,7 @@ REQ P1 R1;"></textarea>
     const scriptModal = document.getElementById("scriptModal");
     const exportModal = document.getElementById("exportModal");
     const aboutModal = document.getElementById("aboutModal");
+    const aiGenerateModal = document.getElementById("aiGenerateModal"); // New AI Modal
 
     // Modal Inputs
     const processIdInput = document.getElementById("processIdInput");
@@ -959,6 +990,9 @@ REQ P1 R1;"></textarea>
     const editResourceOriginalIdInput = document.getElementById("editResourceOriginalId"); // Hidden Input
     const scriptInput = document.getElementById("scriptInput");
     const exportScriptArea = document.getElementById("exportScriptArea");
+    const aiInput = document.getElementById("aiInput"); // New AI Input
+    const submitAiGenerateBtn = document.getElementById("submitAiGenerateBtn"); // New AI Submit Button
+    const aiErrorLog = document.getElementById("aiErrorLog"); // New AI Error Display
 
 
     // --- Constants ---
@@ -1049,10 +1083,19 @@ REQ P1 R1;"></textarea>
           copyScriptButton.textContent = "Copy to Clipboard";
         } else if (modalId === 'scriptModal') {
             scriptInput.focus();
+        } else if (modalId === 'aiGenerateModal') { // New AI Modal Logic
+            aiInput.value = ''; // Clear previous input
+            aiErrorLog.style.display = 'none'; // Hide previous errors
+            aiErrorLog.textContent = '';
+            submitAiGenerateBtn.disabled = false; // Ensure button is enabled
+            submitAiGenerateBtn.innerHTML = '<i class="fa-solid fa-robot"></i> Generate';
+            aiInput.focus();
         }
         modal.style.display = "flex";
         activeModal = modalId;
-        ensureAnimationLoop();
+        ensureAnimationLoop(); // Keep drawing background if needed
+      } else {
+        console.error("Modal not found:", modalId);
       }
     }
 
@@ -1061,9 +1104,15 @@ REQ P1 R1;"></textarea>
       if (modal) {
         modal.style.display = "none";
         if (activeModal === modalId) {
-          activeModal = null;
+            activeModal = null; // Clear active modal state
         }
-        ensureAnimationLoop();
+        // Reset AI modal button state if closing it
+        if (modalId === 'aiGenerateModal') {
+            submitAiGenerateBtn.disabled = false;
+            submitAiGenerateBtn.innerHTML = '<i class="fa-solid fa-robot"></i> Generate';
+            aiErrorLog.style.display = 'none';
+        }
+        ensureAnimationLoop(); // Redraw canvas once after closing
       }
     }
 
@@ -1374,8 +1423,7 @@ REQ P1 R1;"></textarea>
       }
     }
 
-    // --- Core Logic Functions (Add, Remove, Edit, etc.) ---
-
+    // --- Graph Manipulation ---
     function _addNode(id, type, x, y, instances = 1) {
       // Check for duplicate ID
       if (findNodeById(id)) {
@@ -2109,6 +2157,7 @@ REQ P1 R1;"></textarea>
       clearSelectionBtn.addEventListener("click", clearSelection);
       scriptButton.addEventListener("click", () => openModal("scriptModal"));
       exportScriptButton.addEventListener("click", () => openModal("exportModal"));
+      aiGenerateBtn.addEventListener("click", () => openModal('aiGenerateModal'));
       clearAllButton.addEventListener("click", clearAll);
       aboutButton.addEventListener("click", () => openModal("aboutModal"));
       darkModeToggle.addEventListener("click", toggleDarkMode); // Dark Mode Toggle
@@ -2139,6 +2188,12 @@ REQ P1 R1;"></textarea>
       editResourceIdInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submitEditResource(); });
       editResourceInstancesInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submitEditResource(); });
       // Don't submit script modal on Enter in textarea, allow newlines
+      aiInput.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' && !event.shiftKey) { // Allow Shift+Enter for newlines
+              event.preventDefault(); // Prevent default newline in textarea
+              submitAiGenerate();
+          }
+      });
     }
 
     function handleMouseDown(e) {
@@ -2201,7 +2256,7 @@ REQ P1 R1;"></textarea>
         ensureAnimationLoop(); // Redraw needed for selection changes or final drag position
     }
 
-     function handleDoubleClick(e) {
+    function handleDoubleClick(e) {
         if (isVisualizingDeadlock) return;
         const pos = getMousePos(canvas, e);
         const clickedNode = getNodeAtPos(pos.x, pos.y);
@@ -2287,6 +2342,10 @@ REQ P1 R1;"></textarea>
            break;
         case "D": if (!visualizeDeadlockBtn.disabled) visualizeDeadlockBtn.click(); break;
         case "K": if (!directDeadlockBtn.disabled) directDeadlockBtn.click(); break; // Direct Detect shortcut
+        case "G": // Shortcut for AI Generate
+            e.preventDefault(); // Prevent default browser behavior if any
+            if (!aiGenerateBtn.disabled) aiGenerateBtn.click(); // Use button click to handle disabled state
+            break;
         case "ESCAPE":
             if (selectedNode1) { // Only clear selection if something is selected
                 clearSelectionBtn.click();
@@ -2301,8 +2360,779 @@ REQ P1 R1;"></textarea>
     }
 
     // --- Scripting ---
-    function runScript() {
-        const scriptText = scriptInput.value;
+    function runScript(scriptText = scriptInput.value) {
+        const commands = scriptText.split(/;|\n/).map(cmd => cmd.trim()).filter(cmd => cmd && !cmd.startsWith("//"));
+
+        logMessage("INFO", `Running script with ${commands.length} commands...`);
+        let errors = 0;
+
+        commands.forEach((cmd, index) => {
+            const parts = cmd.match(/(?:[^\s"]+|"[^"]*")+/g) || []; // Split by space, respecting quotes
+            if (parts.length === 0) return;
+
+            const command = parts[0].toUpperCase();
+            const args = parts.slice(1).map(arg => arg.replace(/^"|"$/g, '')); // Remove quotes
+
+            try {
+                switch (command) {
+                    case "ADD":
+                        if (args.length < 2) throw new Error("ADD requires type (P/R) and ID.");
+                        const type = args[0].toUpperCase();
+                        const id = args[1];
+                        if (type === "P") {
+                            if (args.length !== 2) throw new Error("ADD P requires ID.");
+                            addProcess(id);
+                        } else if (type === "R") {
+                            if (args.length < 2 || args.length > 3) throw new Error("ADD R requires ID and optional instances.");
+                            const instances = args.length === 3 ? parseInt(args[2], 10) : 1;
+                            if (isNaN(instances) || instances < 1) throw new Error("Resource instances must be a positive number.");
+                            addResource(id, instances);
+                        } else {
+                            throw new Error(`Invalid type for ADD: ${args[0]}. Use P or R.`);
+                        }
+                        break;
+                    case "REQ":
+                    case "REQUEST":
+                        if (args.length !== 2) throw new Error("REQ requires ProcessID and ResourceID.");
+                        selectNodesByIds(args[0], args[1]);
+                        addEdge("request");
+                        break;
+                    case "ASSIGN":
+                        if (args.length !== 2) throw new Error("ASSIGN requires ProcessID and ResourceID.");
+                        selectNodesByIds(args[0], args[1]); // Note: Assignment goes R -> P
+                        addEdge("assignment");
+                        break;
+                    case "RELEASE":
+                         if (args.length !== 2) throw new Error("RELEASE requires ProcessID and ResourceID.");
+                         selectNodesByIds(args[0], args[1]);
+                         releaseResource();
+                         break;
+                    case "REMOVE":
+                         if (args.length !== 1 && args.length !== 2) throw new Error("REMOVE requires NodeID or two NodeIDs for an edge.");
+                         if (args.length === 1) { // Remove Node
+                             selectNodesByIds(args[0], null);
+                             removeSelectedNode();
+                         } else { // Remove Edge
+                             selectNodesByIds(args[0], args[1]);
+                             removeSelectedEdge();
+                         }
+                         break;
+                    case "CLEAR":
+                        clearAll(); // Consider if confirmation is needed here? For now, script clears directly.
+                        break;
+                    default:
+                        throw new Error(`Unknown command: ${command}`);
+                }
+            } catch (error) {
+                logMessage("ERROR", `Script error on line ${index + 1} ('${cmd}'): ${error.message}`);
+                errors++;
+            } finally {
+                 clearSelection(); // Clear selection after each command attempt
+            }
+        });
+
+        if (errors > 0) {
+            logMessage("WARN", `Script finished with ${errors} error(s).`);
+        } else {
+            logMessage("SUCCESS", "Script finished successfully.");
+        }
+        closeModal("scriptModal");
+        ensureAnimationLoop(); // Ensure canvas updates after script run
+    }
+
+    // Helper for script execution
+    function selectNodesByIds(id1, id2) {
+        clearSelection();
+        selectedNode1 = findNodeById(id1);
+        if (!selectedNode1) throw new Error(`Node with ID '${id1}' not found.`);
+        if (id2) {
+            selectedNode2 = findNodeById(id2);
+            if (!selectedNode2) throw new Error(`Node with ID '${id2}' not found.`);
+        }
+        updateButtonStates(); // Update based on new selection
+    }
+
+    function generateScript() {
+        let script = "// Generated by RAG Simulator v2.3\n";
+        script += "// Date: " + new Date().toISOString() + "\n\n";
+        script += "// Processes\n";
+        nodes.filter(n => n.type === 'process').forEach(p => {
+            script += `ADD P "${p.id}";\n`; // Quote IDs in case they contain spaces
+        });
+        script += "\n// Resources\n";
+        nodes.filter(n => n.type === 'resource').forEach(r => {
+            script += `ADD R "${r.id}" ${r.totalInstances};\n`;
+        });
+        script += "\n// Edges\n";
+        edges.forEach(e => {
+            const fromNode = findNodeById(e.from);
+            const toNode = findNodeById(e.to);
+            if (!fromNode || !toNode) return; // Skip if nodes don't exist (shouldn't happen)
+
+            if (e.type === 'request') { // P -> R
+                script += `REQ "${e.from}" "${e.to}";\n`;
+            } else if (e.type === 'assignment') { // R -> P
+                script += `ASSIGN "${e.to}" "${e.from}"; // Note: ASSIGN takes P then R\n`;
+            }
+        });
+
+        return script;
+    }
+
+    function copyScriptToClipboard() {
+        const scriptText = exportScriptArea.value;
+        navigator.clipboard.writeText(scriptText).then(() => {
+            logMessage("SUCCESS", "Script copied to clipboard!");
+            copyScriptButton.textContent = "Copied!";
+            copyScriptButton.disabled = true;
+            setTimeout(() => {
+                 copyScriptButton.textContent = "Copy to Clipboard";
+                 copyScriptButton.disabled = false;
+            }, 1500);
+        }).catch(err => {
+            logMessage("ERROR", "Failed to copy script: " + err);
+            alert("Failed to copy script. Please copy manually.");
+        });
+    }
+
+    // --- AI Generation ---
+    async function submitAiGenerate() {
+        const userText = aiInput.value.trim();
+        if (!userText) {
+            logMessage("WARN", "AI Generate: Input text cannot be empty.");
+            aiErrorLog.textContent = "Please enter a description.";
+            aiErrorLog.style.display = 'block';
+            aiInput.focus();
+            return;
+        }
+
+        logMessage("INFO", `Sending description to AI: "${userText}"`);
+        submitAiGenerateBtn.disabled = true;
+        submitAiGenerateBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+        aiErrorLog.style.display = 'none'; // Hide previous errors
+
+        try {
+            // Make sure your Flask app is running, likely on http://127.0.0.1:5000
+            const response = await fetch('/generate-graph-from-text', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: userText }),
+            });
+
+            if (!response.ok) {
+                let errorMsg = `AI generation failed: ${response.status} ${response.statusText}`;
+                try {
+                    const errorData = await response.json();
+                    errorMsg = `AI generation failed: ${errorData.error || response.statusText}`;
+                } catch (e) { /* Ignore if response is not JSON */ }
+                throw new Error(errorMsg);
+            }
+
+            const data = await response.json();
+            const generatedScript = data.script;
+
+            if (generatedScript) {
+                logMessage("SUCCESS", `AI generated script:
+${generatedScript}`);
+                // Optionally clear existing graph before running AI script?
+                // clearAllConfirm(); // Or just run on top
+                runScript(generatedScript); // Pass script directly to runScript
+                closeModal('aiGenerateModal'); // Close modal on success
+            } else {
+                throw new Error("AI returned an empty script.");
+            }
+
+        } catch (error) {
+            console.error("AI Generation Error:", error);
+            logMessage("ERROR", `AI Generation failed: ${error.message}`);
+            aiErrorLog.textContent = `Error: ${error.message}`;
+            aiErrorLog.style.display = 'block';
+            submitAiGenerateBtn.disabled = false; // Re-enable button on error
+            submitAiGenerateBtn.innerHTML = '<i class="fa-solid fa-robot"></i> Generate';
+        }
+    }
+
+
+    // --- Deadlock Detection Logic ---
+    function detectDeadlock(visualize = false) {
+        if (isVisualizingDeadlock) {
+            logMessage("WARN", "Deadlock visualization is already in progress.");
+            return;
+        }
+        deadlockedNodes.clear(); // Clear previous results
+
+        const adj = new Map(); // Adjacency list (nodeId -> list of neighborIds)
+        const nodeMap = new Map(nodes.map(n => [n.id, n])); // For quick node lookup
+
+        // Build adjacency list from edges
+        edges.forEach(edge => {
+            if (!adj.has(edge.from)) adj.set(edge.from, []);
+            adj.get(edge.from).push(edge.to);
+        });
+
+        const visited = new Set(); // Nodes visited in the current DFS path
+        const recursionStack = new Set(); // Nodes currently in the recursion stack
+        const cyclesFound = []; // Store nodes involved in each cycle found
+
+        function dfs(nodeId) {
+            const node = nodeMap.get(nodeId);
+            if (!node) return false; // Should not happen if graph is consistent
+
+            visited.add(nodeId);
+            recursionStack.add(nodeId);
+
+            const neighbors = adj.get(nodeId) || [];
+            for (const neighborId of neighbors) {
+                if (!visited.has(neighborId)) {
+                    if (dfs(neighborId)) {
+                        // Cycle detected downstream
+                        if (cyclesFound.length === 0 || !cyclesFound[cyclesFound.length - 1].includes(nodeId)) {
+                             // Only add if this node is part of the *newly* found cycle path being unwound
+                             if (recursionStack.has(nodeId)) { // Check if it's still on the stack (part of the cycle)
+                                if (cyclesFound.length === 0 || cyclesFound[cyclesFound.length - 1][0] !== neighborId) {
+                                    // Start a new cycle list if the neighbor isn't the start of the current one
+                                    cyclesFound.push([]);
+                                }
+                                cyclesFound[cyclesFound.length - 1].unshift(nodeId); // Add to the start
+                             }
+                        }
+                        return true; // Propagate cycle found signal up
+                    }
+                } else if (recursionStack.has(neighborId)) {
+                    // Cycle detected: neighbor is already in the current recursion stack
+                    cyclesFound.push([nodeId, neighborId]); // Start the cycle list
+                    return true; // Cycle found
+                }
+            }
+
+            recursionStack.delete(nodeId); // Remove node from stack as we backtrack
+            return false;
+        }
+
+        // Run DFS from all nodes to find all possible cycles
+        for (const node of nodes) {
+            if (!visited.has(node.id)) {
+                dfs(node.id);
+            }
+        }
+
+        if (cyclesFound.length > 0) {
+            let allCycleNodes = new Set();
+            let cycleMessages = [];
+            cyclesFound.forEach((cyclePath, index) => {
+                // Refine cycle path: sometimes DFS adds extra nodes at the start during unwinding.
+                // Find the first occurrence of the end node in the path to get the true cycle.
+                const cycleStartNode = cyclePath[cyclePath.length - 1];
+                const startIndex = cyclePath.indexOf(cycleStartNode);
+                const actualCycle = cyclePath.slice(startIndex);
+
+                actualCycle.forEach(id => allCycleNodes.add(id));
+                cycleMessages.push(`Cycle ${index + 1}: ${actualCycle.join(" -> ")}`);
+            });
+
+            deadlockedNodes = allCycleNodes; // Update the set for highlighting
+            logMessage("DEADLOCK", `Deadlock detected! Involved nodes: ${Array.from(allCycleNodes).join(", ")}.`);
+            cycleMessages.forEach(msg => logMessage("VIZ_RESULT", msg)); // Log each cycle path
+            ensureAnimationLoop(); // Redraw to show highlights
+            return true; // Deadlock found
+        } else {
+            logMessage("SUCCESS", "No deadlocks detected.");
+            ensureAnimationLoop(); // Redraw to clear any previous highlights
+            return false; // No deadlock
+        }
+    }
+
+
+    // --- Deadlock Visualization Logic ---
+    function* deadlockVisualizationGenerator() {
+      logMessage("VIZ", "Starting Deadlock Visualization...");
+      yield { type: "START" }; // Signal start
+
+      const adj = new Map();
+      const nodeMap = new Map(nodes.map(n => [n.id, n]));
+      edges.forEach(edge => {
+        if (!adj.has(edge.from)) adj.set(edge.from, []);
+        adj.get(edge.from).push(edge.to);
+      });
+
+      const visited = new Set(); // Nodes fully explored
+      const recursionStack = new Set(); // Nodes in current DFS path
+      const parentMap = new Map(); // Track parent for cycle path reconstruction
+      let cycleFound = false;
+      const allCyclesNodes = new Set(); // Collect all nodes involved in any cycle
+
+      function* dfsVisualize(nodeId, depth = 0) {
+        const node = nodeMap.get(nodeId);
+        if (!node) return false;
+
+        visited.add(nodeId);
+        recursionStack.add(nodeId);
+        yield { type: "STEP", message: `${"  ".repeat(depth)}Visiting node: ${nodeId}`, highlight: nodeId, stack: Array.from(recursionStack) };
+
+        const neighbors = adj.get(nodeId) || [];
+        for (const neighborId of neighbors) {
+          parentMap.set(neighborId, nodeId); // Track parent for path reconstruction
+
+          yield { type: "STEP", message: `${"  ".repeat(depth)} Checking edge: ${nodeId} -> ${neighborId}`, highlight: [nodeId, neighborId], stack: Array.from(recursionStack) };
+
+          if (!visited.has(neighborId)) {
+            // Explore unvisited neighbor
+            const generator = dfsVisualize(neighborId, depth + 1);
+            let result = yield* generator; // Delegate to the sub-generator
+
+            if (result) { // Cycle found downstream
+              cycleFound = true; // Mark that at least one cycle was found globally
+              // Don't immediately return true here, continue checking other neighbors
+              // from the current node to find *all* cycles originating from/passing through here.
+            }
+          } else if (recursionStack.has(neighborId)) {
+            // Cycle detected! neighborId is already in the current path
+            cycleFound = true;
+            const cyclePath = [neighborId];
+            let current = nodeId;
+            while (current !== neighborId) {
+              cyclePath.unshift(current);
+              allCyclesNodes.add(current); // Add node to the set of all cycle nodes
+              current = parentMap.get(current);
+              if (!current || cyclePath.length > nodes.length) { // Safety break
+                  console.error("Error reconstructing cycle path");
+                  break;
+              }
+            }
+            cyclePath.unshift(neighborId); // Add the start node again to close the loop visually
+            allCyclesNodes.add(neighborId); // Add the final node
+
+            yield { type: "CYCLE_FOUND", message: `Cycle detected: ${cyclePath.join(" -> ")}`, cycleNodes: cyclePath };
+            // Don't return true immediately, continue searching for other cycles
+          } else {
+             yield { type: "STEP", message: `${"  ".repeat(depth)} Node ${neighborId} already visited and not in current path. Skipping.`, highlight: neighborId, stack: Array.from(recursionStack) };
+          }
+        }
+
+        recursionStack.delete(nodeId); // Backtrack
+        yield { type: "STEP", message: `${"  ".repeat(depth)}Finished exploring node: ${nodeId}. Backtracking.`, highlight: nodeId, stack: Array.from(recursionStack) };
+        // Return true if a cycle was found *during this specific invocation or its children*
+        // This signal is primarily used internally by the generator delegation (yield*)
+        // The global `cycleFound` tracks if *any* cycle was found overall.
+        // We return false here now, as we want the main loop to iterate through all nodes.
+        return false; // Let the main loop continue
+      }
+
+      // Run DFS from all nodes
+      for (const node of nodes) {
+        if (!visited.has(node.id)) {
+          parentMap.clear(); // Reset parent map for each new starting DFS tree
+          yield* dfsVisualize(node.id);
+        }
+      }
+
+      if (cycleFound) {
+        yield { type: "RESULT", message: `Deadlock visualization complete. Cycles found involving nodes: ${Array.from(allCyclesNodes).join(", ")}`, finalHighlight: Array.from(allCyclesNodes) };
+      } else {
+        yield { type: "RESULT", message: "Deadlock visualization complete. No cycles found.", finalHighlight: [] };
+      }
+    }
+
+    function startDeadlockVisualization() {
+        if (isVisualizingDeadlock) return;
+        isVisualizingDeadlock = true;
+        deadlockedNodes.clear(); // Clear previous highlights
+        deadlockVizGeneratorInstance = deadlockVisualizationGenerator();
+        bodyElement.classList.add("visualizing");
+        canvas.classList.add("visualizing");
+        updateButtonStates(); // Disable normal controls, enable viz controls
+        logMessage("VIZ", "Visualization started. Use Step/Run controls.");
+        stepDeadlockVisualization(); // Execute the first step
+    }
+
+    function stepDeadlockVisualization() {
+        if (!isVisualizingDeadlock || !deadlockVizGeneratorInstance) return;
+
+        const result = deadlockVizGeneratorInstance.next();
+        deadlockedNodes.clear(); // Clear previous step highlight
+
+        if (result.done || !result.value) {
+            logMessage("VIZ", "Visualization finished or generator yielded undefined.");
+            stopDeadlockVisualization(false); // Stop without explicit user action if done
+            return;
+        }
+
+        const stepData = result.value;
+        logMessage("VIZ_STEP", stepData.message, true); // Log step message
+
+        // Highlight based on step type
+        if (stepData.type === "STEP" || stepData.type === "CYCLE_FOUND") {
+            if (Array.isArray(stepData.highlight)) { // Edge highlight
+                // Highlight the edge (visualized by highlighting nodes in draw())
+                stepData.highlight.forEach(id => deadlockedNodes.add(id));
+            } else if (stepData.highlight) { // Node highlight
+                deadlockedNodes.add(stepData.highlight);
+            }
+            // Optionally highlight the recursion stack differently if needed
+            // if (stepData.stack) { ... }
+        }
+         if (stepData.type === "CYCLE_FOUND" && stepData.cycleNodes) {
+             stepData.cycleNodes.forEach(id => deadlockedNodes.add(id)); // Highlight cycle nodes
+             logMessage("VIZ_RESULT", `Cycle Found: ${stepData.cycleNodes.join(" -> ")}`);
+         }
+
+
+        if (stepData.type === "RESULT") {
+            logMessage(stepData.finalHighlight.length > 0 ? "DEADLOCK" : "SUCCESS", stepData.message);
+            stepData.finalHighlight.forEach(id => deadlockedNodes.add(id)); // Final highlight
+            stopDeadlockVisualization(false); // Auto-stop when result is reached
+        }
+
+        ensureAnimationLoop(); // Redraw with new highlights
+    }
+
+    function runDeadlockVisualizationToEnd() {
+        if (!isVisualizingDeadlock || !deadlockVizGeneratorInstance) return;
+
+        logMessage("VIZ", "Running visualization to end...");
+        let result;
+        let finalData = null;
+        let steps = 0;
+        const maxSteps = nodes.length * nodes.length * 2; // Safety break
+
+        // Temporarily disable step-by-step logging during run-to-end for performance
+        const originalRenderLogs = renderLogs;
+        renderLogs = () => {}; // No-op
+
+        do {
+            result = deadlockVizGeneratorInstance.next();
+            if (!result.done && result.value) {
+                finalData = result.value; // Keep track of the last yielded value
+                 if (finalData.type === "CYCLE_FOUND") {
+                     logMessage("VIZ_RESULT", `Cycle Found: ${finalData.cycleNodes.join(" -> ")}`); // Log cycles even when running fast
+                 }
+            }
+            steps++;
+        } while (!result.done && steps < maxSteps);
+
+        renderLogs = originalRenderLogs; // Restore logging
+
+        if (steps >= maxSteps) {
+             logMessage("ERROR", "Visualization run exceeded maximum steps. Stopping.");
+        }
+
+        // Process the final result state
+        deadlockedNodes.clear();
+        if (finalData && finalData.type === "RESULT") {
+            logMessage(finalData.finalHighlight.length > 0 ? "DEADLOCK" : "SUCCESS", finalData.message);
+            finalData.finalHighlight.forEach(id => deadlockedNodes.add(id));
+        } else if (cycleFound) { // Fallback if generator finished unexpectedly after finding a cycle
+             logMessage("DEADLOCK", "Visualization finished. Cycles were detected.");
+             // Highlight all nodes found in cycles during the run (might require collecting them)
+             // For simplicity, we might just rely on the last 'finalHighlight' if available
+        } else {
+             logMessage("SUCCESS", "Visualization finished. No cycles detected.");
+        }
+
+        stopDeadlockVisualization(false); // Stop viz state
+        renderLogs(); // Render all collected logs at once
+        ensureAnimationLoop(); // Final redraw
+    }
+
+
+    function stopDeadlockVisualization(log = true) {
+        if (!isVisualizingDeadlock) return;
+        isVisualizingDeadlock = false;
+        deadlockVizGeneratorInstance = null;
+        bodyElement.classList.remove("visualizing");
+        canvas.classList.remove("visualizing");
+        // Don't clear deadlockedNodes here if we want the final result to persist
+        updateButtonStates();
+        if (log) logMessage("VIZ", "Visualization stopped by user.");
+        ensureAnimationLoop(); // Redraw to ensure correct state
+    }
+
+
+    // --- UI Updates ---
+    function updateButtonStates() {
+      const oneSelected = selectedNode1 && !selectedNode2;
+      const twoSelected = selectedNode1 && selectedNode2;
+      const processSelected = (selectedNode1?.type === 'process') || (selectedNode2?.type === 'process');
+      const resourceSelected = (selectedNode1?.type === 'resource') || (selectedNode2?.type === 'resource');
+      const pAndRSelected = processSelected && resourceSelected && twoSelected;
+
+      // Normal Controls
+      requestEdgeBtn.disabled = !pAndRSelected || isVisualizingDeadlock;
+      assignEdgeBtn.disabled = !pAndRSelected || isVisualizingDeadlock;
+      releaseResourceBtn.disabled = !pAndRSelected || isVisualizingDeadlock;
+      removeEdgeBtn.disabled = !twoSelected || isVisualizingDeadlock;
+      removeNodeBtn.disabled = !oneSelected || isVisualizingDeadlock;
+      editNodeBtn.disabled = !oneSelected || isVisualizingDeadlock; // Enable edit for one selected node
+      visualizeDeadlockBtn.disabled = isVisualizingDeadlock || nodes.length === 0;
+      directDeadlockBtn.disabled = isVisualizingDeadlock || nodes.length === 0;
+      clearSelectionBtn.disabled = !selectedNode1 || isVisualizingDeadlock; // Disable if nothing selected
+      scriptButton.disabled = isVisualizingDeadlock;
+      exportScriptButton.disabled = isVisualizingDeadlock || nodes.length === 0;
+      clearAllButton.disabled = isVisualizingDeadlock;
+      aboutButton.disabled = isVisualizingDeadlock;
+      darkModeToggle.disabled = isVisualizingDeadlock;
+
+      // Disable add buttons during visualization too
+      addProcessBtn.disabled = isVisualizingDeadlock;
+      addResourceBtn.disabled = isVisualizingDeadlock;
+
+
+      // Visualization Controls (only relevant if isVisualizingDeadlock is true)
+      stepDeadlockVizBtn.disabled = !isVisualizingDeadlock;
+      runDeadlockVizBtn.disabled = !isVisualizingDeadlock;
+      stopDeadlockVizBtn.disabled = !isVisualizingDeadlock;
+
+      // Update button text/icons based on selection for context
+       if (pAndRSelected) {
+            let pNode = selectedNode1.type === 'process' ? selectedNode1 : selectedNode2;
+            let rNode = selectedNode1.type === 'resource' ? selectedNode1 : selectedNode2;
+            requestEdgeBtn.title = `Request ${rNode.id} for ${pNode.id} (Q)`;
+            assignEdgeBtn.title = `Assign ${rNode.id} to ${pNode.id} (A)`;
+            releaseResourceBtn.title = `Release ${rNode.id} from ${pNode.id} (L)`;
+       } else {
+            requestEdgeBtn.title = "Shortcut: Q";
+            assignEdgeBtn.title = "Shortcut: A";
+            releaseResourceBtn.title = "Shortcut: L";
+       }
+       if (oneSelected) {
+           removeNodeBtn.title = `Remove ${selectedNode1.id} (Delete/Bksp/X)`;
+           editNodeBtn.title = `Edit ${selectedNode1.id} (M)`;
+       } else {
+           removeNodeBtn.title = "Shortcut: Delete/Backspace/X";
+           editNodeBtn.title = "Shortcut: M";
+       }
+       if (twoSelected) {
+           removeEdgeBtn.title = `Remove edge between ${selectedNode1.id} and ${selectedNode2.id}`;
+       } else {
+           removeEdgeBtn.title = "Remove Edge";
+       }
+    }
+
+    // --- Event Listeners ---
+    function setupEventListeners() {
+      // Buttons
+      addProcessBtn.addEventListener("click", () => openModal("addProcessModal"));
+      addResourceBtn.addEventListener("click", () => openModal("addResourceModal"));
+      requestEdgeBtn.addEventListener("click", () => addEdge("request"));
+      assignEdgeBtn.addEventListener("click", () => addEdge("assignment"));
+      releaseResourceBtn.addEventListener("click", releaseResource);
+      removeEdgeBtn.addEventListener("click", removeSelectedEdge);
+      removeNodeBtn.addEventListener("click", removeSelectedNode);
+      editNodeBtn.addEventListener("click", () => { // Open correct edit modal
+          if (selectedNode1?.type === 'process') openModal('editProcessModal');
+          else if (selectedNode1?.type === 'resource') openModal('editResourceModal');
+      });
+      visualizeDeadlockBtn.addEventListener("click", startDeadlockVisualization);
+      directDeadlockBtn.addEventListener("click", () => detectDeadlock(false)); // Direct detection
+      clearSelectionBtn.addEventListener("click", clearSelection);
+      scriptButton.addEventListener("click", () => openModal("scriptModal"));
+      exportScriptButton.addEventListener("click", () => openModal("exportModal"));
+      aiGenerateBtn.addEventListener("click", () => openModal('aiGenerateModal'));
+      clearAllButton.addEventListener("click", clearAll);
+      aboutButton.addEventListener("click", () => openModal("aboutModal"));
+      darkModeToggle.addEventListener("click", toggleDarkMode); // Dark Mode Toggle
+
+      // Visualization Buttons
+      stepDeadlockVizBtn.addEventListener("click", stepDeadlockVisualization);
+      runDeadlockVizBtn.addEventListener("click", runDeadlockVisualizationToEnd);
+      stopDeadlockVizBtn.addEventListener("click", () => stopDeadlockVisualization(true)); // Stop via button logs message
+
+      // Copy Script Button
+      copyScriptButton.addEventListener("click", copyScriptToClipboard);
+
+
+      // Canvas Interaction
+      canvas.addEventListener("mousedown", handleMouseDown);
+      canvas.addEventListener("mousemove", handleMouseMove);
+      canvas.addEventListener("mouseup", handleMouseUp);
+      canvas.addEventListener("dblclick", handleDoubleClick); // Handle double click for editing
+
+      // Keyboard Shortcuts
+      window.addEventListener("keydown", handleKeyDown);
+
+      // Modal Enter Key Submission
+      processIdInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submitAddProcess(); });
+      resourceIdInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submitAddResource(); });
+      resourceInstancesInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submitAddResource(); });
+      editProcessIdInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submitEditProcess(); });
+      editResourceIdInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submitEditResource(); });
+      editResourceInstancesInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submitEditResource(); });
+      // Don't submit script modal on Enter in textarea, allow newlines
+      aiInput.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' && !event.shiftKey) { // Allow Shift+Enter for newlines
+              event.preventDefault(); // Prevent default newline in textarea
+              submitAiGenerate();
+          }
+      });
+    }
+
+    function handleMouseDown(e) {
+      if (isVisualizingDeadlock) return; // Ignore clicks during visualization
+      const pos = getMousePos(canvas, e);
+      const clickedNode = getNodeAtPos(pos.x, pos.y);
+
+      if (clickedNode){
+        draggingNode = clickedNode;
+        dragOffsetX = pos.x - clickedNode.x;
+        dragOffsetY = pos.y - clickedNode.y;
+        // Don't select immediately on mousedown, wait for mouseup without drag
+      } else {
+        // Clicked on empty space - potentially start clearing selection on mouseup
+        draggingNode = null;
+      }
+      ensureAnimationLoop(); // Start animation loop for potential drag
+    }
+
+    function handleMouseMove(e) {
+      if (draggingNode && !isVisualizingDeadlock) {
+        const pos = getMousePos(canvas, e);
+        draggingNode.x = pos.x - dragOffsetX;
+        draggingNode.y = pos.y - dragOffsetY;
+        // Keep node within canvas bounds (optional)
+        const padding = (draggingNode.type === 'process' ? PROCESS_RADIUS : RESOURCE_SIZE / 2) * (draggingNode.currentScale ?? 1.0);
+        draggingNode.x = Math.max(padding, Math.min(canvas.clientWidth - padding, draggingNode.x));
+        draggingNode.y = Math.max(padding, Math.min(canvas.clientHeight - padding, draggingNode.y));
+        ensureAnimationLoop(); // Ensure redraw during drag
+      }
+    }
+
+    function handleMouseUp(e) {
+        if (isVisualizingDeadlock) return;
+        const pos = getMousePos(canvas, e);
+        const clickedNode = getNodeAtPos(pos.x, pos.y); // Check node at mouseup position
+
+        if (draggingNode) {
+            // If we were dragging a node, check if it moved significantly
+            const dx = pos.x - (draggingNode.x + dragOffsetX);
+            const dy = pos.y - (draggingNode.y + dragOffsetY);
+            const movedDistance = Math.sqrt(dx*dx + dy*dy);
+
+            if (movedDistance < 5) { // Threshold to differentiate click from drag
+                // It was a click on the node we started dragging
+                handleNodeSelection(draggingNode);
+            } else {
+                 logMessage("INFO", `Moved ${draggingNode.type} '${draggingNode.id}'.`);
+            }
+        } else if (clickedNode) {
+             // Clicked on a node without starting a drag on it (unlikely but possible)
+             handleNodeSelection(clickedNode);
+        } else {
+            // Clicked on empty space, clear selection
+            clearSelection();
+        }
+
+        draggingNode = null; // End drag operation
+        updateButtonStates();
+        ensureAnimationLoop(); // Redraw needed for selection changes or final drag position
+    }
+
+    function handleDoubleClick(e) {
+        if (isVisualizingDeadlock) return;
+        const pos = getMousePos(canvas, e);
+        const clickedNode = getNodeAtPos(pos.x, pos.y);
+
+        if (clickedNode) {
+            // Select the node first
+            selectedNode1 = clickedNode;
+            selectedNode2 = null;
+            updateButtonStates(); // Update buttons to enable edit
+
+            // Open the appropriate edit modal
+            if (clickedNode.type === 'process') {
+                openModal('editProcessModal');
+            } else if (clickedNode.type === 'resource') {
+                openModal('editResourceModal');
+            }
+            ensureAnimationLoop(); // Redraw selection highlight
+        }
+    }
+
+    function handleNodeSelection(node) {
+        if (!node) return;
+
+        if (!selectedNode1) {
+            selectedNode1 = node;
+        } else if (!selectedNode2) {
+            if (node.id !== selectedNode1.id) {
+                selectedNode2 = node;
+            } else {
+                // Clicked the same node again, deselect it
+                selectedNode1 = null;
+            }
+        } else {
+            // Both are selected, start fresh with the new click
+            selectedNode1 = node;
+            selectedNode2 = null;
+        }
+        deadlockedNodes.clear(); // Clear deadlock highlights when selection changes
+        updateButtonStates();
+        ensureAnimationLoop();
+    }
+
+
+    function handleKeyDown(e) {
+      // Ignore keydowns if a modal is open and the target is an input/textarea
+      if (activeModal && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+        // Allow Escape key even in modals to close them
+        if (e.key === "Escape") {
+             closeModal(activeModal);
+        }
+        return;
+      }
+       // Allow Escape key during visualization to stop it
+       if (isVisualizingDeadlock && e.key === "Escape") {
+           stopDeadlockVisualization(true);
+           return; // Don't process other keys during viz
+       }
+       // Allow Space/R during visualization for controls
+       if (isVisualizingDeadlock) {
+           if (e.key === " ") { // Spacebar
+               e.preventDefault(); // Prevent page scroll
+               stepDeadlockVisualization();
+           } else if (e.key.toUpperCase() === "R") {
+               runDeadlockVisualizationToEnd();
+           }
+           return; // Don't process other keys during viz
+       }
+
+      // Normal mode shortcuts (only when no modal is active)
+      switch (e.key.toUpperCase()) {
+        case "P": addProcessBtn.click(); break;
+        case "R": addResourceBtn.click(); break;
+        case "Q": if (!requestEdgeBtn.disabled) requestEdgeBtn.click(); break;
+        case "A": if (!assignEdgeBtn.disabled) assignEdgeBtn.click(); break;
+        case "L": if (!releaseResourceBtn.disabled) releaseResourceBtn.click(); break;
+        case "DELETE":
+        case "BACKSPACE":
+        case "X":
+          if (!removeNodeBtn.disabled) removeNodeBtn.click();
+          break;
+        case "M": // Edit shortcut
+           if (!editNodeBtn.disabled) editNodeBtn.click();
+           break;
+        case "D": if (!visualizeDeadlockBtn.disabled) visualizeDeadlockBtn.click(); break;
+        case "K": if (!directDeadlockBtn.disabled) directDeadlockBtn.click(); break; // Direct Detect shortcut
+        case "G": // Shortcut for AI Generate
+            e.preventDefault(); // Prevent default browser behavior if any
+            if (!aiGenerateBtn.disabled) aiGenerateBtn.click(); // Use button click to handle disabled state
+            break;
+        case "ESCAPE":
+            if (selectedNode1) { // Only clear selection if something is selected
+                clearSelectionBtn.click();
+            } else if (activeModal) { // Close modal if open and no selection
+                closeModal(activeModal);
+            }
+          break;
+        case "C": if (!clearAllButton.disabled) clearAllButton.click(); break;
+        case "E": if (!exportScriptButton.disabled) exportScriptButton.click(); break; // Export shortcut
+        case "T": if (!darkModeToggle.disabled) darkModeToggle.click(); break; // Dark Mode Toggle Shortcut
+      }
+    }
+
+    // --- Scripting ---
+    function runScript(scriptText = scriptInput.value) {
         const commands = scriptText.split(/;|\n/).map(cmd => cmd.trim()).filter(cmd => cmd && !cmd.startsWith("//"));
 
         logMessage("INFO", `Running script with ${commands.length} commands...`);
