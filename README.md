@@ -1,4 +1,5 @@
-# Resource Allocation Graph Simulator with Deadlock detection
+# Uni-Project
+## Resource Allocation Graph Simulator with Deadlock detection
 
 **Version:** 2.2
 **Authors:** Amit, Anurag, Himanshu
